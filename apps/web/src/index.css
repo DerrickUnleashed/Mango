@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  --color-orchard-50: #f0f9f1;
+  --color-orchard-100: #dcf0e0;
+  --color-orchard-200: #bce1c4;
+  --color-orchard-300: #8fcba0;
+  --color-orchard-400: #5daf77;
+  --color-orchard-500: #3a9256;
+  --color-orchard-600: #2a7543;
+  --color-orchard-700: #235d37;
+  --color-orchard-800: #1f4a2e;
+  --color-orchard-900: #1a3d27;
+  --color-orchard-950: #0d2216;
+
+  --color-surface-50: #fafafa;
+  --color-surface-100: #f4f4f5;
+  --color-surface-200: #e4e4e7;
+  --color-surface-300: #d4d4d8;
+  --color-surface-400: #a1a1aa;
+  --color-surface-500: #71717a;
+  --color-surface-600: #52525b;
+  --color-surface-700: #3f3f46;
+  --color-surface-800: #27272a;
+  --color-surface-900: #18181b;
+  --color-surface-950: #09090b;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+  body {
+    @apply bg-surface-950 text-surface-50;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-orchard-400;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-surface-900/70 border border-surface-800 backdrop-blur;
+  }
+}
