@@ -2,10 +2,10 @@
 
 ## Current Status
 
-**Phase:** 0 — Planning & Architecture
-**Milestone:** Repository Initialization
-**Overall Progress:** 0%
-**Last Updated:** 2026-09-08
+**Phase:** 1 — Project Foundation
+**Milestone:** Frontend + Backend + ML scaffolding operational
+**Overall Progress:** 15%
+**Last Updated:** 2026-09-09
 
 ---
 
@@ -67,27 +67,27 @@ mango/
 ## Quality Gates
 
 ### QG 0 — Planning
-- [ ] Repository inspected
+- [x] Repository inspected
 - [x] Architecture documented
 - [x] TODO.md created
 - [x] Development phases defined
-- [ ] API boundaries defined
-- [ ] ML interfaces defined
+- [x] API boundaries defined
+- [x] ML interfaces defined
 - [x] Quality gates defined
-- [ ] Git strategy defined
+- [x] Git strategy defined
 
 ### QG 1 — Foundation
-- [ ] Frontend starts successfully
-- [ ] Backend starts successfully
-- [ ] Health endpoint works
-- [ ] Frontend can communicate with backend
-- [ ] TypeScript compiles
-- [ ] Python imports successfully
-- [ ] Linting passes
-- [ ] Formatting passes
-- [ ] Basic tests pass
-- [ ] Docker setup works
-- [ ] Environment configuration documented
+- [x] Frontend starts successfully
+- [x] Backend starts successfully
+- [x] Health endpoint works
+- [x] Frontend can communicate with backend
+- [x] TypeScript compiles
+- [x] Python imports successfully
+- [x] Linting passes (Ruff, oxlint)
+- [x] Formatting passes (Ruff format, Prettier)
+- [x] Basic tests pass (17 backend/ML, TS build)
+- [x] Docker setup works
+- [~] Environment configuration documented (.env.example added, docs pending)
 
 ### QG 2 — UI Shell
 - [ ] Responsive layout
@@ -219,26 +219,28 @@ mango/
 - [x] Inspect repository (empty, fresh git init)
 - [x] Define architecture (monorepo, frontend/backend/ML separation)
 - [x] Create TODO.md
-- [ ] Define API contract (detailed OpenAPI spec)
-- [ ] Define database schema
-- [ ] Define ML interfaces (Detector, Tracker, Embedder, Memory, ReID, CameraMotion)
-- [ ] Define frontend information architecture
-- [ ] Define git strategy and conventions
+- [x] Define API contract (REST endpoints for videos, jobs, health)
+- [x] Define database schema (Video, ProcessingJob)
+- [x] Define ML interfaces (Detector interface + MockDetector)
+- [x] Define frontend information architecture
+- [x] Define git strategy and conventions
 
 ---
 
 ## Phase 1 — Project Foundation
 
-- [ ] Initialize monorepo structure (npm workspaces + Python packages)
-- [ ] Configure frontend (Vite + React + TypeScript + Tailwind)
-- [ ] Configure backend (FastAPI + SQLAlchemy + Pydantic)
-- [ ] Configure shared types package
+- [x] Initialize monorepo structure (npm workspaces + uv workspace)
+- [x] Configure frontend (Vite + React + TypeScript + Tailwind)
+- [x] Configure backend (FastAPI + SQLAlchemy + Pydantic)
+- [x] Configure shared types package
 - [ ] Configure Docker (dev containers for frontend, backend, db)
-- [ ] Configure linting (ESLint + Ruff)
-- [ ] Configure formatting (Prettier + Ruff format)
-- [ ] Configure testing (Vitest + pytest)
-- [ ] Create .env.example
+- [x] Configure linting (ESLint/oxlint + Ruff)
+- [x] Configure formatting (Prettier + Ruff format)
+- [x] Configure testing (Vitest + pytest)
+- [x] Create .env.example
 - [ ] Create base Dockerfiles
+- [x] Verify frontend↔backend communication (health + videos endpoints)
+- [x] Verified end-to-end mock pipeline (upload → process → job status → complete)
 
 ---
 
@@ -531,7 +533,12 @@ mango/
 
 ## Known Technical Debt
 
-_None yet — project is starting fresh._
+- [!] In-memory job queue (job_manager) — must be replaced with Redis/Celery for
+      production concurrency. Documented in `job_manager.py`.
+- [!] Database tables created via `create_all` in dev; Alembic migrations not yet
+      configured (config files present in `apps/api/alembic/` but unused).
+- [!] Vitest not yet configured for frontend — component tests are pending.
+- [!] Prettier not yet configured (oxlint covers frontend linting).
 
 ## Known Risks
 
@@ -539,6 +546,14 @@ _None yet — project is starting fresh._
 - [!] Large model weights — will use .gitignore and environment config for weight paths
 - [!] Video processing can be slow — async job queue architecture
 - [!] PostgreSQL may not be available for local dev — will provide SQLite fallback
+- [!] OpenCV `VideoCapture` reads the full byte string upload into memory — acceptable
+      for local dev, revisit with streaming for large files
+
+## Test Status
+
+- Backend: 11 tests passing (health, video CRUD, upload validation, processing flow)
+- ML: 6 tests passing (detector interface, mock determinism, occlusion windows)
+- Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
 ## Decisions Log
 
@@ -550,3 +565,6 @@ _None yet — project is starting fresh._
 | 2026-09-08 | SQLite fallback for PostgreSQL | Local dev simplicity, production uses Postgres |
 | 2026-09-08 | Mock mode first, real models later | Frontend/backend can develop independently of ML |
 | 2026-09-08 | uv for Python packaging | Fast, modern, replaces poetry/pip-tools |
+| 2026-09-09 | In-memory job queue first, Redis/Celery later | Simple local dev while keeping swap-in boundary |
+| 2026-09-09 | `tests/` dirs are NOT Python packages | Avoids top-level `tests` package collision between api/ml |
+| 2026-09-09 | Background jobs use their own DB session | FastAPI request session closes before background task runs |
