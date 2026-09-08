@@ -1,0 +1,5 @@
+[tool.uv.workspace]
+members = ["apps/api", "ml"]
+
+[tool.uv.sources]
+orchardvision-ml = { workspace = true }
