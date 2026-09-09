@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
-from typing import Annotated
+import csv
+from datetime import datetime, timezone
+from io import StringIO
+import json
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
+from starlette.responses import Response
+from typing import Annotated
 
 from app.core.database import get_db
 from app.core.errors import ConflictError, NotFoundError
@@ -39,7 +43,7 @@ def _run_experiment(experiment: Experiment) -> None:
         )
         experiment.status = ExperimentStatus.COMPLETED
         experiment.metrics = report.to_dict()
-        experiment.completed_at = datetime.now(UTC)
+        experiment.completed_at = datetime.now(timezone.utc)
     except Exception as exc:  # pragma: no cover - defensive
         experiment.status = ExperimentStatus.FAILED
         experiment.error = str(exc)
@@ -86,6 +90,42 @@ def get_experiment(experiment_id: str, db: Annotated[Session, Depends(get_db)]) 
     if not experiment:
         raise NotFoundError("experiment_not_found", f"Experiment {experiment_id} not found")
     return experiment.to_dict()
+
+
+@router.get("/{experiment_id}/export")
+def export_experiment(
+    experiment_id: str,
+    db: Annotated[Session, Depends(get_db)],
+    format: Annotated[str, Query(pattern="^(json|csv)$")] = "json",
+) -> Response:
+    """Download one experiment's results as JSON or CSV."""
+    experiment = db.get(Experiment, experiment_id)
+    if not experiment:
+        raise NotFoundError("experiment_not_found", f"Experiment {experiment_id} not found")
+
+    payload = experiment.to_dict()
+    if format == "json":
+        content = json.dumps(payload, indent=2)
+        media_type = "application/json"
+    else:
+        rows = list(payload["config"].items()) if payload["config"] else []
+        rows += [("status", payload["status"]), ("numFrames", payload["numFrames"])]
+        if payload["metrics"]:
+            rows += [("metric:" + k, v) for k, v in payload["metrics"].items()]
+        rows += [("createdAt", payload["createdAt"]), ("completedAt", payload["completedAt"])]
+        stream = StringIO()
+        writer = csv.writer(stream)
+        writer.writerow(["field", "value"])
+        writer.writerows(rows)
+        content = stream.getvalue()
+        media_type = "text/csv"
+
+    filename = f"experiment-{experiment.id}.{format}"
+    return Response(
+        content=content,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.delete("/{experiment_id}")

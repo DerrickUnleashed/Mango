@@ -21,3 +21,8 @@ export function createExperiment(
 export function deleteExperiment(id: string): Promise<{ ok: boolean }> {
   return apiRequest<{ ok: boolean }>(`/experiments/${id}`, { method: 'DELETE' })
 }
+
+export function exportExperiment(id: string, format: 'json' | 'csv'): void {
+  const url = `${import.meta.env.VITE_API_URL || '/api'}/experiments/${id}/export?format=${format}`
+  window.location.href = url
+}

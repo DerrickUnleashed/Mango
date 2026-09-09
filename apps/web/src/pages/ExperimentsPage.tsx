@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   createExperiment,
   deleteExperiment,
+  exportExperiment,
   getExperiments,
 } from '../api/experiments'
 import type { Experiment, ExperimentMetrics } from '@orchardvision/types'
@@ -250,12 +251,30 @@ function ExperimentRow({
             </button>
           </div>
         ) : (
-          <button
-            onClick={onAskDelete}
-            className="rounded-lg border border-surface-700 px-3 py-1.5 text-xs text-surface-400 hover:text-surface-200"
-          >
-            Delete
-          </button>
+          <div className="flex items-center gap-2">
+            {experiment.status !== 'running' && (
+              <>
+                <button
+                  onClick={() => exportExperiment(experiment.id, 'json')}
+                  className="rounded-lg border border-surface-700 px-3 py-1.5 text-xs text-surface-400 hover:text-surface-200"
+                >
+                  Export JSON
+                </button>
+                <button
+                  onClick={() => exportExperiment(experiment.id, 'csv')}
+                  className="rounded-lg border border-surface-700 px-3 py-1.5 text-xs text-surface-400 hover:text-surface-200"
+                >
+                  Export CSV
+                </button>
+              </>
+            )}
+            <button
+              onClick={onAskDelete}
+              className="rounded-lg border border-surface-700 px-3 py-1.5 text-xs text-red-400 hover:text-red-300"
+            >
+              Delete
+            </button>
+          </div>
         )}
       </div>
 

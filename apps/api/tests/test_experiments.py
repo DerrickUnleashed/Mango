@@ -70,3 +70,29 @@ def test_invalid_tracker_rejected(client: TestClient) -> None:
         json={"tracker": "not-a-tracker", "num_frames": 30},
     )
     assert response.status_code == 422
+
+
+def test_export_json(client: TestClient) -> None:
+    experiment = _run_experiment(client)
+    response = client.get(f"/api/experiments/{experiment['id']}/export?format=json")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/json")
+    payload = response.json()
+    assert payload["id"] == experiment["id"]
+    assert "hota" in payload["metrics"]
+
+
+def test_export_csv(client: TestClient) -> None:
+    experiment = _run_experiment(client)
+    response = client.get(f"/api/experiments/{experiment['id']}/export?format=csv")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/csv")
+    text = response.text
+    assert "metric:hota" in text
+    assert text.startswith("field,value")
+
+
+def test_export_rejects_unknown_format(client: TestClient) -> None:
+    experiment = _run_experiment(client)
+    response = client.get(f"/api/experiments/{experiment['id']}/export?format=xml")
+    assert response.status_code == 422
