@@ -42,6 +42,25 @@ export interface IdentityListResponse {
   total: number
 }
 
+export interface PersistedIdentity {
+  id: string
+  videoId: string
+  identityId: number
+  quality: number
+  observationCount: number
+  firstFrameId: number
+  lastFrameId: number
+  lastTrackId: number | null
+  isConfident: boolean
+  prototype: number[]
+  createdAt: string | null
+}
+
+export interface PersistedIdentityListResponse {
+  identities: PersistedIdentity[]
+  total: number
+}
+
 export interface ReIdentificationEvent {
   id: string
   videoId: string

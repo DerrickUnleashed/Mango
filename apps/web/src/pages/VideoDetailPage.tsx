@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useProcessVideo, useVideo } from '../hooks/useVideos'
 import { useToast } from '../components/ui/useToast'
+import { IdentitiesPanel } from '../components/tracking/IdentitiesPanel'
 import { TrackVisualizer } from '../components/tracking/TrackVisualizer'
 
 export function VideoDetailPage() {
@@ -65,6 +66,9 @@ export function VideoDetailPage() {
           enabled
         />
       )}
+
+      {/* Learned identities — shown once the video has been processed */}
+      {v.status === 'processed' && <IdentitiesPanel videoId={v.id} enabled />}
 
       {/* Preview area — frame visualization will be implemented in a later phase */}
       <div className="flex aspect-video items-center justify-center rounded-xl border border-surface-800 bg-surface-950">

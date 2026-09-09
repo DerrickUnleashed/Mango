@@ -7,6 +7,7 @@ import type {
 import {
   deleteVideo,
   getHealth,
+  getIdentities,
   getTracks,
   getVideo,
   getVideos,
@@ -42,6 +43,14 @@ export function useTracks(videoId: string, enabled: boolean) {
   })
 }
 
+export function useIdentities(videoId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['videos', videoId, 'identities'],
+    queryFn: () => getIdentities(videoId),
+    enabled: enabled && Boolean(videoId),
+  })
+}
+
 export function useUploadVideo(onSuccess?: (video: Video) => void) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -70,6 +79,12 @@ export function useProcessVideo() {
     mutationFn: ({ videoId, request }) => processVideo(videoId, request),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['videos', variables.videoId] })
+      queryClient.invalidateQueries({
+        queryKey: ['videos', variables.videoId, 'tracks'],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['videos', variables.videoId, 'identities'],
+      })
     },
   })
 }
