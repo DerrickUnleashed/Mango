@@ -1,4 +1,19 @@
-import type { CameraMotionMode } from './common'
+export interface CameraMotionEstimate {
+  id: string
+  videoId: string
+  source: string
+  dxPerFrame: number
+  dyPerFrame: number
+  meanAbsShift: number
+  framesAnalyzed: number
+  confidence: number
+  compensationApplied: boolean
+}
+
+export interface MultiMotionResponse {
+  estimate: CameraMotionEstimate | null
+  compensationApplied: boolean | null
+}
 
 export interface AnalyticsSummary {
   videoId: string
@@ -35,14 +50,4 @@ export interface DistributionBin {
 export interface DistanceMetric {
   name: string
   value: number
-}
-
-export interface CameraMotionEstimate {
-  frameId: number
-  mode: CameraMotionMode
-  translateX: number
-  translateY: number
-  scale: number
-  rotation: number
-  confidence: number
 }

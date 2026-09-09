@@ -1,4 +1,5 @@
 import type {
+  CameraMotionEstimate,
   PersistedDetectionListResponse,
   PersistedIdentityListResponse,
   PersistedReidListResponse,
@@ -37,6 +38,12 @@ export function getDetections(
 ): Promise<PersistedDetectionListResponse> {
   const query = frameId === undefined ? '' : `?frame_id=${frameId}`
   return apiRequest<PersistedDetectionListResponse>(`/videos/${id}/detections${query}`)
+}
+
+export function getMotionEstimate(id: string): Promise<CameraMotionEstimate | null> {
+  return apiRequest<{ estimate: CameraMotionEstimate | null }>(
+    `/videos/${id}/motion`,
+  ).then((body) => body.estimate)
 }
 
 export function uploadVideo(

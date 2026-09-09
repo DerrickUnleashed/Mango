@@ -9,6 +9,7 @@ import {
   getDetections,
   getHealth,
   getIdentities,
+  getMotionEstimate,
   getReidEvents,
   getTracks,
   getVideo,
@@ -61,6 +62,14 @@ export function useReidEvents(videoId: string, enabled: boolean) {
   })
 }
 
+export function useMotionEstimate(videoId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['videos', videoId, 'motion'],
+    queryFn: () => getMotionEstimate(videoId),
+    enabled: enabled && Boolean(videoId),
+  })
+}
+
 export function useFrameDetections(videoId: string, frameId: number, enabled: boolean) {
   return useQuery({
     queryKey: ['videos', videoId, 'detections', frameId],
@@ -108,6 +117,9 @@ export function useProcessVideo() {
       })
       queryClient.invalidateQueries({
         queryKey: ['videos', variables.videoId, 'detections'],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['videos', variables.videoId, 'motion'],
       })
     },
   })

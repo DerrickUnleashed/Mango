@@ -45,6 +45,7 @@ export interface ProcessVideoRequest {
   confidenceThreshold?: number
   inferenceMode?: 'mock' | 'real'
   tracker?: 'mock' | 'bytetrack'
+  cameraMotion?: 'static' | 'drift'
   maxFrames?: number
 }
 

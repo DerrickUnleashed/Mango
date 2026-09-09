@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useProcessVideo, useVideo } from '../hooks/useVideos'
 import { useToast } from '../components/ui/useToast'
 import { IdentitiesPanel } from '../components/tracking/IdentitiesPanel'
+import { MotionPanel } from '../components/tracking/MotionPanel'
 import { ReIdPanel } from '../components/tracking/ReIdPanel'
 import { TrackVisualizer } from '../components/tracking/TrackVisualizer'
 
@@ -12,13 +13,14 @@ export function VideoDetailPage() {
   const video = useVideo(videoId)
   const process = useProcessVideo()
   const [tracker, setTracker] = useState<'mock' | 'bytetrack'>('mock')
+  const [cameraMotion, setCameraMotion] = useState<'static' | 'drift'>('static')
 
   const job = video.data?.processingJob ?? null
   const isProcessing = job?.status === 'running' || job?.status === 'queued'
 
   function startProcessing() {
     process.mutate(
-      { videoId, request: { inferenceMode: 'mock', tracker } },
+      { videoId, request: { inferenceMode: 'mock', tracker, cameraMotion } },
       {
         onSuccess: () => push('Processing started', 'success'),
         onError: (err) => push(`Failed to start: ${err.message}`, 'error'),
@@ -74,6 +76,9 @@ export function VideoDetailPage() {
       {/* Re-identification recoveries — shown once the video has been processed */}
       {v.status === 'processed' && <ReIdPanel videoId={v.id} enabled />}
 
+      {/* Camera motion estimate — shown once the video has been processed */}
+      {v.status === 'processed' && <MotionPanel videoId={v.id} enabled />}
+
       {/* Preview area — frame visualization will be implemented in a later phase */}
       <div className="flex aspect-video items-center justify-center rounded-xl border border-surface-800 bg-surface-950">
         <div className="text-center">
@@ -113,6 +118,25 @@ export function VideoDetailPage() {
             >
               <option value="mock">Mock</option>
               <option value="bytetrack">ByteTrack</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label
+              className="text-xs font-medium text-surface-400"
+              htmlFor="motion-select"
+              title="Simulate a drifting camera and stabilize tracks via motion compensation"
+            >
+              Camera
+            </label>
+            <select
+              id="motion-select"
+              value={cameraMotion}
+              onChange={(e) => setCameraMotion(e.target.value as 'static' | 'drift')}
+              disabled={isProcessing || process.isPending}
+              className="rounded-lg border border-surface-700 bg-surface-900 px-3 py-2 text-sm text-surface-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="static">Static</option>
+              <option value="drift">Drift</option>
             </select>
           </div>
           <button
