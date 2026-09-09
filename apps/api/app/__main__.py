@@ -38,7 +38,7 @@ def main() -> None:
     environment = os.environ.get("ENVIRONMENT", "development").lower()
     workers = _resolve_workers()
     common = {
-        "host": os.environ.get("HOST", "0.0.0.0"),
+        "host": os.environ.get("HOST", "0.0.0.0"),  # noqa: S104  (server binding)
         "port": _resolve_port(),
         "log_level": "warning" if environment == "production" else "info",
     }
