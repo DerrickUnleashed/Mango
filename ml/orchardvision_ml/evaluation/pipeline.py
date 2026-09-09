@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 
 from orchardvision_ml.detection import MockDetector
-from orchardvision_ml.tracking import MockTracker
+from orchardvision_ml.tracking import ByteTrackAdapter, MockTracker, Tracker
 from orchardvision_ml.tracking.base import TrackResult
 
 from .metrics import MetricsReport, evaluate
@@ -16,6 +16,12 @@ from .tracks import Tracklet
 def _dummy_frame() -> np.ndarray:
     """1280x720 dark canvas; mock detection ignores pixels."""
     return np.zeros((720, 1280, 3), dtype=np.uint8)
+
+
+def _build_tracker(name: str) -> Tracker:
+    if name == "bytetrack":
+        return ByteTrackAdapter()
+    return MockTracker()
 
 
 def build_predicted_tracks(result: TrackResult | None) -> list[Tracklet]:
@@ -42,18 +48,19 @@ def build_predicted_tracks(result: TrackResult | None) -> list[Tracklet]:
 def evaluate_scenario(
     scenario: list,
     num_frames: int,
+    tracker: str = "mock",
     recovered: int = 0,
     total_gaps: int = 0,
 ) -> tuple[MetricsReport, list[Tracklet], list[Tracklet]]:
-    """Run the mock detector+tracker and score against official trajectories."""
+    """Run the mock detector + chosen tracker and score against official trajectories."""
     detector = MockDetector(scenario=scenario)
-    tracker = MockTracker()
+    track = _build_tracker(tracker)
     frame = _dummy_frame()
 
     result = None
     for index in range(num_frames):
         detection = detector.detect(frame, index)
-        result = tracker.update(detection)
+        result = track.update(detection)
 
     gt = ground_truth_trajectories(scenario, num_frames)
     pred = build_predicted_tracks(result)
