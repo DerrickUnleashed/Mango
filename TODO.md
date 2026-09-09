@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 5 — Tracking (ML core: interface + ByteTrack adapter)
-**Milestone:** Deterministic mock tracking + ByteTrack-style Kalman tracker with tests
-**Overall Progress:** 20%
+**Phase:** 5 — Tracking (pipeline integration + persistence)
+**Milestone:** Tracking stage wired into processing pipeline; tracks persisted and queryable via API
+**Overall Progress:** 25%
 **Last Updated:** 2026-09-09
 
 ---
@@ -299,7 +299,7 @@ mango/
 ### Backend
 - [ ] Store detection results in DB
 - [ ] Detection query endpoints
-- [ ] Integration into processing pipeline
+- [x] Integration into processing pipeline
 
 ### Frontend
 - [ ] Detection overlay on video frames
@@ -320,8 +320,8 @@ mango/
 - [ ] Track visualization helpers
 
 ### Backend
-- [ ] Store tracking results in DB
-- [ ] Track query endpoints
+- [x] Store tracking results in DB
+- [x] Track query endpoints
 - [ ] Track detail endpoint
 
 ### Frontend
@@ -551,7 +551,7 @@ mango/
 
 ## Test Status
 
-- Backend: 10 tests passing (health, video CRUD, upload validation, processing flow)
+- Backend: 14 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing)
 - ML: 18 tests passing (detector interface, mock determinism, occlusion windows, tracker interface, mock tracker lifecycle, ByteTrack two-stage association, Kalman)
 - Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
@@ -571,3 +571,5 @@ mango/
 | 2026-09-09 | Tracker IDs monotonically increase, never reused per stream | Reused IDs corrupt identity bookkeeping across long-term tracking |
 | 2026-09-09 | ByteTrack third stage (tracklet buffer) skipped in adapter | Two-stage association sufficient for mock pipeline; buffer = Kalman-track IC buffer only |
 | 2026-09-09 | MockTracker uses centre-distance greedy association | Deterministic, dependency-free stand-in for ByteTrack in dev mode |
+| 2026-09-09 | Tracks stored per-video, replaced on reprocessing | Simplifies visualization (video shows latest run) and avoids stale-job accumulation |
+| 2026-09-09 | `tracks` table persists only active-track trajectories | Lost tracks reported live via TrackResult; history for analytics comes later (identity memory) |
