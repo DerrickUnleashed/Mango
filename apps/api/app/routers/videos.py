@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.errors import ConflictError, NotFoundError, ValidationFailError
 from app.models import (
+    DetectionRecord,
     IdentityRecord,
     ProcessingJob,
     ProcessingStage,
@@ -23,6 +24,7 @@ from app.models import (
 )
 from app.schemas import (
     JobView,
+    MultiDetectionResponse,
     MultiIdentityResponse,
     MultiReidResponse,
     MultiTrackResponse,
@@ -192,6 +194,26 @@ def list_video_reid_events(video_id: str, db: Annotated[Session, Depends(get_db)
     return {"events": [r.to_dict() for r in rows], "total": len(rows)}
 
 
+@router.get("/{video_id}/detections", response_model=MultiDetectionResponse)
+def list_video_detections(
+    video_id: str,
+    frame_id: int | None = None,
+    db: Annotated[Session, Depends(get_db)] = None,
+) -> dict:
+    """Return persisted detections for a video, optionally for a single frame."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+
+    query = select(DetectionRecord).where(DetectionRecord.video_id == video_id)
+    if frame_id is not None:
+        query = query.where(DetectionRecord.frame_id == frame_id)
+    rows = db.scalars(
+        query.order_by(DetectionRecord.frame_id, DetectionRecord.confidence.desc())
+    ).all()
+    return {"detections": [r.to_dict() for r in rows], "total": len(rows)}
+
+
 @router.delete("/{video_id}")
 def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
     video = db.get(Video, video_id)
@@ -199,6 +221,7 @@ def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict
         raise NotFoundError("video_not_found", f"Video {video_id} not found")
     storage_service.delete(video.filename)
     db.execute(delete(Track).where(Track.video_id == video_id))
+    db.execute(delete(DetectionRecord).where(DetectionRecord.video_id == video_id))
     db.execute(delete(IdentityRecord).where(IdentityRecord.video_id == video_id))
     db.execute(delete(ReidEvent).where(ReidEvent.video_id == video_id))
     db.execute(delete(ProcessingJob).where(ProcessingJob.video_id == video_id))

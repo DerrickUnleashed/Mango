@@ -98,6 +98,11 @@ class MultiReidResponse(BaseModel):
     total: int
 
 
+class MultiDetectionResponse(BaseModel):
+    detections: list[dict]
+    total: int
+
+
 class ProcessRequest(BaseModel):
     confidence_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
     inference_mode: str = Field(default="mock", pattern="^(mock|real)$")

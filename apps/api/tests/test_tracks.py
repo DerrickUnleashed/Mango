@@ -136,3 +136,31 @@ def test_reid_events_require_existing_video(client: TestClient) -> None:
     response = client.get("/api/videos/does-not-exist/reid-events")
     assert response.status_code == 404
     assert response.json()["code"] == "video_not_found"
+
+
+def test_detections_empty_before_processing(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_id = _upload(client, sample_video_bytes)
+    body = client.get(f"/api/videos/{video_id}/detections").json()
+    assert body == {"detections": [], "total": 0}
+
+
+def test_detections_require_existing_video(client: TestClient) -> None:
+    response = client.get("/api/videos/does-not-exist/detections")
+    assert response.status_code == 404
+    assert response.json()["code"] == "video_not_found"
+
+
+def test_processing_persists_detections(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_id = _upload(client, sample_video_bytes)
+    final = _process(client, video_id, tracker="mock", max_frames=15)
+    assert final["status"] == "completed", final
+
+    all_dets = client.get(f"/api/videos/{video_id}/detections").json()
+    assert all_dets["total"] >= 5
+    first = all_dets["detections"][0]
+    assert set(first) >= {"frameId", "trackId", "bbox", "confidence", "classLabel"}
+    assert len(first["bbox"]) == 4
+
+    frame_dets = client.get(f"/api/videos/{video_id}/detections", params={"frame_id": 0}).json()
+    assert frame_dets["total"] >= 1
+    assert all(d["frameId"] == 0 for d in frame_dets["detections"])

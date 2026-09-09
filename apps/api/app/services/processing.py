@@ -24,6 +24,7 @@ from sqlalchemy import delete
 
 from app.core.logging import job_logger
 from app.models import (
+    DetectionRecord,
     IdentityRecord,
     ProcessingJob,
     ProcessingStage,
@@ -90,6 +91,7 @@ class ProcessingService:
             track_summary = self.track_frames(
                 video, job, state, config, detections["frame_detections"], db
             )
+            self.persist_detections(video, track_summary["assigned_detections"], db)
             identity_summary = self.learn_identities(
                 video,
                 job,
@@ -316,6 +318,31 @@ class ProcessingService:
             fixed_points.append(record)
         db.add_all(fixed_points)
         return fixed_points
+
+    def persist_detections(self, video: Video, assigned_detections: list, db) -> int:
+        """Persist per-frame detections with their assigned track ids."""
+        db.execute(delete(DetectionRecord).where(DetectionRecord.video_id == video.id))
+        rows: list[DetectionRecord] = []
+        for assigned in assigned_detections:
+            frame_id = assigned.frame_id
+            for det in assigned.detections:
+                rows.append(
+                    DetectionRecord(
+                        id=uuid4().hex,
+                        video_id=video.id,
+                        frame_id=frame_id,
+                        track_id=det.track_id,
+                        bbox=list(det.bbox),
+                        confidence=det.confidence,
+                        class_label=det.class_label,
+                        is_occluded=det.confidence < self._occlusion_confidence_bound(),
+                    )
+                )
+        db.add_all(rows)
+        return len(rows)
+
+    def _occlusion_confidence_bound(self) -> float:
+        return 0.45
 
     def learn_identities(
         self,
