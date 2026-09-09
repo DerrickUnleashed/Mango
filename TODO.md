@@ -4,7 +4,7 @@
 
 **Phase:** 11 — ML Evaluation (REID steering) — Phase 7b observation history completed (remaining: representative frames)
 **Milestone:** Ground-truth-scored evaluation harness so mock-lifted designs can be validated against real data
-**Overall Progress:** 70%
+**Overall Progress:** 72%
 **Last Updated:** 2026-09-09
 
 ---
@@ -450,7 +450,7 @@ mango/
 
 ### ML
 - [x] IDF1 metric implementation
-- [ ] HOTA metric implementation
+- [x] HOTA metric implementation
 - [x] Identity Recovery Rate
 - [x] ID Switches counting
 - [x] Track Fragmentation
@@ -472,7 +472,7 @@ mango/
 - [x] Experiment configuration form (tracker + scenario frames)
 - [x] Metric display cards
 - [x] Baseline comparison table
-- [ ] Metric trend charts
+- [x] Metric trend charts
 - [x] Experiment list/history
 
 ---
@@ -558,7 +558,7 @@ mango/
 ## Test Status
 
 - Backend: 40 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics)
-- ML: 63 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, scenario ground truth with absent windows)
+- ML: 67 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
 - Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
 ## Decisions Log
@@ -595,3 +595,4 @@ mango/
 | 2026-09-09 | Analytics computed on demand from persisted rows | No extra pipeline step or schema; aggregates reflect the video's latest run |
 | 2026-09-09 | Evaluation metrics computed from greedy trajectory matching over tracklets | Decoupled from any tracker/re-id impl; deterministic and testable |
 | 2026-09-09 | ID switches / fragmentation use per-frame best-overlap match, not matched pairs | Greedy pairing assigns only one pred track per GT, losing switch/fragment evidence |
+| 2026-09-09 | HOTA computed from greedy per-frame box alignment (single-class) | Matches the multi-class formulation with one class; deterministic and unit-testable |
