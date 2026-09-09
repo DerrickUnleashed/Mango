@@ -76,6 +76,7 @@ class ProgressResponse(BaseModel):
     progress: float = Field(ge=0.0, le=100.0)
     message: str | None = None
     inference_mode: str = "mock"
+    config: dict[str, object] | None = None
 
 
 class MultiVideoResponse(BaseModel):
@@ -108,6 +109,8 @@ class ProcessRequest(BaseModel):
     inference_mode: str = Field(default="mock", pattern="^(mock|real)$")
     tracker: str = Field(default="mock", pattern="^(mock|bytetrack)$")
     camera_motion: str = Field(default="static", pattern="^(static|drift)$")
+    reid_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
+    memory_update_rate: float | None = Field(default=None, ge=0.0, le=1.0)
     max_frames: int | None = Field(default=None, ge=1, le=100_000)
 
 

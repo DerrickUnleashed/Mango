@@ -55,6 +55,8 @@ class Settings(BaseSettings):
     # Processing
     default_inference_mode: str = "mock"
     default_confidence_threshold: float = 0.35
+    default_reid_threshold: float = 0.6
+    default_memory_update_rate: float = 0.2
     auto_create_tables: bool = True
 
     # CORS

@@ -44,4 +44,5 @@ def get_job_status(
         progress=progress,
         message=message,
         inference_mode=job.inference_mode,
+        config=job.config,
     )

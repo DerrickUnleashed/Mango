@@ -51,6 +51,8 @@ class PipelineConfig:
     confidence_threshold: float = 0.35
     tracker: str = "mock"
     camera_motion: str = "static"
+    reid_threshold: float = 0.6
+    memory_update_rate: float = 0.2
     max_frames: int | None = None
 
     def effective_max_frames(self, total_frames: int) -> int:
@@ -104,6 +106,7 @@ class ProcessingService:
                 video,
                 job,
                 state,
+                config,
                 frames,
                 track_summary["assigned_detections"],
                 track_summary["lost_by_frame"],
@@ -409,6 +412,7 @@ class ProcessingService:
         video: Video,
         job: ProcessingJob,
         state: JobState,
+        config: PipelineConfig,
         frames: list[NDArray],
         assigned_detections: list,
         lost_by_frame: list,
@@ -418,8 +422,11 @@ class ProcessingService:
         del job
         state.update(ProcessingStage.EMBEDDING, 80.0, "Extracting appearance embeddings")
         embedder = MockEmbeddingExtractor()
-        memory = MockIdentityMemory()
-        reid = MockReIdentifier()
+        memory = MockIdentityMemory(
+            match_threshold=config.reid_threshold,
+            update_rate=config.memory_update_rate,
+        )
+        reid = MockReIdentifier(match_threshold=config.reid_threshold)
 
         frame_count = len(frames)
         total_embeddings = 0

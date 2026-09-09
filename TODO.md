@@ -541,9 +541,10 @@ mango/
 - [!] Vitest configured (`apps/web`): component tests for UI primitives exist;
       coverage of full pages is incremental.
 - [!] Prettier not yet configured (oxlint covers frontend linting).
-- [!] Frontend `SettingsPage` re-ID threshold / memory rate are stored defaults;
-      the ML pipeline reads its own constants during processing and does not yet
-      consume these two settings.
+- [!] Frontend `SettingsPage` re-ID threshold / memory rate persist to the API and
+      are now applied by the processing pipeline (via job config); the dashboard does
+      not yet display per-job pipeline config in the UI (job config is returned by
+      the API).
 - [!] Re-ID acceptance is single-threshold cosine (mock); production re-id will
       add motion gating and multi-candidate ranking.
 - [!] Live dev API server on :8000 was restarted to pick up new schema; dev
@@ -560,7 +561,7 @@ mango/
 
 ## Test Status
 
-- Backend: 47 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence)
+- Backend: 50 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence, pipeline config passthrough incl. re-id threshold/memory rate, stored settings as processing defaults)
 - ML: 67 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
 - Frontend: TypeScript build + typecheck passing; Vitest component tests passing (UI primitives; page-level coverage incremental)
 

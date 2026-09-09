@@ -230,6 +230,37 @@ def test_processing_exposes_analytics(client: TestClient, sample_video_bytes: by
     assert summary["processingSeconds"] >= 0.0
 
 
+def test_processing_job_exposes_pipeline_config(
+    client: TestClient, sample_video_bytes: bytes
+) -> None:
+    video_id = _upload(client, sample_video_bytes)
+    response = client.post(
+        f"/api/videos/{video_id}/process",
+        json={
+            "inference_mode": "mock",
+            "tracker": "bytetrack",
+            "camera_motion": "drift",
+            "confidence_threshold": 0.42,
+            "reid_threshold": 0.5,
+            "memory_update_rate": 0.1,
+            "max_frames": 6,
+        },
+    )
+    assert response.status_code == 200, response.text
+    job_id = response.json()["id"]
+
+    final = client.get(f"/api/jobs/{job_id}").json()
+    assert final["status"] in {"queued", "running", "completed", "failed"}
+    cfg = final["config"]
+    assert cfg is not None
+    assert cfg["reid_threshold"] == 0.5
+    assert cfg["memory_update_rate"] == 0.1
+    assert cfg["confidence_threshold"] == 0.42
+    assert cfg["tracker"] == "bytetrack"
+    assert cfg["camera_motion"] == "drift"
+    assert cfg["max_frames"] == 6
+
+
 def test_processing_persists_detections(client: TestClient, sample_video_bytes: bytes) -> None:
     video_id = _upload(client, sample_video_bytes)
     final = _process(client, video_id, tracker="mock", max_frames=15)
