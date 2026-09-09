@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 6 — Identity Learning (embedding interface + mock embedder)
-**Milestone:** Appearance embeddings with re-id semantics; deterministic mock for later memory/re-id phases
-**Overall Progress:** 33%
+**Phase:** 7 — Identity Memory (QL, store, retrieve, wire into pipeline)
+**Milestone:** Quality-aware memory of identity prototypes; embeddings + memory wired into the processing pipeline and persisted behind API endpoints
+**Overall Progress:** 42%
 **Last Updated:** 2026-09-09
 
 ---
@@ -142,18 +142,18 @@ mango/
 - [ ] Spatial consistency representation
 - [ ] Visibility filtering
 - [ ] Hard-negative mechanism
-- [ ] Identity embeddings persisted
+- [x] Identity embeddings persisted
 - [x] Embedding tests pass
 
 ### QG 7 — Identity Memory
-- [ ] Identity prototype creation
-- [ ] Quality score
-- [ ] Confidence-aware update
-- [ ] Moving-average update
-- [ ] Low-quality observation suppression
-- [ ] Memory persistence
-- [ ] Memory retrieval
-- [ ] Memory tests pass
+- [x] Identity prototype creation
+- [x] Quality score
+- [x] Confidence-aware update
+- [x] Moving-average update
+- [x] Low-quality observation suppression
+- [x] Memory persistence
+- [x] Memory retrieval
+- [x] Memory tests pass
 
 ### QG 8 — Re-Identification
 - [ ] Track-loss detection
@@ -356,20 +356,20 @@ mango/
 ## Phase 7 — Identity Memory
 
 ### ML
-- [ ] Identity memory interface
-- [ ] Quality scoring function
-- [ ] Moving-average prototype update
-- [ ] Low-quality observation suppression
-- [ ] Memory storage and retrieval
+- [x] Identity memory interface
+- [x] Quality scoring function
+- [x] Moving-average prototype update
+- [x] Low-quality observation suppression
+- [x] Memory storage and retrieval
 - [ ] Identity observation history
 
 ### Backend
-- [ ] Identity SQLAlchemy models
-- [ ] Identity prototype endpoints
+- [x] Identity SQLAlchemy models
+- [x] Identity prototype endpoints
 - [ ] Identity observation endpoints
 
 ### Frontend
-- [ ] Identity explorer page
+- [x] Identity explorer panel (list, confidence badge, quality/observations)
 - [ ] Identity detail panel
 - [ ] Observation timeline
 - [ ] Representative frames display
@@ -539,8 +539,8 @@ mango/
       configured (config files present in `apps/api/alembic/` but unused).
 - [!] Vitest not yet configured for frontend — component tests are pending.
 - [!] Prettier not yet configured (oxlint covers frontend linting).
-- [!] Embeddings not yet persisted or wired into the processing pipeline —
-      backend stores embeddings only when identity memory phase lands.
+- [!] Identity observation history not yet stored — memory currently snapshots
+      prototypes per video; per-observation history lands with re-id phase.
 - [!] Live dev API server on :8000 was restarted to pick up new schema; dev
       DB under `data/` is regenerated on supervisor restart.
 
@@ -555,8 +555,8 @@ mango/
 
 ## Test Status
 
-- Backend: 14 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing)
-- ML: 25 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag)
+- Backend: 19 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence)
+- ML: 34 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism)
 - Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
 ## Decisions Log
@@ -580,3 +580,7 @@ mango/
 | 2026-09-09 | Mock embedder: crop color features + position-seeded FNV-1a noise | Deterministic across processes, same-fruit-similar, different-region-separated for dev experiments |
 | 2026-09-09 | Embedding noise seeded by position bin, not frame id | Fruits keep stable embeddings across frames while still location-discriminative |
 | 2026-09-09 | `.gitignore` `models/` rule over-broad — added exceptions for `apps/api/app/models/` | Rule silently excluded the ORM models package from git; whole package newly tracked |
+| 2026-09-09 | Noise scale lowered 0.5→0.15; tests use distinct fruit colors | Crop features drive matching so box movement stays similar while distinct fruits embed far apart |
+| 2026-09-09 | Memory quality score = confidence × (0.55 if occluded); update only if ≥ min_quality | Low-quality/occluded observations contribute but with damped weight and no prototype poisoning |
+| 2026-09-09 | Detections stamped with nearest-track id (≤60px) before embedding | Enables per-observation identity linkage without altering the tracker interface |
+| 2026-09-09 | IdentityPrototype stored per-video as JSON, replaced on reprocessing | Same semantics as tracks: video shows the latest run's memory state |
