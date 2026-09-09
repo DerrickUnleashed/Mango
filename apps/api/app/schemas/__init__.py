@@ -1,6 +1,9 @@
 """Pydantic API schemas."""
 
 from .video import (
+    CreateExperimentRequest,
+    ExperimentDetailResponse,
+    ExperimentListResponse,
     JobView,
     MultiAnalyticsResponse,
     MultiDetectionResponse,
@@ -16,6 +19,9 @@ from .video import (
 )
 
 __all__ = [
+    "CreateExperimentRequest",
+    "ExperimentDetailResponse",
+    "ExperimentListResponse",
     "JobView",
     "MultiAnalyticsResponse",
     "MultiDetectionResponse",

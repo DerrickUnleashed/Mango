@@ -20,7 +20,12 @@ from app.core.errors import (
     validation_exception_handler,
 )
 from app.core.logging import configure_logging, get_logger
-from app.routers import health_router, jobs_router, videos_router
+from app.routers import (
+    experiments_router,
+    health_router,
+    jobs_router,
+    videos_router,
+)
 
 configure_logging()
 logger = get_logger(__name__)
@@ -64,6 +69,7 @@ def create_app() -> FastAPI:
     app.include_router(health_router, prefix="/api")
     app.include_router(videos_router, prefix="/api")
     app.include_router(jobs_router, prefix="/api")
+    app.include_router(experiments_router, prefix="/api")
 
     @app.get("/")
     def root() -> JSONResponse:

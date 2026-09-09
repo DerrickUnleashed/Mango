@@ -123,3 +123,29 @@ class MultiAnalyticsResponse(BaseModel):
 class MultiObservationResponse(BaseModel):
     observations: list[dict]
     total: int
+
+
+class CreateExperimentRequest(BaseModel):
+    name: str | None = Field(default=None, max_length=128)
+    tracker: str = Field(default="mock", pattern="^(mock|bytetrack)$")
+    scenario: str = Field(default="orchard", pattern="^orchard$")
+    num_frames: int = Field(default=310, ge=10, le=1000)
+
+
+class ExperimentDetailResponse(BaseModel):
+    id: str
+    name: str
+    status: str
+    tracker: str
+    scenario: str
+    numFrames: int
+    config: dict | None = None
+    metrics: dict | None = None
+    error: str | None = None
+    createdAt: str | None = None
+    completedAt: str | None = None
+
+
+class ExperimentListResponse(BaseModel):
+    experiments: list[ExperimentDetailResponse]
+    total: int
