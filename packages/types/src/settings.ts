@@ -1,48 +1,19 @@
-import type { CameraMotionMode } from './common'
+export type PipelineCameraMotionMode = 'static' | 'drift'
 
-export interface DetectorSettings {
+export interface PipelineSettingsValues {
   confidenceThreshold: number
-  modelName: string
-  inferenceMode: 'mock' | 'real'
-}
-
-export interface TrackerSettings {
-  matchThreshold: number
-  trackBuffer: number
-  minTrackLength: number
-}
-
-export interface ReIdSettings {
-  threshold: number
-  maxCandidates: number
+  reidThreshold: number
+  memoryUpdateRate: number
   occlusionTimeoutSec: number
+  cameraMotionMode: PipelineCameraMotionMode
 }
 
-export interface MemorySettings {
-  updateRate: number
-  maxIdentities: number
-  qualityGate: number
+export interface SettingsResponse {
+  values: PipelineSettingsValues
+  revision: number
+  updatedAt: string | null
 }
 
-export interface VisualizationSettings {
-  showBoundingBoxes: boolean
-  showTrackIds: boolean
-  showTrajectories: boolean
-  showConfidence: boolean
-  showOcclusion: boolean
-  showIdentityHistory: boolean
-  showReIdentificationEvents: boolean
-}
-
-export interface Settings {
-  detector: DetectorSettings
-  tracker: TrackerSettings
-  reid: ReIdSettings
-  memory: MemorySettings
-  cameraMotionMode: CameraMotionMode
-  visualization: VisualizationSettings
-}
-
-export interface UpdateSettingsRequest {
-  settings: Partial<Settings>
+export interface UpdateSettingsPayload {
+  values: Partial<PipelineSettingsValues>
 }

@@ -15,6 +15,8 @@ from .video import (
     MultiVideoResponse,
     ProcessRequest,
     ProgressResponse,
+    SettingsResponse,
+    UpdateSettingsRequest,
     VideoView,
 )
 
@@ -33,5 +35,7 @@ __all__ = [
     "MultiVideoResponse",
     "ProcessRequest",
     "ProgressResponse",
+    "SettingsResponse",
+    "UpdateSettingsRequest",
     "VideoView",
 ]

@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 import csv
-from datetime import datetime, timezone
-from io import StringIO
 import json
+from datetime import UTC, datetime
+from io import StringIO
+from typing import Annotated
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 from starlette.responses import Response
-from typing import Annotated
 
 from app.core.database import get_db
 from app.core.errors import ConflictError, NotFoundError
@@ -43,7 +43,7 @@ def _run_experiment(experiment: Experiment) -> None:
         )
         experiment.status = ExperimentStatus.COMPLETED
         experiment.metrics = report.to_dict()
-        experiment.completed_at = datetime.now(timezone.utc)
+        experiment.completed_at = datetime.now(UTC)
     except Exception as exc:  # pragma: no cover - defensive
         experiment.status = ExperimentStatus.FAILED
         experiment.error = str(exc)

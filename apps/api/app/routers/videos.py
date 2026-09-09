@@ -13,6 +13,8 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.errors import ConflictError, NotFoundError, ValidationFailError
 from app.models import (
+    GLOBAL_SETTINGS_ID,
+    AppSettings,
     CameraMotionRecord,
     DetectionRecord,
     IdentityObservation,
@@ -297,6 +299,11 @@ def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict
     return {"ok": True}
 
 
+def _stored_pipeline_defaults(db: Session) -> dict:
+    row = db.get(AppSettings, GLOBAL_SETTINGS_ID)
+    return row.effective_values() if row else {}
+
+
 @router.post("/{video_id}/process", response_model=JobView)
 def process_video(
     video_id: str,
@@ -318,11 +325,13 @@ def process_video(
         raise ConflictError("already_processing", "Video already has an active processing job")
 
     request = request or ProcessRequest()
+    stored = _stored_pipeline_defaults(db)
     config = PipelineConfig(
         inference_mode=request.inference_mode,
-        confidence_threshold=request.confidence_threshold or settings.default_confidence_threshold,
+        confidence_threshold=request.confidence_threshold
+        or float(stored.get("confidenceThreshold", settings.default_confidence_threshold)),
         tracker=request.tracker,
-        camera_motion=request.camera_motion,
+        camera_motion=request.camera_motion or str(stored.get("cameraMotionMode", "static")),
         max_frames=request.max_frames,
     )
 

@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { PipelineSettingsValues } from '@orchardvision/types'
 import { useToast } from '../components/ui/useToast'
+import { getSettings, updateSettings } from '../api/settings'
 
-const DEFAULTS = {
+const DEFAULTS: PipelineSettingsValues = {
   confidenceThreshold: 0.35,
   reidThreshold: 0.6,
   memoryUpdateRate: 0.2,
@@ -11,21 +14,41 @@ const DEFAULTS = {
 
 export function SettingsPage() {
   const { push } = useToast()
-  const [values, setValues] = useState(DEFAULTS)
+  const queryClient = useQueryClient()
+  useQuery({
+    queryKey: ['settings'],
+    queryFn: getSettings,
+    staleTime: 30_000,
+  })
+  const saveMutation = useMutation({
+    mutationFn: updateSettings,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['settings'] })
+      push('Settings saved', 'success')
+    },
+    onError: () => {
+      push('Failed to save settings', 'error')
+    },
+  })
+
+  const [values, setValues] = useState<PipelineSettingsValues>(DEFAULTS)
   const [saved, setSaved] = useState(false)
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
-    setSaved(true)
-    push('Settings saved (local only until backend API is available)', 'info')
+    saveMutation.mutate(
+      { values: valuesToPayload(values) },
+      {
+        onSuccess: () => setSaved(true),
+      },
+    )
   }
 
-  const field = (key: keyof typeof DEFAULTS) => ({
+  const fieldNumber = (key: Exclude<keyof PipelineSettingsValues, 'cameraMotionMode'>) => ({
     value: values[key],
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
       const next = e.target.value
-      const numeric = key === 'cameraMotionMode' ? next : Number(next)
-      setValues((prev) => ({ ...prev, [key]: numeric }))
+      setValues((prev) => ({ ...prev, [key]: Number(next) }))
       setSaved(false)
     },
   })
@@ -34,7 +57,10 @@ export function SettingsPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-surface-50">Settings</h1>
-        <p className="mt-1 text-sm text-surface-400">Pipeline and visualization defaults</p>
+        <p className="mt-1 text-sm text-surface-400">
+          Pipeline and visualization defaults (persisted; applied when process options are left
+          unset)
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -42,13 +68,15 @@ export function SettingsPage() {
           <h2 className="mb-4 font-medium text-surface-200">Detector</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="mb-1 block text-xs font-medium text-surface-400">Confidence threshold</span>
+              <span className="mb-1 block text-xs font-medium text-surface-400">
+                Confidence threshold
+              </span>
               <input
                 type="number"
                 min={0}
                 max={1}
                 step={0.05}
-                {...field('confidenceThreshold')}
+                {...fieldNumber('confidenceThreshold')}
                 className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none"
               />
             </label>
@@ -60,14 +88,14 @@ export function SettingsPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
               <span className="mb-1 block text-xs font-medium text-surface-400">Re-ID threshold</span>
-              <input type="number" min={0} max={1} step={0.05} {...field('reidThreshold')}
+              <input type="number" min={0} max={1} step={0.05} {...fieldNumber('reidThreshold')}
                 className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none" />
             </label>
             <label className="block">
               <span className="mb-1 block text-xs font-medium text-surface-400">
                 Occlusion timeout (seconds)
               </span>
-              <input type="number" min={1} max={600} {...field('occlusionTimeoutSec')}
+              <input type="number" min={1} max={600} {...fieldNumber('occlusionTimeoutSec')}
                 className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none" />
             </label>
           </div>
@@ -77,7 +105,7 @@ export function SettingsPage() {
           <h2 className="mb-4 font-medium text-surface-200">Identity Memory</h2>
           <label className="block max-w-xs">
             <span className="mb-1 block text-xs font-medium text-surface-400">Prototype update rate</span>
-            <input type="number" min={0} max={1} step={0.05} {...field('memoryUpdateRate')}
+            <input type="number" min={0} max={1} step={0.05} {...fieldNumber('memoryUpdateRate')}
               className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none" />
           </label>
         </section>
@@ -87,7 +115,7 @@ export function SettingsPage() {
           <fieldset>
             <legend className="mb-2 text-xs font-medium text-surface-400">Motion mode</legend>
             <div className="flex flex-wrap gap-3">
-              {['static', 'slow', 'fast', 'handheld'].map((mode) => (
+              {(['static', 'drift'] as const).map((mode) => (
                 <label key={mode} className="inline-flex cursor-pointer items-center gap-2">
                   <input
                     type="radio"
@@ -110,9 +138,10 @@ export function SettingsPage() {
         <div className="flex items-center gap-4">
           <button
             type="submit"
-            className="rounded-lg bg-orchard-600 px-5 py-2 font-medium text-white transition-colors hover:bg-orchard-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
+            disabled={saveMutation.isPending}
+            className="rounded-lg bg-orchard-600 px-5 py-2 font-medium text-white transition-colors hover:bg-orchard-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400 disabled:opacity-50"
           >
-            Save settings
+            {saveMutation.isPending ? 'Saving…' : 'Save settings'}
           </button>
           {saved && (
             <span className="text-sm text-orchard-400" role="status">Saved</span>
@@ -121,4 +150,15 @@ export function SettingsPage() {
       </form>
     </div>
   )
+}
+
+function valuesToPayload(values: PipelineSettingsValues): Partial<PipelineSettingsValues> {
+  const numeric: PipelineSettingsValues = {
+    confidenceThreshold: Number(values.confidenceThreshold),
+    reidThreshold: Number(values.reidThreshold),
+    memoryUpdateRate: Number(values.memoryUpdateRate),
+    occlusionTimeoutSec: Number(values.occlusionTimeoutSec),
+    cameraMotionMode: values.cameraMotionMode === 'drift' ? 'drift' : 'static',
+  }
+  return numeric
 }

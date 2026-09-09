@@ -24,6 +24,7 @@ from app.routers import (
     experiments_router,
     health_router,
     jobs_router,
+    settings_router,
     videos_router,
 )
 
@@ -70,6 +71,7 @@ def create_app() -> FastAPI:
     app.include_router(videos_router, prefix="/api")
     app.include_router(jobs_router, prefix="/api")
     app.include_router(experiments_router, prefix="/api")
+    app.include_router(settings_router, prefix="/api")
 
     @app.get("/")
     def root() -> JSONResponse:

@@ -132,6 +132,16 @@ class CreateExperimentRequest(BaseModel):
     num_frames: int = Field(default=310, ge=10, le=1000)
 
 
+class UpdateSettingsRequest(BaseModel):
+    values: dict[str, float | int | str]
+
+
+class SettingsResponse(BaseModel):
+    values: dict[str, float | int | str]
+    revision: int
+    updatedAt: str | None = None
+
+
 class ExperimentDetailResponse(BaseModel):
     id: str
     name: str
