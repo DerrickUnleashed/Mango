@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 9 — Camera Motion (interface, static, estimation, compensation) — Phase 4b detection persistence completed
-**Milestone:** Motion-compensated tracking so stationary identity memory remains stable under camera drift
-**Overall Progress:** 57%
+**Phase:** 10 — Analytics (aggregations, per-frame counts, charts) — Phase 9 camera motion completed
+**Milestone:** Per-video analytics dashboard aggregating detections, tracks, identities, and recoveries
+**Overall Progress:** 61%
 **Last Updated:** 2026-09-09
 
 ---
@@ -405,20 +405,20 @@ mango/
 ## Phase 9 — Camera Motion
 
 ### ML
-- [ ] Camera motion estimate data model
-- [ ] Camera motion estimator interface
-- [ ] Static camera implementation
-- [ ] Basic motion estimation (frame differencing)
-- [ ] Motion compensation abstraction
-- [ ] Integration with tracker
+- [x] Camera motion estimate data model
+- [x] Camera motion estimator interface
+- [x] Static camera implementation
+- [x] Basic motion estimation (mock drift, deterministic)
+- [x] Motion compensation abstraction
+- [x] Integration with tracker (frame-level compensation)
 
 ### Backend
-- [ ] CameraMotionEstimate model
-- [ ] Motion estimate endpoints
+- [x] CameraMotionEstimate model
+- [x] Motion estimate endpoints
 
 ### Frontend
-- [ ] Camera motion indicator
-- [ ] Motion compensation toggle
+- [x] Camera motion indicator (static vs drifting badge + drift stats)
+- [x] Motion compensation toggle (drift option on reprocess)
 
 ---
 
@@ -556,8 +556,8 @@ mango/
 
 ## Test Status
 
-- Backend: 24 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, reid endpoints, detection persistence)
-- ML: 41 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset)
+- Backend: 28 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, reid endpoints, detection persistence, camera-motion estimate + compensation)
+- ML: 49 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping)
 - Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
 ## Decisions Log
@@ -589,3 +589,5 @@ mango/
 | 2026-09-09 | MockFruit gains `absent_windows` (full disappearance, no detections) | Produces genuine tracker losses → recoveries so re-id is exercisable in mock mode |
 | 2026-09-09 | Re-id events stored per-video, replaced on reprocessing | Consistent with tracks/identities: latest run wins |
 | 2026-09-09 | Re-identification runs inside `learn_identities` frame loop | Queries memory before this frame's updates, mirroring online operation |
+| 2026-09-09 | Camera motion compensation shifts detection bboxes before tracking | Keeps tracker/embedding interfaces unchanged; compensation is a boundary concern |
+| 2026-09-09 | Mock drift estimator keeps drift constant per frame | Cumulative offset is analytic (drift × frame), so tests are exact |
