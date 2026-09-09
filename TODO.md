@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 11 — ML Evaluation (REID steering) — Phase 7b observation history completed (remaining: representative frames)
+**Phase:** 13 — Settings (complete) — next: 14 Production Hardening
 **Milestone:** Ground-truth-scored evaluation harness so mock-lifted designs can be validated against real data
-**Overall Progress:** 72%
+**Overall Progress:** 76%
 **Last Updated:** 2026-09-09
 
 ---
@@ -480,36 +480,36 @@ mango/
 ## Phase 12 — Experiments
 
 ### Backend
-- [ ] Experiment management CRUD
-- [ ] Experiment run status tracking
-- [ ] Experiment configuration serialization
-- [ ] Experiment result export (CSV/JSON)
+- [x] Experiment management CRUD
+- [x] Experiment run status tracking
+- [x] Experiment configuration serialization
+- [x] Experiment result export (CSV/JSON)
 
 ### Frontend
-- [ ] Experiments page
-- [ ] Experiment creation wizard
-- [ ] Experiment status tracking
-- [ ] Experiment comparison view
-- [ ] Results export
+- [x] Experiments page
+- [ ] Experiment creation wizard (tracker + frames form is inline; wizard optional)
+- [x] Experiment status tracking
+- [x] Experiment comparison view (baseline table + trends)
+- [x] Results export
 
 ---
 
 ## Phase 13 — Settings
 
 ### Backend
-- [ ] Settings model (detector, tracker, re-ID, memory params)
-- [ ] Settings CRUD endpoints
-- [ ] Settings validation
+- [x] Settings model (detector, tracker, re-ID, memory params)
+- [x] Settings CRUD endpoints
+- [x] Settings validation (known-key filtering, value constraints via Frontend inputs)
 
 ### Frontend
-- [ ] Settings page
-- [ ] Detector confidence threshold
-- [ ] Tracker parameters
-- [ ] Re-ID threshold
-- [ ] Memory update rate
-- [ ] Occlusion timeout
-- [ ] Camera motion mode
-- [ ] Visualization preferences
+- [x] Settings page
+- [x] Detector confidence threshold
+- [ ] Tracker match threshold / buffer parameters (deferred; tracker internals remain fixed)
+- [x] Re-ID threshold
+- [x] Memory update rate
+- [x] Occlusion timeout
+- [x] Camera motion mode
+- [ ] Visualization preferences (deferred; per-panel toggles live in the video page)
 
 ---
 
@@ -557,7 +557,7 @@ mango/
 
 ## Test Status
 
-- Backend: 40 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics)
+- Backend: 47 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence)
 - ML: 67 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
 - Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
@@ -596,3 +596,5 @@ mango/
 | 2026-09-09 | Evaluation metrics computed from greedy trajectory matching over tracklets | Decoupled from any tracker/re-id impl; deterministic and testable |
 | 2026-09-09 | ID switches / fragmentation use per-frame best-overlap match, not matched pairs | Greedy pairing assigns only one pred track per GT, losing switch/fragment evidence |
 | 2026-09-09 | HOTA computed from greedy per-frame box alignment (single-class) | Matches the multi-class formulation with one class; deterministic and unit-testable |
+| 2026-09-09 | Experiment results stored as JSON on the Experiment row | One-metrics-per-run; export renders CSV/JSON from the same payload |
+| 2026-09-09 | Pipeline defaults persisted in a single app_settings row, applied when process fields are unset | Settings influence processing without breaking explicit per-run overrides |
