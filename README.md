@@ -99,15 +99,33 @@ See `.env.example` for the authoritative list. Key variables:
 - `UPLOAD_DIR`, `PROCESSED_DIR` — storage locations
 - `MAX_UPLOAD_BYTES`, `ALLOWED_VIDEO_MIME_TYPES` — upload constraints
 - `ALLOWED_ORIGINS`, `CORS_ALLOW_CREDENTIALS` — CORS
-- `AUTO_CREATE_TABLES` — dev-friendly `create_all` (migrations pending, see below)
+- `AUTO_CREATE_TABLES` — dev-friendly `create_all`; set `false` and use `alembic up` for managed schemas, see below
+
+## Database migrations
+
+Alembic is wired (`apps/api/alembic`). Build the schema on a fresh database:
+
+```bash
+cd apps/api
+alembic upgrade head
+```
+
+Existing dev databases created with `create_all` can be aligned with
+`alembic stamp head` or recreated.
 
 ## Production notes
 
-- Start the API with a process manager and a production ASGI server (e.g.
-  `uvicorn --workers N`) behind a reverse proxy (Caddy/nginx for TLS).
+- Start the API with the production entrypoint, which reads
+  `ENVIRONMENT`, `PORT`, `WEB_CONCURRENCY`, and `HOST`:
+
+  ```bash
+  ENVIRONMENT=production PORT=8000 WEB_CONCURRENCY=2 uv run --project apps/api python -m app
+  ```
+
+  or run `uvicorn app.main:app --workers N` directly. Place behind a reverse proxy
+  (Caddy/nginx) for TLS.
 - The in-memory job queue must be replaced with a distributed queue (Redis +
   Celery) for multi-worker deployments.
-- Database migrations (Alembic) are not yet wired; dev uses `create_all`.
 - Mock inference is the default; real models (YOLO, embedding net) swap in via
   the detection/embedding interfaces.
 

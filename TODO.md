@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 14 — Production Hardening (mostly complete; migrations + production mode pending)
+**Phase:** 15 — Advanced Re-ID (next)
 **Milestone:** Ground-truth-scored evaluation harness so mock-lifted designs can be validated against real data
-**Overall Progress:** 80%
+**Overall Progress:** 84%
 **Last Updated:** 2026-09-09
 
 ---
@@ -522,10 +522,10 @@ mango/
 - [x] Structured logging throughout
 - [x] No secrets in code
 - [x] Environment variable documentation
-- [ ] Database migration scripts
+- [x] Database migration scripts
 - [x] Complete test suite
 - [x] Frontend production build
-- [ ] Backend production mode
+- [x] Backend production mode
 - [x] Docker production configuration
 - [x] Documentation (README, architecture, API, ML pipeline, dev guide)
 
@@ -535,12 +535,15 @@ mango/
 
 - [!] In-memory job queue (job_manager) — must be replaced with Redis/Celery for
       production concurrency. Documented in `job_manager.py`.
-- [!] Database tables created via `create_all` in dev; Alembic migrations not yet
-      configured (config files present in `apps/api/alembic/` but unused).
-- [!] Vitest not yet configured for frontend — component tests are pending.
+- [!] Alembic configured and wired (initial migration in `apps/api/alembic/versions`).
+      Existing dev databases created with `create_all` can be aligned via
+      `alembic stamp head` or recreated.
+- [!] Vitest configured (`apps/web`): component tests for UI primitives exist;
+      coverage of full pages is incremental.
 - [!] Prettier not yet configured (oxlint covers frontend linting).
-- [!] Identity observation history not yet stored — memory currently snapshots
-      prototypes per video; per-observation history lands with re-id phase.
+- [!] Frontend `SettingsPage` re-ID threshold / memory rate are stored defaults;
+      the ML pipeline reads its own constants during processing and does not yet
+      consume these two settings.
 - [!] Re-ID acceptance is single-threshold cosine (mock); production re-id will
       add motion gating and multi-candidate ranking.
 - [!] Live dev API server on :8000 was restarted to pick up new schema; dev
@@ -559,7 +562,7 @@ mango/
 
 - Backend: 47 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence)
 - ML: 67 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
-- Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
+- Frontend: TypeScript build + typecheck passing; Vitest component tests passing (UI primitives; page-level coverage incremental)
 
 ## Decisions Log
 
