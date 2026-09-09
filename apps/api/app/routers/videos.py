@@ -12,8 +12,15 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.errors import ConflictError, NotFoundError, ValidationFailError
-from app.models import ProcessingJob, ProcessingStage, ProcessingStatus, Track, Video
-from app.schemas import JobView, MultiTrackResponse, ProcessRequest
+from app.models import (
+    IdentityRecord,
+    ProcessingJob,
+    ProcessingStage,
+    ProcessingStatus,
+    Track,
+    Video,
+)
+from app.schemas import JobView, MultiIdentityResponse, MultiTrackResponse, ProcessRequest
 from app.services import (
     MetadataExtractionError,
     PipelineConfig,
@@ -130,6 +137,41 @@ def list_video_tracks(video_id: str, db: Annotated[Session, Depends(get_db)]) ->
     return {"tracks": [r.to_dict() for r in rows], "total": len(rows)}
 
 
+@router.get("/{video_id}/identities", response_model=MultiIdentityResponse)
+def list_video_identities(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
+    """Return the persisted identity prototypes for a processed video."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+
+    rows = db.scalars(
+        select(IdentityRecord)
+        .where(IdentityRecord.video_id == video_id)
+        .order_by(IdentityRecord.identity_id)
+    ).all()
+    return {"identities": [r.to_dict() for r in rows], "total": len(rows)}
+
+
+@router.get("/{video_id}/identities/{identity_id}")
+def get_video_identity(
+    video_id: str, identity_id: int, db: Annotated[Session, Depends(get_db)]
+) -> dict:
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+    row = db.scalar(
+        select(IdentityRecord).where(
+            IdentityRecord.video_id == video_id,
+            IdentityRecord.identity_id == identity_id,
+        )
+    )
+    if not row:
+        raise NotFoundError(
+            "identity_not_found", f"Identity {identity_id} not found for video {video_id}"
+        )
+    return row.to_dict()
+
+
 @router.delete("/{video_id}")
 def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
     video = db.get(Video, video_id)
@@ -137,6 +179,7 @@ def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict
         raise NotFoundError("video_not_found", f"Video {video_id} not found")
     storage_service.delete(video.filename)
     db.execute(delete(Track).where(Track.video_id == video_id))
+    db.execute(delete(IdentityRecord).where(IdentityRecord.video_id == video_id))
     db.execute(delete(ProcessingJob).where(ProcessingJob.video_id == video_id))
     db.delete(video)
     db.commit()

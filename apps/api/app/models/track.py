@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -12,7 +12,7 @@ from app.core.database import Base
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class Track(Base):
@@ -26,9 +26,7 @@ class Track(Base):
     __tablename__ = "tracks"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
-    job_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("processing_jobs.id"), index=True
-    )
+    job_id: Mapped[str] = mapped_column(String(36), ForeignKey("processing_jobs.id"), index=True)
     video_id: Mapped[str] = mapped_column(String(36), ForeignKey("videos.id"), index=True)
     track_id: Mapped[int] = mapped_column(Integer)
     status: Mapped[str] = mapped_column(String(16), default="active")

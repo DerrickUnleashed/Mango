@@ -9,23 +9,33 @@ changing this orchestration layer.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from uuid import uuid4
 
 import cv2
 from numpy.typing import NDArray
 from orchardvision_ml.detection import MockDetector
 from orchardvision_ml.detection.mock import SCENARIO_ORCHARD
+from orchardvision_ml.identity import MockEmbeddingExtractor
+from orchardvision_ml.memory import MockIdentityMemory
 from orchardvision_ml.tracking import ByteTrackAdapter, MockTracker, Tracker
 from sqlalchemy import delete
 
 from app.core.logging import job_logger
-from app.models import ProcessingJob, ProcessingStage, ProcessingStatus, Track, Video
+from app.models import (
+    IdentityRecord,
+    ProcessingJob,
+    ProcessingStage,
+    ProcessingStatus,
+    Track,
+    Video,
+)
 from app.services.storage import storage_service
 
 from .job_manager import JobState
 
 DEFAULT_MAX_FRAMES = 600
+MAX_TRACK_ASSIGN_DISTANCE_PX = 60.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,6 +60,9 @@ class PipelineSummary:
     total_tracks: int
     new_tracks: int
     lost_tracks: int
+    total_embeddings: int
+    total_identities: int
+    suppressed_observations: int
 
 
 class ProcessingService:
@@ -74,7 +87,11 @@ class ProcessingService:
             track_summary = self.track_frames(
                 video, job, state, config, detections["frame_detections"], db
             )
-            summary = self.analytics_summary(detections, track_summary, config)
+            identity_summary = self.learn_identities(
+                video, job, state, frames, track_summary["assigned_detections"], db
+            )
+            state.update(ProcessingStage.ANALYTICS, 90.0, "Summarizing results")
+            summary = self.analytics_summary(detections, track_summary, identity_summary, config)
             self._finalize(job, video, summary, state)
             log.info("Pipeline complete: %s", summary)
             return summary
@@ -188,19 +205,23 @@ class ProcessingService:
         new_track_count = 0
         lost_track_count = 0
         last = None
+        assigned_detections: list = []
         for index, frame_detection in enumerate(frame_detections):
             if state.cancelled:
                 raise InterruptedError("Processing cancelled")
             last = tracker.update(frame_detection)
             new_track_count += len(last.new_track_ids)
             lost_track_count += len(last.lost_track_ids)
+            assigned_detections.append(
+                self._assign_track_ids(index, frame_detection, last.active_tracks)
+            )
 
             if index % 20 == 0:
-                progress = 55.0 + 30.0 * (index + 1) / max(frame_count, 1)
+                progress = 55.0 + 25.0 * (index + 1) / max(frame_count, 1)
                 msg = f"Tracking frame {index + 1}/{frame_count}"
                 state.update(ProcessingStage.TRACKING, progress, msg)
 
-        # Persist final track trajectories for this job (replace prior runs)
+        # Persist final track trajectories for this video (replace prior runs)
         tracks = self._persist_tracks(job, video, last, db)
 
         log = job_logger("processing", job_id=state.job_id, video_id=video.id)
@@ -210,13 +231,44 @@ class ProcessingService:
             new_track_count,
             lost_track_count,
         )
-        state.update(ProcessingStage.ANALYTICS, 90.0, "Summarizing results")
         return {
             "tracker": tracker.name,
             "total_tracks": len(tracks),
             "new_tracks": new_track_count,
             "lost_tracks": lost_track_count,
+            "assigned_detections": assigned_detections,
         }
+
+    def _assign_track_ids(self, frame_id: int, frame_detections, active_tracks: list):
+        """Stamp each detection with the id of its best-matching recent track.
+
+        Detection objects are frozen, so replacements carry the track id.
+        """
+        assigned: list = []
+        for det in frame_detections.detections:
+            best_id: int | None = None
+            best_distance: float | None = None
+            det_cx, det_cy = det.center
+            for track in active_tracks:
+                if track.last_frame_id != frame_id:
+                    continue
+                bbox = track.current_bbox
+                if bbox is None:
+                    continue
+                bx, by, bw, bh = bbox
+                distance = (
+                    (det_cx - (bx + bw / 2.0)) ** 2 + (det_cy - (by + bh / 2.0)) ** 2
+                ) ** 0.5
+                if best_distance is None or distance < best_distance:
+                    best_distance = distance
+                    best_id = track.track_id
+            track_id = (
+                best_id
+                if best_distance is not None and best_distance <= MAX_TRACK_ASSIGN_DISTANCE_PX
+                else None
+            )
+            assigned.append(replace(det, track_id=track_id))
+        return replace(frame_detections, detections=assigned)
 
     def _build_tracker(self, config: PipelineConfig) -> Tracker:
         if config.tracker == "bytetrack":
@@ -253,8 +305,83 @@ class ProcessingService:
         db.add_all(fixed_points)
         return fixed_points
 
+    def learn_identities(
+        self,
+        video: Video,
+        job: ProcessingJob,
+        state: JobState,
+        frames: list[NDArray],
+        assigned_detections: list,
+        db,
+    ) -> dict:
+        """Extract embeddings and consolidate them into quality-aware identities."""
+        del job
+        state.update(ProcessingStage.EMBEDDING, 80.0, "Extracting appearance embeddings")
+        embedder = MockEmbeddingExtractor()
+        memory = MockIdentityMemory()
+
+        frame_count = len(frames)
+        total_embeddings = 0
+        suppressed = 0
+        for index, assigned in enumerate(assigned_detections):
+            if state.cancelled:
+                raise InterruptedError("Processing cancelled")
+            for embedding in embedder.extract(frames[index], assigned):
+                total_embeddings += 1
+                if memory.update(embedding) is None:
+                    suppressed += 1
+            if index % 20 == 0:
+                progress = 80.0 + 5.0 * (index + 1) / max(frame_count, 1)
+                msg = f"Embedding frame {index + 1}/{frame_count}"
+                state.update(ProcessingStage.EMBEDDING, progress, msg)
+
+        records = self._persist_identities(video, memory, db)
+
+        state.update(
+            ProcessingStage.MEMORY,
+            85.0,
+            f"Consolidated {len(records)} identities in memory",
+        )
+        log = job_logger("processing", job_id=state.job_id, video_id=video.id)
+        log.info(
+            "Identity step complete: %d embeddings, %d identities, %d suppressed",
+            total_embeddings,
+            len(records),
+            suppressed,
+        )
+        return {
+            "total_embeddings": total_embeddings,
+            "total_identities": len(records),
+            "suppressed_observations": suppressed,
+        }
+
+    def _persist_identities(self, video: Video, memory, db) -> list[IdentityRecord]:
+        db.execute(delete(IdentityRecord).where(IdentityRecord.video_id == video.id))
+        records: list[IdentityRecord] = []
+        for identity in memory.identities:
+            records.append(
+                IdentityRecord(
+                    id=uuid4().hex,
+                    video_id=video.id,
+                    identity_id=identity.identity_id,
+                    quality=identity.quality,
+                    observation_count=identity.observation_count,
+                    first_frame_id=identity.first_frame_id,
+                    last_frame_id=identity.last_frame_id,
+                    last_track_id=identity.last_track_id,
+                    is_confident=identity.is_confident,
+                    prototype=[float(v) for v in identity.prototype],
+                )
+            )
+        db.add_all(records)
+        return records
+
     def analytics_summary(
-        self, detection_result: dict, track_result: dict, config: PipelineConfig
+        self,
+        detection_result: dict,
+        track_result: dict,
+        identity_result: dict,
+        config: PipelineConfig,
     ) -> PipelineSummary:
         return PipelineSummary(
             processed_frames=detection_result["processed_frames"],
@@ -265,6 +392,9 @@ class ProcessingService:
             total_tracks=track_result["total_tracks"],
             new_tracks=track_result["new_tracks"],
             lost_tracks=track_result["lost_tracks"],
+            total_embeddings=identity_result["total_embeddings"],
+            total_identities=identity_result["total_identities"],
+            suppressed_observations=identity_result["suppressed_observations"],
         )
 
     def _finalize(
