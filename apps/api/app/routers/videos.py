@@ -6,14 +6,14 @@ from typing import Annotated
 from uuid import uuid4
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.errors import ConflictError, NotFoundError, ValidationFailError
-from app.models import ProcessingJob, ProcessingStage, ProcessingStatus, Video
-from app.schemas import JobView, ProcessRequest
+from app.models import ProcessingJob, ProcessingStage, ProcessingStatus, Track, Video
+from app.schemas import JobView, MultiTrackResponse, ProcessRequest
 from app.services import (
     MetadataExtractionError,
     PipelineConfig,
@@ -43,7 +43,7 @@ def _run_processing(job_id: str, video_id: str, config: PipelineConfig) -> None:
         job.status = ProcessingStatus.RUNNING
         db.commit()
         try:
-            processing_service.run(video, job, state, config)
+            processing_service.run(db, video, job, state, config)
             db.commit()
         except Exception:
             db.rollback()
@@ -117,12 +117,27 @@ def get_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
     return video.to_dict()
 
 
+@router.get("/{video_id}/tracks", response_model=MultiTrackResponse)
+def list_video_tracks(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
+    """Return the persisted track trajectories for a processed video."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+
+    rows = db.scalars(
+        select(Track).where(Track.video_id == video_id).order_by(Track.track_id)
+    ).all()
+    return {"tracks": [r.to_dict() for r in rows], "total": len(rows)}
+
+
 @router.delete("/{video_id}")
 def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
     video = db.get(Video, video_id)
     if not video:
         raise NotFoundError("video_not_found", f"Video {video_id} not found")
     storage_service.delete(video.filename)
+    db.execute(delete(Track).where(Track.video_id == video_id))
+    db.execute(delete(ProcessingJob).where(ProcessingJob.video_id == video_id))
     db.delete(video)
     db.commit()
     return {"ok": True}
@@ -152,6 +167,7 @@ def process_video(
     config = PipelineConfig(
         inference_mode=request.inference_mode,
         confidence_threshold=request.confidence_threshold or settings.default_confidence_threshold,
+        tracker=request.tracker,
         max_frames=request.max_frames,
     )
 
@@ -162,6 +178,7 @@ def process_video(
         inference_mode=config.inference_mode,
         config={
             "confidence_threshold": config.confidence_threshold,
+            "tracker": config.tracker,
             "max_frames": config.max_frames,
         },
     )

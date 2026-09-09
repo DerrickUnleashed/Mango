@@ -1,9 +1,17 @@
 """Pydantic API schemas."""
 
-from .video import JobView, MultiVideoResponse, ProcessRequest, ProgressResponse, VideoView
+from .video import (
+    JobView,
+    MultiTrackResponse,
+    MultiVideoResponse,
+    ProcessRequest,
+    ProgressResponse,
+    VideoView,
+)
 
 __all__ = [
     "JobView",
+    "MultiTrackResponse",
     "MultiVideoResponse",
     "ProcessRequest",
     "ProgressResponse",

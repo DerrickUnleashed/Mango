@@ -83,7 +83,13 @@ class MultiVideoResponse(BaseModel):
     total: int
 
 
+class MultiTrackResponse(BaseModel):
+    tracks: list[dict]
+    total: int
+
+
 class ProcessRequest(BaseModel):
     confidence_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
     inference_mode: str = Field(default="mock", pattern="^(mock|real)$")
+    tracker: str = Field(default="mock", pattern="^(mock|bytetrack)$")
     max_frames: int | None = Field(default=None, ge=1, le=100_000)
