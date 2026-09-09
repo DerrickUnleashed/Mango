@@ -118,3 +118,8 @@ class MultiMotionResponse(BaseModel):
 
 class MultiAnalyticsResponse(BaseModel):
     summary: dict | None
+
+
+class MultiObservationResponse(BaseModel):
+    observations: list[dict]
+    total: int

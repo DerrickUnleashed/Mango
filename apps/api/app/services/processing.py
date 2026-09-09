@@ -28,6 +28,7 @@ from app.core.logging import job_logger
 from app.models import (
     CameraMotionRecord,
     DetectionRecord,
+    IdentityObservation,
     IdentityRecord,
     ProcessingJob,
     ProcessingStage,
@@ -423,21 +424,36 @@ class ProcessingService:
         frame_count = len(frames)
         total_embeddings = 0
         suppressed = 0
+        observations: list = []
         for index, assigned in enumerate(assigned_detections):
             if state.cancelled:
                 raise InterruptedError("Processing cancelled")
             embeddings = embedder.extract(frames[index], assigned)
             total_embeddings += len(embeddings)
             reid.step(index, lost_by_frame[index], embeddings, memory)
-            for embedding in embeddings:
-                if memory.update(embedding) is None:
+            for embedding, det in zip(embeddings, assigned.detections, strict=True):
+                identity = memory.update(embedding)
+                if identity is None:
                     suppressed += 1
+                    continue
+                observations.append(
+                    {
+                        "identity_id": identity.identity_id,
+                        "frame_id": embedding.frame_id,
+                        "track_id": det.track_id,
+                        "bbox": list(det.bbox),
+                        "confidence": embedding.confidence,
+                        "is_occluded": embedding.is_occluded,
+                        "quality_after": identity.quality,
+                    }
+                )
             if index % 20 == 0:
                 progress = 80.0 + 5.0 * (index + 1) / max(frame_count, 1)
                 msg = f"Embedding frame {index + 1}/{frame_count}"
                 state.update(ProcessingStage.EMBEDDING, progress, msg)
 
         records = self._persist_identities(video, memory, db)
+        self._persist_identity_observations(video, observations, db)
         reid_records = self._persist_reid_events(video, reid.events, db)
 
         state.update(
@@ -479,6 +495,27 @@ class ProcessingService:
                     prototype=[float(v) for v in identity.prototype],
                 )
             )
+        db.add_all(records)
+        return records
+
+    def _persist_identity_observations(
+        self, video: Video, observations: list[dict], db
+    ) -> list[IdentityObservation]:
+        db.execute(delete(IdentityObservation).where(IdentityObservation.video_id == video.id))
+        records = [
+            IdentityObservation(
+                id=uuid4().hex,
+                video_id=video.id,
+                identity_id=obs["identity_id"],
+                frame_id=obs["frame_id"],
+                track_id=obs["track_id"],
+                bbox=obs["bbox"],
+                confidence=obs["confidence"],
+                is_occluded=obs["is_occluded"],
+                quality_after=obs["quality_after"],
+            )
+            for obs in observations
+        ]
         db.add_all(records)
         return records
 

@@ -15,6 +15,7 @@ from app.core.errors import ConflictError, NotFoundError, ValidationFailError
 from app.models import (
     CameraMotionRecord,
     DetectionRecord,
+    IdentityObservation,
     IdentityRecord,
     ProcessingJob,
     ProcessingStage,
@@ -29,6 +30,7 @@ from app.schemas import (
     MultiDetectionResponse,
     MultiIdentityResponse,
     MultiMotionResponse,
+    MultiObservationResponse,
     MultiReidResponse,
     MultiTrackResponse,
     ProcessRequest,
@@ -185,6 +187,39 @@ def get_video_identity(
     return row.to_dict()
 
 
+@router.get(
+    "/{video_id}/identities/{identity_id}/observations",
+    response_model=MultiObservationResponse,
+)
+def list_video_identity_observations(
+    video_id: str, identity_id: int, db: Annotated[Session, Depends(get_db)]
+) -> dict:
+    """Return the per-frame observations merged into one learned identity."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+    identity = db.scalar(
+        select(IdentityRecord).where(
+            IdentityRecord.video_id == video_id,
+            IdentityRecord.identity_id == identity_id,
+        )
+    )
+    if not identity:
+        raise NotFoundError(
+            "identity_not_found", f"Identity {identity_id} not found for video {video_id}"
+        )
+
+    rows = db.scalars(
+        select(IdentityObservation)
+        .where(
+            IdentityObservation.video_id == video_id,
+            IdentityObservation.identity_id == identity_id,
+        )
+        .order_by(IdentityObservation.frame_id)
+    ).all()
+    return {"observations": [r.to_dict() for r in rows], "total": len(rows)}
+
+
 @router.get("/{video_id}/reid-events", response_model=MultiReidResponse)
 def list_video_reid_events(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
     """Return the re-identification events recovered for a processed video."""
@@ -254,6 +289,7 @@ def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict
     db.execute(delete(DetectionRecord).where(DetectionRecord.video_id == video_id))
     db.execute(delete(CameraMotionRecord).where(CameraMotionRecord.video_id == video_id))
     db.execute(delete(IdentityRecord).where(IdentityRecord.video_id == video_id))
+    db.execute(delete(IdentityObservation).where(IdentityObservation.video_id == video_id))
     db.execute(delete(ReidEvent).where(ReidEvent.video_id == video_id))
     db.execute(delete(ProcessingJob).where(ProcessingJob.video_id == video_id))
     db.delete(video)

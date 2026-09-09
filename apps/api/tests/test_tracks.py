@@ -244,3 +244,33 @@ def test_processing_persists_detections(client: TestClient, sample_video_bytes: 
     frame_dets = client.get(f"/api/videos/{video_id}/detections", params={"frame_id": 0}).json()
     assert frame_dets["total"] >= 1
     assert all(d["frameId"] == 0 for d in frame_dets["detections"])
+
+
+def test_identity_observations_persisted(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_id = _upload(client, sample_video_bytes)
+    final = _process(client, video_id, tracker="mock", max_frames=20)
+    assert final["status"] == "completed", final
+
+    identities = client.get(f"/api/videos/{video_id}/identities").json()
+    assert identities["total"] >= 1
+    identity_id = identities["identities"][0]["identityId"]
+
+    body = client.get(f"/api/videos/{video_id}/identities/{identity_id}/observations").json()
+    assert body["total"] >= 1
+    first = body["observations"][0]
+    assert set(first) >= {"frameId", "trackId", "bbox", "confidence", "isOccluded"}
+    assert 0.0 <= first["qualityAfter"] <= 1.0
+    frame_ids = [o["frameId"] for o in body["observations"]]
+    assert frame_ids == sorted(frame_ids)
+
+
+def test_identity_observations_require_existing_id(
+    client: TestClient, sample_video_bytes: bytes
+) -> None:
+    video_id = _upload(client, sample_video_bytes)
+    final = _process(client, video_id, tracker="mock", max_frames=20)
+    assert final["status"] == "completed", final
+
+    missing = client.get(f"/api/videos/{video_id}/identities/99999/observations")
+    assert missing.status_code == 404
+    assert missing.json()["code"] == "identity_not_found"
