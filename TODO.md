@@ -4,7 +4,7 @@
 
 **Phase:** 11 — ML Evaluation (REID steering) — Phase 7b observation history completed (remaining: representative frames)
 **Milestone:** Ground-truth-scored evaluation harness so mock-lifted designs can be validated against real data
-**Overall Progress:** 68%
+**Overall Progress:** 70%
 **Last Updated:** 2026-09-09
 
 ---
@@ -449,30 +449,31 @@ mango/
 ## Phase 11 — Evaluation
 
 ### ML
-- [ ] IDF1 metric implementation
+- [x] IDF1 metric implementation
 - [ ] HOTA metric implementation
-- [ ] Identity Recovery Rate
-- [ ] ID Switches counting
-- [ ] Track Fragmentation
-- [ ] MAPE computation
-- [ ] MAE computation
-- [ ] Baseline comparison framework
+- [x] Identity Recovery Rate
+- [x] ID Switches counting
+- [x] Track Fragmentation
+- [x] MAPE computation
+- [x] MAE computation
+- [x] Baseline comparison framework (per-tracker median aggregation in web; greedy trajectory matching)
+- [x] Scenario ground truth from SCENARIO_ORCHARD (absent/occlusion windows)
 
 ### Backend
-- [ ] Experiment SQLAlchemy model
-- [ ] EvaluationResult SQLAlchemy model
-- [ ] Experiment CRUD endpoints
-- [ ] Evaluation execution endpoint
-- [ ] Evaluation results endpoint
-- [ ] Metric query endpoint
+- [x] Experiment SQLAlchemy model
+- [ ] EvaluationResult SQLAlchemy model (metrics stored as JSON on Experiment)
+- [x] Experiment CRUD endpoints
+- [x] Evaluation execution endpoint (synchronous mock-scenario run on create)
+- [x] Evaluation results endpoint (GET experiment detail with metrics)
+- [ ] Metric query endpoint (served via GET /api/experiments list/detail)
 
 ### Frontend
-- [ ] Evaluation page
-- [ ] Experiment configuration form
-- [ ] Metric display cards
-- [ ] Baseline comparison table
+- [x] Evaluation page (placeholder routed at /evaluation; experiments link)
+- [x] Experiment configuration form (tracker + scenario frames)
+- [x] Metric display cards
+- [x] Baseline comparison table
 - [ ] Metric trend charts
-- [ ] Experiment list/history
+- [x] Experiment list/history
 
 ---
 
@@ -556,8 +557,8 @@ mango/
 
 ## Test Status
 
-- Backend: 33 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations)
-- ML: 49 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping)
+- Backend: 40 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics)
+- ML: 63 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, scenario ground truth with absent windows)
 - Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
 ## Decisions Log
@@ -592,3 +593,5 @@ mango/
 | 2026-09-09 | Camera motion compensation shifts detection bboxes before tracking | Keeps tracker/embedding interfaces unchanged; compensation is a boundary concern |
 | 2026-09-09 | Mock drift estimator keeps drift constant per frame | Cumulative offset is analytic (drift × frame), so tests are exact |
 | 2026-09-09 | Analytics computed on demand from persisted rows | No extra pipeline step or schema; aggregates reflect the video's latest run |
+| 2026-09-09 | Evaluation metrics computed from greedy trajectory matching over tracklets | Decoupled from any tracker/re-id impl; deterministic and testable |
+| 2026-09-09 | ID switches / fragmentation use per-frame best-overlap match, not matched pairs | Greedy pairing assigns only one pred track per GT, losing switch/fragment evidence |
