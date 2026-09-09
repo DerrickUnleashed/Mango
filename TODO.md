@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 1 — Project Foundation
-**Milestone:** Frontend + Backend + ML scaffolding operational
-**Overall Progress:** 15%
+**Phase:** 5 — Tracking (ML core: interface + ByteTrack adapter)
+**Milestone:** Deterministic mock tracking + ByteTrack-style Kalman tracker with tests
+**Overall Progress:** 20%
 **Last Updated:** 2026-09-09
 
 ---
@@ -124,14 +124,14 @@ mango/
 - [ ] Detector unit tests pass
 
 ### QG 5 — Tracking
-- [ ] Tracker interface implemented
-- [ ] ByteTrack integration works
-- [ ] Track IDs persist across frames
-- [ ] Track lifecycle works
-- [ ] Lost tracks represented
+- [x] Tracker interface implemented
+- [x] ByteTrack integration works
+- [x] Track IDs persist across frames
+- [x] Track lifecycle works
+- [x] Lost tracks represented
 - [ ] Track visualization works
-- [ ] Kalman/motion state represented
-- [ ] Tracker tests pass
+- [x] Kalman/motion state represented
+- [x] Tracker tests pass
 
 ### QG 6 — Identity Learning
 - [ ] Embedding interface implemented
@@ -289,9 +289,9 @@ mango/
 ## Phase 4 — Detection
 
 ### ML
-- [ ] Detection data model (Detection, DetectionResult)
-- [ ] Detector abstract interface
-- [ ] Mock detector implementation
+- [x] Detection data model (Detection, DetectionResult)
+- [x] Detector abstract interface
+- [x] Mock detector implementation
 - [ ] YOLO adapter implementation
 - [ ] Detection confidence thresholding
 - [ ] Detection post-processing (NMS)
@@ -312,11 +312,11 @@ mango/
 ## Phase 5 — Tracking
 
 ### ML
-- [ ] Track data model (Track, TrackObservation)
-- [ ] Tracker abstract interface
-- [ ] Kalman filter implementation
-- [ ] ByteTrack adapter
-- [ ] Track lifecycle management (active, lost, removed)
+- [x] Track data model (Track, TrackObservation)
+- [x] Tracker abstract interface
+- [x] Kalman filter implementation
+- [x] ByteTrack adapter
+- [x] Track lifecycle management (active, lost, removed)
 - [ ] Track visualization helpers
 
 ### Backend
@@ -551,8 +551,8 @@ mango/
 
 ## Test Status
 
-- Backend: 11 tests passing (health, video CRUD, upload validation, processing flow)
-- ML: 6 tests passing (detector interface, mock determinism, occlusion windows)
+- Backend: 10 tests passing (health, video CRUD, upload validation, processing flow)
+- ML: 18 tests passing (detector interface, mock determinism, occlusion windows, tracker interface, mock tracker lifecycle, ByteTrack two-stage association, Kalman)
 - Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
 ## Decisions Log
@@ -568,3 +568,6 @@ mango/
 | 2026-09-09 | In-memory job queue first, Redis/Celery later | Simple local dev while keeping swap-in boundary |
 | 2026-09-09 | `tests/` dirs are NOT Python packages | Avoids top-level `tests` package collision between api/ml |
 | 2026-09-09 | Background jobs use their own DB session | FastAPI request session closes before background task runs |
+| 2026-09-09 | Tracker IDs monotonically increase, never reused per stream | Reused IDs corrupt identity bookkeeping across long-term tracking |
+| 2026-09-09 | ByteTrack third stage (tracklet buffer) skipped in adapter | Two-stage association sufficient for mock pipeline; buffer = Kalman-track IC buffer only |
+| 2026-09-09 | MockTracker uses centre-distance greedy association | Deterministic, dependency-free stand-in for ByteTrack in dev mode |
