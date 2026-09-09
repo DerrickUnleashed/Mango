@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import type { PersistedIdentity } from '@orchardvision/types'
-import { useIdentities } from '../../hooks/useVideos'
+import { useIdentities, useIdentityObservations } from '../../hooks/useVideos'
 
 const PALETTE = [
   '#f59e0b',
@@ -68,17 +69,25 @@ export function IdentitiesPanel({ videoId, enabled }: IdentitiesPanelProps) {
       </div>
       <ul className="max-h-72 overflow-y-auto p-2">
         {identities.map((identity) => (
-          <IdentityRow key={identity.id} identity={identity} />
+          <IdentityRow key={identity.id} identity={identity} videoId={videoId} />
         ))}
       </ul>
     </div>
   )
 }
 
-function IdentityRow({ identity }: { identity: PersistedIdentity }) {
+function IdentityRow({ identity, videoId }: { identity: PersistedIdentity; videoId: string }) {
+  const [open, setOpen] = useState(false)
+  const observations = useIdentityObservations(videoId, open ? identity.identityId : null, open)
+  const obs = observations.data?.observations ?? []
+
   return (
     <li>
-      <div className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 transition-colors hover:bg-surface-900">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-900"
+      >
         <span className="flex items-center gap-2">
           <span
             className="h-2.5 w-2.5 rounded-full"
@@ -97,7 +106,46 @@ function IdentityRow({ identity }: { identity: PersistedIdentity }) {
           {identity.firstFrameId}–{identity.lastFrameId} ·{' '}
           {identity.observationCount} obs · q {identity.quality.toFixed(2)}
         </span>
-      </div>
+      </button>
+
+      {open && (
+        <div className="mb-2 ml-6 rounded-lg border border-surface-800 bg-surface-900/60 px-3 py-2">
+          {observations.isLoading && (
+            <p className="text-xs text-surface-500">Loading observations…</p>
+          )}
+          <ul className="max-h-48 space-y-1 overflow-y-auto">
+            {obs.map((observation) => (
+              <li
+                key={observation.id}
+                className="flex items-center justify-between gap-2 rounded px-2 py-0.5 font-mono text-[11px] text-surface-400 hover:bg-surface-800"
+              >
+                <span className="flex items-center gap-3">
+                  <span className="tabular-nums text-surface-300">f{observation.frameId}</span>
+                  <span>
+                    {observation.trackId === null
+                      ? 'no track'
+                      : `track ${observation.trackId}`}
+                  </span>
+                  {observation.isOccluded && (
+                    <span className="rounded-full bg-amber-500/15 px-1.5 py-px text-[10px] text-amber-300">
+                      occluded
+                    </span>
+                  )}
+                </span>
+                <span className="flex items-center gap-3">
+                  <span>conf {observation.confidence.toFixed(2)}</span>
+                  <span className="tabular-nums text-surface-500">
+                    q {observation.qualityAfter?.toFixed(2) ?? '—'}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          {!observations.isLoading && obs.length === 0 && (
+            <p className="text-xs text-surface-500">No observations recorded.</p>
+          )}
+        </div>
+      )}
     </li>
   )
 }

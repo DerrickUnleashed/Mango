@@ -3,6 +3,7 @@ import type {
   CameraMotionEstimate,
   PersistedDetectionListResponse,
   PersistedIdentityListResponse,
+  PersistedObservationListResponse,
   PersistedReidListResponse,
   PersistedTrackListResponse,
   ProcessVideoRequest,
@@ -53,6 +54,15 @@ export function getAnalytics(
   return apiRequest<{ summary: AnalyticsSummary | null }>(
     `/videos/${id}/analytics`,
   ).then((body) => body.summary)
+}
+
+export function getIdentityObservations(
+  id: string,
+  identityId: number,
+): Promise<PersistedObservationListResponse> {
+  return apiRequest<PersistedObservationListResponse>(
+    `/videos/${id}/identities/${identityId}/observations`,
+  )
 }
 
 export function uploadVideo(

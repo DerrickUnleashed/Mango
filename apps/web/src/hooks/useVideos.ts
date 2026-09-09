@@ -10,6 +10,7 @@ import {
   getDetections,
   getHealth,
   getIdentities,
+  getIdentityObservations,
   getMotionEstimate,
   getReidEvents,
   getTracks,
@@ -76,6 +77,18 @@ export function useAnalytics(videoId: string, enabled: boolean) {
     queryKey: ['videos', videoId, 'analytics'],
     queryFn: () => getAnalytics(videoId),
     enabled: enabled && Boolean(videoId),
+  })
+}
+
+export function useIdentityObservations(
+  videoId: string,
+  identityId: number | null,
+  enabled: boolean,
+) {
+  return useQuery({
+    queryKey: ['videos', videoId, 'identities', identityId, 'observations'],
+    queryFn: () => getIdentityObservations(videoId, identityId as number),
+    enabled: enabled && identityId !== null,
   })
 }
 

@@ -61,6 +61,23 @@ export interface PersistedIdentityListResponse {
   total: number
 }
 
+export interface PersistedIdentityObservation {
+  id: string
+  videoId: string
+  identityId: number
+  frameId: number
+  trackId: number | null
+  bbox: [number, number, number, number]
+  confidence: number
+  isOccluded: boolean
+  qualityAfter: number | null
+}
+
+export interface PersistedObservationListResponse {
+  observations: PersistedIdentityObservation[]
+  total: number
+}
+
 export interface PersistedReidEvent {
   id: string
   videoId: string
