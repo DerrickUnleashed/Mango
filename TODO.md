@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 5 — Tracking (pipeline integration + persistence)
-**Milestone:** Tracking stage wired into processing pipeline; tracks persisted and queryable via API
-**Overall Progress:** 25%
+**Phase:** 5 — Tracking (frontend visualization complete)
+**Milestone:** End-to-end tracking: pipeline stage, persistence, query API, and overlay visualization
+**Overall Progress:** 30%
 **Last Updated:** 2026-09-09
 
 ---
@@ -325,11 +325,11 @@ mango/
 - [ ] Track detail endpoint
 
 ### Frontend
-- [ ] Track overlay with unique colors
-- [ ] Track ID labels
-- [ ] Trajectory visualization
+- [x] Track overlay with unique colors
+- [x] Track ID labels
+- [x] Trajectory visualization
 - [ ] Track status indicators
-- [ ] Track list/filter controls
+- [x] Track list/filter controls
 
 ---
 
