@@ -6,6 +6,7 @@ import type {
 } from '@orchardvision/types'
 import {
   deleteVideo,
+  getAnalytics,
   getDetections,
   getHealth,
   getIdentities,
@@ -70,6 +71,14 @@ export function useMotionEstimate(videoId: string, enabled: boolean) {
   })
 }
 
+export function useAnalytics(videoId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['videos', videoId, 'analytics'],
+    queryFn: () => getAnalytics(videoId),
+    enabled: enabled && Boolean(videoId),
+  })
+}
+
 export function useFrameDetections(videoId: string, frameId: number, enabled: boolean) {
   return useQuery({
     queryKey: ['videos', videoId, 'detections', frameId],
@@ -120,6 +129,9 @@ export function useProcessVideo() {
       })
       queryClient.invalidateQueries({
         queryKey: ['videos', variables.videoId, 'motion'],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['videos', variables.videoId, 'analytics'],
       })
     },
   })

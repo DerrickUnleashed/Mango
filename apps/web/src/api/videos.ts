@@ -1,4 +1,5 @@
 import type {
+  AnalyticsSummary,
   CameraMotionEstimate,
   PersistedDetectionListResponse,
   PersistedIdentityListResponse,
@@ -44,6 +45,14 @@ export function getMotionEstimate(id: string): Promise<CameraMotionEstimate | nu
   return apiRequest<{ estimate: CameraMotionEstimate | null }>(
     `/videos/${id}/motion`,
   ).then((body) => body.estimate)
+}
+
+export function getAnalytics(
+  id: string,
+): Promise<AnalyticsSummary | null> {
+  return apiRequest<{ summary: AnalyticsSummary | null }>(
+    `/videos/${id}/analytics`,
+  ).then((body) => body.summary)
 }
 
 export function uploadVideo(
