@@ -1,4 +1,5 @@
 import type {
+  PersistedDetectionListResponse,
   PersistedIdentityListResponse,
   PersistedReidListResponse,
   PersistedTrackListResponse,
@@ -28,6 +29,14 @@ export function getIdentities(id: string): Promise<PersistedIdentityListResponse
 
 export function getReidEvents(id: string): Promise<PersistedReidListResponse> {
   return apiRequest<PersistedReidListResponse>(`/videos/${id}/reid-events`)
+}
+
+export function getDetections(
+  id: string,
+  frameId?: number,
+): Promise<PersistedDetectionListResponse> {
+  const query = frameId === undefined ? '' : `?frame_id=${frameId}`
+  return apiRequest<PersistedDetectionListResponse>(`/videos/${id}/detections${query}`)
 }
 
 export function uploadVideo(

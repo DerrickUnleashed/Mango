@@ -69,3 +69,19 @@ export interface PersistedTrackListResponse {
   tracks: PersistedTrack[]
   total: number
 }
+
+export interface PersistedDetection {
+  id: string
+  videoId: string
+  frameId: number
+  trackId: number | null
+  bbox: [number, number, number, number]
+  confidence: number
+  classLabel: string
+  isOccluded: boolean
+}
+
+export interface PersistedDetectionListResponse {
+  detections: PersistedDetection[]
+  total: number
+}

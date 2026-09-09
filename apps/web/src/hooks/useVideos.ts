@@ -6,6 +6,7 @@ import type {
 } from '@orchardvision/types'
 import {
   deleteVideo,
+  getDetections,
   getHealth,
   getIdentities,
   getReidEvents,
@@ -60,6 +61,14 @@ export function useReidEvents(videoId: string, enabled: boolean) {
   })
 }
 
+export function useFrameDetections(videoId: string, frameId: number, enabled: boolean) {
+  return useQuery({
+    queryKey: ['videos', videoId, 'detections', frameId],
+    queryFn: () => getDetections(videoId, frameId),
+    enabled: enabled && Boolean(videoId),
+  })
+}
+
 export function useUploadVideo(onSuccess?: (video: Video) => void) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -96,6 +105,9 @@ export function useProcessVideo() {
       })
       queryClient.invalidateQueries({
         queryKey: ['videos', variables.videoId, 'reid-events'],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['videos', variables.videoId, 'detections'],
       })
     },
   })

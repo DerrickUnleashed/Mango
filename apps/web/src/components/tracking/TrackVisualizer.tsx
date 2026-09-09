@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { PersistedTrack } from '@orchardvision/types'
-import { useTracks } from '../../hooks/useVideos'
+import { useFrameDetections, useTracks } from '../../hooks/useVideos'
 
 const PALETTE = [
   '#f59e0b',
@@ -41,6 +41,9 @@ export function TrackVisualizer({
 
   const [frame, setFrame] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
+  const [showDetections, setShowDetections] = useState(true)
+  const { data: detectionsData } = useFrameDetections(videoId, frame, enabled)
+  const detections = useMemo(() => detectionsData?.detections ?? [], [detectionsData])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -85,7 +88,29 @@ export function TrackVisualizer({
         ctx.fillText(`#${track.trackId}`, x, Math.max(y - 4, 12))
       }
     }
-  }, [tracks, frame, width, height])
+
+    if (showDetections) {
+      for (const det of detections) {
+        const [x, y, w, h] = det.bbox
+        ctx.beginPath()
+        ctx.rect(x, y, w, h)
+        ctx.strokeStyle = '#e2e8f0'
+        ctx.globalAlpha = 0.75
+        ctx.setLineDash([4, 4])
+        ctx.lineWidth = 1.25
+        ctx.stroke()
+        ctx.setLineDash([])
+        ctx.globalAlpha = 1
+        ctx.font = '10px ui-sans-serif, system-ui'
+        ctx.fillStyle = 'rgba(226, 232, 240, 0.9)'
+        ctx.fillText(
+          `d${det.confidence.toFixed(2)}${det.isOccluded ? '·occ' : ''}`,
+          x,
+          Math.max(y + h + 11, 12),
+        )
+      }
+    }
+  }, [tracks, frame, width, height, showDetections, detections])
 
   const highlight = useMemo(() => {
     if (selected === null) return null
@@ -130,6 +155,15 @@ export function TrackVisualizer({
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <label className="flex cursor-pointer items-center gap-1.5 text-xs text-surface-400">
+            <input
+              type="checkbox"
+              checked={showDetections}
+              onChange={(e) => setShowDetections(e.target.checked)}
+              className="h-3.5 w-3.5 accent-orchard-500"
+            />
+            Detections
+          </label>
           <label className="text-xs text-surface-400" htmlFor="track-frame">
             Frame
           </label>
