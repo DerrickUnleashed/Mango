@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.errors import ConflictError, NotFoundError, ValidationFailError
 from app.models import (
+    CameraMotionRecord,
     DetectionRecord,
     IdentityRecord,
     ProcessingJob,
@@ -26,6 +27,7 @@ from app.schemas import (
     JobView,
     MultiDetectionResponse,
     MultiIdentityResponse,
+    MultiMotionResponse,
     MultiReidResponse,
     MultiTrackResponse,
     ProcessRequest,
@@ -214,6 +216,19 @@ def list_video_detections(
     return {"detections": [r.to_dict() for r in rows], "total": len(rows)}
 
 
+@router.get("/{video_id}/motion", response_model=MultiMotionResponse)
+def get_video_motion(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
+    """Return the latest camera-motion estimate for a video."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+
+    row = db.scalar(select(CameraMotionRecord).where(CameraMotionRecord.video_id == video_id))
+    if row is None:
+        return {"estimate": None, "compensationApplied": None}
+    return {"estimate": row.to_dict(), "compensationApplied": row.compensation_applied}
+
+
 @router.delete("/{video_id}")
 def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
     video = db.get(Video, video_id)
@@ -222,6 +237,7 @@ def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict
     storage_service.delete(video.filename)
     db.execute(delete(Track).where(Track.video_id == video_id))
     db.execute(delete(DetectionRecord).where(DetectionRecord.video_id == video_id))
+    db.execute(delete(CameraMotionRecord).where(CameraMotionRecord.video_id == video_id))
     db.execute(delete(IdentityRecord).where(IdentityRecord.video_id == video_id))
     db.execute(delete(ReidEvent).where(ReidEvent.video_id == video_id))
     db.execute(delete(ProcessingJob).where(ProcessingJob.video_id == video_id))
@@ -255,6 +271,7 @@ def process_video(
         inference_mode=request.inference_mode,
         confidence_threshold=request.confidence_threshold or settings.default_confidence_threshold,
         tracker=request.tracker,
+        camera_motion=request.camera_motion,
         max_frames=request.max_frames,
     )
 
@@ -266,6 +283,7 @@ def process_video(
         config={
             "confidence_threshold": config.confidence_threshold,
             "tracker": config.tracker,
+            "camera_motion": config.camera_motion,
             "max_frames": config.max_frames,
         },
     )

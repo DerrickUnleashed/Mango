@@ -18,12 +18,14 @@ from orchardvision_ml.detection import MockDetector
 from orchardvision_ml.detection.mock import SCENARIO_ORCHARD
 from orchardvision_ml.identity import MockEmbeddingExtractor
 from orchardvision_ml.memory import MockIdentityMemory
+from orchardvision_ml.motion import MockMotionEstimator, MotionEstimator, StaticMotionEstimator
 from orchardvision_ml.reid import MockReIdentifier
 from orchardvision_ml.tracking import ByteTrackAdapter, MockTracker, Tracker
 from sqlalchemy import delete
 
 from app.core.logging import job_logger
 from app.models import (
+    CameraMotionRecord,
     DetectionRecord,
     IdentityRecord,
     ProcessingJob,
@@ -46,6 +48,7 @@ class PipelineConfig:
     inference_mode: str = "mock"
     confidence_threshold: float = 0.35
     tracker: str = "mock"
+    camera_motion: str = "static"
     max_frames: int | None = None
 
     def effective_max_frames(self, total_frames: int) -> int:
@@ -60,6 +63,7 @@ class PipelineSummary:
     average_confidence: float
     inference_mode: str
     tracker: str
+    camera_motion: str
     total_tracks: int
     new_tracks: int
     lost_tracks: int
@@ -92,6 +96,7 @@ class ProcessingService:
                 video, job, state, config, detections["frame_detections"], db
             )
             self.persist_detections(video, track_summary["assigned_detections"], db)
+            self.persist_motion_estimate(video, config, detections["processed_frames"], db)
             identity_summary = self.learn_identities(
                 video,
                 job,
@@ -211,6 +216,7 @@ class ProcessingService:
         """Associate per-frame detections into stable tracks and persist them."""
         state.update(ProcessingStage.TRACKING, 55.0, "Tracking detections")
         tracker: Tracker = self._build_tracker(config)
+        motion: MotionEstimator = self._build_motion_estimator(config)
         frame_count = len(frame_detections)
 
         new_track_count = 0
@@ -221,11 +227,12 @@ class ProcessingService:
         for index, frame_detection in enumerate(frame_detections):
             if state.cancelled:
                 raise InterruptedError("Processing cancelled")
-            last = tracker.update(frame_detection)
+            stable_detection = self.compensate_frame_detections(frame_detection, motion, index)
+            last = tracker.update(stable_detection)
             new_track_count += len(last.new_track_ids)
             lost_track_count += len(last.lost_track_ids)
             assigned_detections.append(
-                self._assign_track_ids(index, frame_detection, last.active_tracks)
+                self._assign_track_ids(index, stable_detection, last.active_tracks)
             )
             lost_by_frame.append(list(last.lost_track_ids))
 
@@ -239,19 +246,69 @@ class ProcessingService:
 
         log = job_logger("processing", job_id=state.job_id, video_id=video.id)
         log.info(
-            "Tracking step complete: %d tracks, %d new, %d lost",
+            "Tracking step complete: %d tracks, %d new, %d lost (motion=%s)",
             len(tracks),
             new_track_count,
             lost_track_count,
+            motion.name,
         )
         return {
             "tracker": tracker.name,
+            "camera_motion": motion.name,
             "total_tracks": len(tracks),
             "new_tracks": new_track_count,
             "lost_tracks": lost_track_count,
             "assigned_detections": assigned_detections,
             "lost_by_frame": lost_by_frame,
         }
+
+    def _build_motion_estimator(self, config: PipelineConfig) -> MotionEstimator:
+        """Pick a motion estimator from pipeline config.
+
+        ``camera_motion="drift"`` simulates a slightly drifting camera so the
+        compensation path stays exercised; real adapters will attach later.
+        """
+        if config.camera_motion == "drift":
+            return MockMotionEstimator(dx_per_frame=0.5, dy_per_frame=0.2)
+        return StaticMotionEstimator()
+
+    def compensate_frame_detections(self, frame_detection, motion, frame_id):
+        """Shift detection bboxes into motion-stabilized coordinates.
+
+        Identity-preserving: static estimators return the detections unchanged.
+        """
+        detections = frame_detection.detections
+        if motion.name == "static" or not detections:
+            return frame_detection
+        compensated = [
+            replace(det, bbox=tuple(motion.compensate(tuple(det.bbox), frame_id)))
+            for det in detections
+        ]
+        return replace(frame_detection, detections=compensated)
+
+    def persist_motion_estimate(
+        self, video: Video, config: PipelineConfig, frame_count: int, db
+    ) -> CameraMotionRecord:
+        """Store the run's camera-motion estimate for this video."""
+        motion: MotionEstimator = self._build_motion_estimator(config)
+        estimate = motion.estimate(max(frame_count - 1, 0))
+        compensation_applied = not estimate.is_static
+        mean_abs_shift = (estimate.dx**2 + estimate.dy**2) ** 0.5
+
+        db.execute(delete(CameraMotionRecord).where(CameraMotionRecord.video_id == video.id))
+        record = CameraMotionRecord(
+            id=uuid4().hex,
+            video_id=video.id,
+            source=estimate.source,
+            dx_per_frame=estimate.dx,
+            dy_per_frame=estimate.dy,
+            mean_abs_shift=mean_abs_shift,
+            frames_analyzed=frame_count,
+            confidence=estimate.confidence,
+            compensation_applied=compensation_applied,
+        )
+        db.add(record)
+        return record
 
     def _assign_track_ids(self, frame_id: int, frame_detections, active_tracks: list):
         """Stamp each detection with the id of its best-matching recent track.
@@ -457,6 +514,7 @@ class ProcessingService:
             average_confidence=detection_result["average_confidence"],
             inference_mode=config.inference_mode,
             tracker=track_result["tracker"],
+            camera_motion=track_result["camera_motion"],
             total_tracks=track_result["total_tracks"],
             new_tracks=track_result["new_tracks"],
             lost_tracks=track_result["lost_tracks"],

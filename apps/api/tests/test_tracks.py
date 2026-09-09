@@ -150,6 +150,53 @@ def test_detections_require_existing_video(client: TestClient) -> None:
     assert response.json()["code"] == "video_not_found"
 
 
+def test_motion_empty_before_processing(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_id = _upload(client, sample_video_bytes)
+    body = client.get(f"/api/videos/{video_id}/motion").json()
+    assert body == {"estimate": None, "compensationApplied": None}
+
+
+def test_processing_persists_static_motion(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_id = _upload(client, sample_video_bytes)
+    final = _process(client, video_id, tracker="mock", max_frames=15)
+    assert final["status"] == "completed", final
+
+    body = client.get(f"/api/videos/{video_id}/motion").json()
+    assert body["compensationApplied"] is False
+    estimate = body["estimate"]
+    assert estimate is not None
+    assert estimate["source"] == "static"
+    assert estimate["dxPerFrame"] == 0.0
+    assert estimate["dyPerFrame"] == 0.0
+    assert estimate["framesAnalyzed"] == 15
+
+
+def test_processing_with_drift_compensation(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_id = _upload(client, sample_video_bytes)
+    final = _process(
+        client,
+        video_id,
+        tracker="mock",
+        max_frames=15,
+        camera_motion="drift",
+    )
+    assert final["status"] == "completed", final
+
+    body = client.get(f"/api/videos/{video_id}/motion").json()
+    estimate = body["estimate"]
+    assert estimate is not None
+    assert estimate["source"] == "mock-drift"
+    assert estimate["dxPerFrame"] == 0.5
+    assert estimate["dyPerFrame"] == 0.2
+    assert body["compensationApplied"] is True
+
+
+def test_motion_requires_existing_video(client: TestClient) -> None:
+    response = client.get("/api/videos/does-not-exist/motion")
+    assert response.status_code == 404
+    assert response.json()["code"] == "video_not_found"
+
+
 def test_processing_persists_detections(client: TestClient, sample_video_bytes: bytes) -> None:
     video_id = _upload(client, sample_video_bytes)
     final = _process(client, video_id, tracker="mock", max_frames=15)

@@ -107,4 +107,10 @@ class ProcessRequest(BaseModel):
     confidence_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
     inference_mode: str = Field(default="mock", pattern="^(mock|real)$")
     tracker: str = Field(default="mock", pattern="^(mock|bytetrack)$")
+    camera_motion: str = Field(default="static", pattern="^(static|drift)$")
     max_frames: int | None = Field(default=None, ge=1, le=100_000)
+
+
+class MultiMotionResponse(BaseModel):
+    estimate: dict | None
+    compensationApplied: bool | None = None

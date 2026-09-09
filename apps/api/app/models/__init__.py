@@ -1,5 +1,6 @@
 """SQLAlchemy ORM models."""
 
+from .camera_motion import CameraMotionRecord
 from .detection_record import DetectionRecord
 from .identity_record import IdentityRecord
 from .processing_job import ProcessingJob, ProcessingStage, ProcessingStatus
@@ -8,6 +9,7 @@ from .track import Track
 from .video import Video
 
 __all__ = [
+    "CameraMotionRecord",
     "DetectionRecord",
     "IdentityRecord",
     "ProcessingJob",
