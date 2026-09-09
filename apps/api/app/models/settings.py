@@ -42,8 +42,11 @@ class AppSettings(Base):
         return {**DEFAULT_SETTINGS, **self.values}
 
     def to_dict(self) -> dict:
-        return {"values": self.effective_values(), "revision": self.revision,
-                "updatedAt": self.updated_at.isoformat() if self.updated_at else None}
+        return {
+            "values": self.effective_values(),
+            "revision": self.revision,
+            "updatedAt": self.updated_at.isoformat() if self.updated_at else None,
+        }
 
 
 __all__ = ["AppSettings", "DEFAULT_SETTINGS", "GLOBAL_SETTINGS_ID"]

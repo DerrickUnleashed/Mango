@@ -47,8 +47,11 @@ def update_settings(
     row.revision += 1
     db.commit()
     db.refresh(row)
-    return {"values": merged, "revision": row.revision,
-            "updatedAt": row.updated_at.isoformat() if row.updated_at else None}
+    return {
+        "values": merged,
+        "revision": row.revision,
+        "updatedAt": row.updated_at.isoformat() if row.updated_at else None,
+    }
 
 
 __all__ = ["router"]
