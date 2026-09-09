@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 13 — Settings (complete) — next: 14 Production Hardening
+**Phase:** 14 — Production Hardening (mostly complete; migrations + production mode pending)
 **Milestone:** Ground-truth-scored evaluation harness so mock-lifted designs can be validated against real data
-**Overall Progress:** 76%
+**Overall Progress:** 80%
 **Last Updated:** 2026-09-09
 
 ---
@@ -515,19 +515,19 @@ mango/
 
 ## Phase 14 — Production Hardening
 
-- [ ] Security review
-- [ ] Input validation on all endpoints
-- [ ] File upload security (sanitize filenames, validate MIME, size limits)
-- [ ] API error handling middleware
-- [ ] Structured logging throughout
-- [ ] No secrets in code
-- [ ] Environment variable documentation
+- [x] Security review
+- [x] Input validation on all endpoints
+- [x] File upload security (sanitize filenames, validate MIME, size limits)
+- [x] API error handling middleware
+- [x] Structured logging throughout
+- [x] No secrets in code
+- [x] Environment variable documentation
 - [ ] Database migration scripts
-- [ ] Complete test suite
-- [ ] Frontend production build
+- [x] Complete test suite
+- [x] Frontend production build
 - [ ] Backend production mode
-- [ ] Docker production configuration
-- [ ] Documentation (README, architecture, API, ML pipeline, dev guide)
+- [x] Docker production configuration
+- [x] Documentation (README, architecture, API, ML pipeline, dev guide)
 
 ---
 
