@@ -9,11 +9,20 @@ import type { Experiment, ExperimentMetrics } from '@orchardvision/types'
 
 const METRIC_ROWS: { key: keyof ExperimentMetrics; label: string; digits: number }[] = [
   { key: 'idf1', label: 'IDF1', digits: 3 },
+  { key: 'hota', label: 'HOTA', digits: 3 },
   { key: 'identityRecoveryRate', label: 'Re-ID recovery', digits: 3 },
   { key: 'countMae', label: 'Count MAE', digits: 3 },
   { key: 'countMape', label: 'Count MAPE', digits: 1 },
   { key: 'idSwitches', label: 'ID switches', digits: 0 },
   { key: 'trackFragmentation', label: 'Fragmentation', digits: 3 },
+]
+
+const TREND_METRICS: { key: keyof ExperimentMetrics; label: string; higherIsBetter: boolean }[] = [
+  { key: 'idf1', label: 'IDF1', higherIsBetter: true },
+  { key: 'hota', label: 'HOTA', higherIsBetter: true },
+  { key: 'identityRecoveryRate', label: 'Re-ID recovery', higherIsBetter: true },
+  { key: 'countMape', label: 'Count MAPE', higherIsBetter: false },
+  { key: 'trackFragmentation', label: 'Fragmentation', higherIsBetter: false },
 ]
 
 export function ExperimentsPage() {
@@ -62,6 +71,7 @@ export function ExperimentsPage() {
   }
 
   const baseline = baselineByTracker(experiments)
+  const trends = trendRuns(experiments)
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -150,6 +160,25 @@ export function ExperimentsPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {trends.length > 0 && (
+        <div className="mt-6 rounded-xl border border-surface-800 bg-surface-950 p-5">
+          <h2 className="font-medium text-surface-200">Metric trends over runs</h2>
+          <p className="mt-1 text-sm text-surface-400">
+            Completed runs in creation order; cyan = mock tracker, amber = bytetrack.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {TREND_METRICS.map((metric) => (
+              <TrendChart
+                key={metric.key}
+                metric={metric}
+                runs={trends}
+                digits={metric.key === 'countMape' ? 1 : 3}
+              />
+            ))}
           </div>
         </div>
       )}
@@ -288,4 +317,83 @@ function median(values: number[]): number {
   const sorted = [...values].sort((a, b) => a - b)
   const mid = Math.floor(sorted.length / 2)
   return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid]
+}
+
+function trendRuns(
+  experiments: Experiment[],
+): { tracker: Experiment['tracker']; values: Partial<Record<keyof ExperimentMetrics, number>> }[] {
+  return [...experiments]
+    .sort((a, b) => (a.createdAt ?? '').localeCompare(b.createdAt ?? ''))
+    .filter((e) => e.status === 'completed' && e.metrics)
+    .map((e) => ({ tracker: e.tracker, values: e.metrics! }))
+}
+
+function TrendChart({
+  metric,
+  runs,
+  digits,
+}: {
+  metric: (typeof TREND_METRICS)[number]
+  runs: ReturnType<typeof trendRuns>
+  digits: number
+}) {
+  const WIDTH = 240
+  const HEIGHT = 80
+  const PAD = 6
+  const points = runs
+    .map((run, index) => ({ ...run, index, value: run.values[metric.key] }))
+    .filter((p): p is (typeof p) & { value: number } => typeof p.value === 'number')
+  if (points.length === 0) {
+    return (
+      <div className="rounded-lg border border-surface-800 bg-surface-900/60 p-4">
+        <h3 className="text-sm font-medium text-surface-300">{metric.label}</h3>
+        <p className="mt-3 text-xs text-surface-500">No completed runs yet.</p>
+      </div>
+    )
+  }
+  const values = points.map((p) => p.value)
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const span = max - min || 1
+  const x = (index: number) => PAD + write((index / Math.max(1, points.length - 1)) * (WIDTH - 2 * PAD))
+  const y = (value: number) => HEIGHT - PAD - ((value - min) / span) * (HEIGHT - 2 * PAD)
+  const series = (tracker: Experiment['tracker']) =>
+    points.filter((p) => p.tracker === tracker).map((p) => `${x(p.index)},${y(p.value)}`).join(' ')
+  return (
+    <div className="rounded-lg border border-surface-800 bg-surface-900/60 p-4">
+      <h3 className="text-sm font-medium text-surface-300">{metric.label}</h3>
+      <svg
+        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+        className="mt-2 h-20 w-full"
+        role="img"
+        aria-label={`${metric.label} across runs`}
+      >
+        <polyline
+          points={series('mock')}
+          fill="none"
+          stroke="#22d3ee"
+          strokeWidth={1.5}
+          strokeLinejoin="round"
+        />
+        <polyline
+          points={series('bytetrack')}
+          fill="none"
+          stroke="#fbbf24"
+          strokeWidth={1.5}
+          strokeLinejoin="round"
+        />
+        {points.map((p) => (
+          <circle key={`${p.tracker}-${p.index}`} cx={x(p.index)} cy={y(p.value)} r={2.5} fill={p.tracker === 'mock' ? '#22d3ee' : '#fbbf24'} />
+        ))}
+      </svg>
+      <p className="mt-2 text-[11px] text-surface-500">
+        range {min.toFixed(digits)} – {max.toFixed(digits)} · {metric.higherIsBetter ? 'higher is better' : 'lower is better'}
+      </p>
+    </div>
+  )
+}
+
+// write() is a small alias to keep `Math.round` semantics in one place.
+function write(value: number): number {
+  return Math.round(value * 100) / 100
 }

@@ -1,5 +1,7 @@
 """Tests for the evaluation harness."""
 
+import math
+
 import pytest
 
 from orchardvision_ml.detection.mock import MockFruit
@@ -7,6 +9,7 @@ from orchardvision_ml.evaluation import (
     evaluate,
     evaluate_scenario,
     ground_truth_trajectories,
+    hota,
     iou,
 )
 from orchardvision_ml.evaluation.tracks import Tracklet
@@ -101,6 +104,40 @@ class TestFragmentation:
 def test_identity_recovery_rate() -> None:
     report = evaluate([], [], recovered=2, total_gaps=4)
     assert report.identity_recovery_rate == pytest.approx(0.5)
+
+
+class TestHota:
+    def test_perfect_tracking_scores_1(self) -> None:
+        gt = [
+            make_gt(0, {i: (20 + i, 20, 10, 10) for i in range(5)}),
+            make_gt(1, {i: (80 + i, 80, 10, 10) for i in range(5)}),
+        ]
+        pred = [
+            make_gt(3, {i: (20 + i, 20, 10, 10) for i in range(5)}),
+            make_gt(7, {i: (80 + i, 80, 10, 10) for i in range(5)}),
+        ]
+        report = evaluate(gt, pred)
+        assert report.hota == pytest.approx(1.0)
+
+    def test_switch_lowers_association(self) -> None:
+        gt = [make_gt(0, {i: (20 + i, 20, 10, 10) for i in range(10)})]
+        # pred switches identity after frame 4: all boxes matched, but the
+        # trajectory pair becomes inconsistent → DetA 1, AssA 0.5.
+        pred = [
+            make_gt(4, {i: (20 + i, 20, 10, 10) for i in range(5)}),
+            make_gt(5, {i: (20 + i, 20, 10, 10) for i in range(5, 10)}),
+        ]
+        report = evaluate(gt, pred)
+        assert report.hota == pytest.approx(math.sqrt(0.5))
+
+    def test_missing_detection_lowers_detection(self) -> None:
+        gt = [make_gt(0, {i: (20, 20, 10, 10) for i in range(6)})]
+        pred = [make_gt(1, {i: (20, 20, 10, 10) for i in [0, 2, 4]})]
+        report = evaluate(gt, pred)
+        assert report.hota == pytest.approx(math.sqrt(3 / 6))  # DetA 0.5, AssA 1
+
+    def test_empty_trajectories(self) -> None:
+        assert hota([], []) == 0.0
 
 
 class TestScenarioEvaluation:

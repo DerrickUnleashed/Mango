@@ -6,6 +6,7 @@ they stay decoupled from any single tracker or re-id implementation.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from heapq import heappop, heappush
 
@@ -209,9 +210,91 @@ def track_fragmentation(gt: list[Tracklet], pred: list[Tracklet]) -> float:
     return sum(fragments) / len(fragments)
 
 
+def _aligned_pairs_per_frame(
+    gt: list[Tracklet], pred: list[Tracklet], iou_threshold: float = IOU_MATCH
+) -> tuple[
+    list[tuple[int, int, int]],
+    list[tuple[int, int, int]],
+    list[tuple[int, int, int]],
+]:
+    """Greedy per-frame box alignment returning (TP, FP, FN) alignments.
+
+    TPs are ``(frame, gt_object_id, pred_object_id)`` triplets for boxes that
+    overlap by at least ``iou_threshold``; FPs recall only ``(frame, -1,
+    pred_object_id)`` for unmatched predicted boxes; FNs recall
+    ``(frame, gt_object_id, -1)`` for unmatched ground-truth boxes.
+    """
+    tps: list[tuple[int, int, int]] = []
+    fps: list[tuple[int, int, int]] = []
+    fns: list[tuple[int, int, int]] = []
+
+    all_frames = sorted({f for t in gt + pred for f in t.frames})
+    for frame in all_frames:
+        gt_boxes: list[tuple[int, tuple]] = [
+            (t.object_id, t.bbox_at(frame)) for t in gt if t.bbox_at(frame) is not None
+        ]
+        pred_boxes: list[tuple[int, tuple]] = [
+            (t.object_id, t.bbox_at(frame)) for t in pred if t.bbox_at(frame) is not None
+        ]
+        used_pred: set[int] = set()
+        for gt_id, gt_box in gt_boxes:
+            best_pid: int | None = None
+            best_iou = iou_threshold
+            for pid, pred_box in pred_boxes:
+                if pid in used_pred:
+                    continue
+                score = iou(gt_box, pred_box)
+                if score >= best_iou:
+                    best_iou = score
+                    best_pid = pid
+            if best_pid is not None:
+                used_pred.add(best_pid)
+                tps.append((frame, gt_id, best_pid))
+            else:
+                fns.append((frame, gt_id, -1))
+        for pid, _ in pred_boxes:
+            if pid not in used_pred:
+                fps.append((frame, -1, pid))
+    return tps, fps, fns
+
+
+def hota(gt: list[Tracklet], pred: list[Tracklet]) -> float:
+    """Higher Order Tracking Accuracy in its per-detection form.
+
+    Detection associations are matched greedily per frame by IoU. DetA is the
+    fraction of correctly detected boxes; AssA is the mean association accuracy
+    over true positives, where a TP is correctly associated if its trajectory
+    pair matches the pair of every other TP it is combined with. The overall
+    score is the geometric mean ``sqrt(DetA * AssA)``.
+    """
+    tps, fps, fns = _aligned_pairs_per_frame(gt, pred)
+    if not tps:
+        return 0.0
+
+    pair_counts: dict[tuple[int, int], int] = {}
+    gt_counts: dict[int, int] = {}
+    pred_counts: dict[int, int] = {}
+    for _frame, gt_id, pred_id in tps:
+        pair = (gt_id, pred_id)
+        pair_counts[pair] = pair_counts.get(pair, 0) + 1
+        gt_counts[gt_id] = gt_counts.get(gt_id, 0) + 1
+        pred_counts[pred_id] = pred_counts.get(pred_id, 0) + 1
+
+    ass_sum = 0.0
+    for (gt_id, pred_id), matched in pair_counts.items():
+        denom = gt_counts[gt_id] + pred_counts[pred_id] - matched
+        ass_acc = matched / denom if denom > 0 else 0.0
+        ass_sum += matched * ass_acc
+
+    det_a = len(tps) / (len(tps) + len(fps) + len(fns))
+    ass_a = ass_sum / len(tps)
+    return math.sqrt(det_a * ass_a)
+
+
 @dataclass(frozen=True, slots=True)
 class MetricsReport:
     idf1: float
+    hota: float
     id_switches: int
     track_fragmentation: float
     count_mae: float
@@ -221,6 +304,7 @@ class MetricsReport:
     def to_dict(self) -> dict:
         return {
             "idf1": round(self.idf1, 4),
+            "hota": round(self.hota, 4),
             "idSwitches": self.id_switches,
             "trackFragmentation": round(self.track_fragmentation, 4),
             "countMae": round(self.count_mae, 4),
@@ -239,6 +323,7 @@ def evaluate(
     mae, mape = count_accuracy(gt, pred)
     return MetricsReport(
         idf1=idf1(gt, pred),
+        hota=hota(gt, pred),
         id_switches=id_switch_count(gt, pred),
         track_fragmentation=track_fragmentation(gt, pred),
         count_mae=mae,

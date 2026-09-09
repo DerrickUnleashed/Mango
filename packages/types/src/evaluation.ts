@@ -4,6 +4,7 @@ export type ExperimentTracker = 'mock' | 'bytetrack'
 
 export interface ExperimentMetrics {
   idf1: number
+  hota: number
   idSwitches: number
   trackFragmentation: number
   countMae: number
