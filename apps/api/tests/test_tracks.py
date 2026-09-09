@@ -197,6 +197,39 @@ def test_motion_requires_existing_video(client: TestClient) -> None:
     assert response.json()["code"] == "video_not_found"
 
 
+def test_analytics_require_existing_video(client: TestClient) -> None:
+    response = client.get("/api/videos/does-not-exist/analytics")
+    assert response.status_code == 404
+    assert response.json()["code"] == "video_not_found"
+
+
+def test_analytics_empty_before_processing(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_id = _upload(client, sample_video_bytes)
+    body = client.get(f"/api/videos/{video_id}/analytics").json()
+    assert body == {"summary": None}
+
+
+def test_processing_exposes_analytics(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_id = _upload(client, sample_video_bytes)
+    final = _process(client, video_id, tracker="mock", max_frames=15)
+    assert final["status"] == "completed", final
+
+    body = client.get(f"/api/videos/{video_id}/analytics").json()
+    summary = body["summary"]
+    assert summary is not None
+    assert summary["videoId"] == video_id
+    assert summary["totalFrames"] >= 15  # full video, not the processed cap
+    assert summary["totalFruitDetections"] > 0
+    assert summary["uniqueIdentities"] >= 1
+    assert summary["activeTracks"] >= 1
+    assert summary["recoveredIdentities"] >= 0
+    assert 0.0 <= summary["avgConfidence"] <= 1.0
+    assert len(summary["fruitPerFrame"]) == summary["totalFrames"]
+    assert len(summary["tracksPerFrame"]) == summary["totalFrames"]
+    assert summary["confidenceDistribution"]
+    assert summary["processingSeconds"] >= 0.0
+
+
 def test_processing_persists_detections(client: TestClient, sample_video_bytes: bytes) -> None:
     video_id = _upload(client, sample_video_bytes)
     final = _process(client, video_id, tracker="mock", max_frames=15)

@@ -25,6 +25,7 @@ from app.models import (
 )
 from app.schemas import (
     JobView,
+    MultiAnalyticsResponse,
     MultiDetectionResponse,
     MultiIdentityResponse,
     MultiMotionResponse,
@@ -41,6 +42,7 @@ from app.services import (
     processing_service,
     storage_service,
 )
+from app.services.analytics import compute_video_analytics
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
@@ -227,6 +229,19 @@ def get_video_motion(video_id: str, db: Annotated[Session, Depends(get_db)]) -> 
     if row is None:
         return {"estimate": None, "compensationApplied": None}
     return {"estimate": row.to_dict(), "compensationApplied": row.compensation_applied}
+
+
+@router.get("/{video_id}/analytics", response_model=MultiAnalyticsResponse)
+def get_video_analytics(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
+    """Return aggregated analytics for a processed video."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+
+    summary = compute_video_analytics(db, video)
+    if summary["totalFruitDetections"] == 0:
+        return {"summary": None}
+    return {"summary": summary}
 
 
 @router.delete("/{video_id}")

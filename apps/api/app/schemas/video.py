@@ -114,3 +114,7 @@ class ProcessRequest(BaseModel):
 class MultiMotionResponse(BaseModel):
     estimate: dict | None
     compensationApplied: bool | None = None
+
+
+class MultiAnalyticsResponse(BaseModel):
+    summary: dict | None

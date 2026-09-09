@@ -2,6 +2,7 @@
 
 from .video import (
     JobView,
+    MultiAnalyticsResponse,
     MultiDetectionResponse,
     MultiIdentityResponse,
     MultiMotionResponse,
@@ -15,6 +16,7 @@ from .video import (
 
 __all__ = [
     "JobView",
+    "MultiAnalyticsResponse",
     "MultiDetectionResponse",
     "MultiIdentityResponse",
     "MultiMotionResponse",

@@ -10,6 +10,7 @@ changing this orchestration layer.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import cv2
@@ -87,6 +88,7 @@ class ProcessingService:
         log = job_logger("processing", job_id=job.id, video_id=video.id)
 
         job.inference_mode = config.inference_mode
+        job.started_at = datetime.now(UTC)
         state.inference_mode = config.inference_mode
 
         try:
@@ -535,6 +537,7 @@ class ProcessingService:
         job.stage = ProcessingStage.COMPLETED
         job.progress = 100.0
         job.error = None
+        job.completed_at = datetime.now(UTC)
         video.status = "processed"
         state.update(ProcessingStage.COMPLETED, 100.0, "Processing complete")
 
