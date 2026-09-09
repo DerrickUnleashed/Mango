@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 7 — Identity Memory (QL, store, retrieve, wire into pipeline)
-**Milestone:** Quality-aware memory of identity prototypes; embeddings + memory wired into the processing pipeline and persisted behind API endpoints
-**Overall Progress:** 42%
+**Phase:** 8 — Re-Identification (track-loss detection, memory retrieval, recovery events)
+**Milestone:** Fruits that disappear (long occlusion) are recovered by identity memory into new tracks; events persisted and visualized
+**Overall Progress:** 54%
 **Last Updated:** 2026-09-09
 
 ---
@@ -156,16 +156,16 @@ mango/
 - [x] Memory tests pass
 
 ### QG 8 — Re-Identification
-- [ ] Track-loss detection
-- [ ] Occlusion state
-- [ ] Historical prototype search
-- [ ] Similarity scoring
-- [ ] Candidate ranking
-- [ ] Re-ID threshold
-- [ ] Successful re-identification
-- [ ] Rejected re-identification
-- [ ] Identity recovery visualization
-- [ ] Re-ID tests
+- [x] Track-loss detection
+- [x] Occlusion state
+- [x] Historical prototype search
+- [x] Similarity scoring
+- [x] Candidate ranking
+- [x] Re-ID threshold
+- [x] Successful re-identification
+- [x] Rejected re-identification
+- [x] Identity recovery visualization
+- [x] Re-ID tests
 
 ### QG 9 — Camera Motion
 - [ ] Camera motion interface
@@ -379,26 +379,25 @@ mango/
 ## Phase 8 — Re-Identification
 
 ### ML
-- [ ] Occlusion detection
-- [ ] Track loss event creation
-- [ ] Candidate retrieval from memory
-- [ ] Similarity scoring (cosine + motion)
-- [ ] Candidate ranking
-- [ ] Re-ID decision logic
-- [ ] Re-ID event creation
-- [ ] Long-occlusion re-ID support
+- [x] Occlusion detection
+- [x] Track loss event creation
+- [x] Candidate retrieval from memory
+- [x] Similarity scoring (cosine + motion)
+- [x] Candidate ranking
+- [x] Re-ID decision logic
+- [x] Re-ID event creation
+- [x] Long-occlusion re-ID support
 
 ### Backend
 - [ ] Occlusion event SQLAlchemy model
-- [ ] ReIdentificationEvent SQLAlchemy model
-- [ ] Re-ID query endpoints
+- [x] ReIdentificationEvent SQLAlchemy model
+- [x] Re-ID query endpoints
 - [ ] Re-ID event timeline endpoint
 
 ### Frontend
-- [ ] Re-identification timeline
+- [x] Re-identification timeline (event list with recovery gap + similarity)
 - [ ] Occlusion indicators
-- [ ] Re-ID event markers
-- [ ] Identity recovery visualization
+- [ ] Re-ID event markers on track overlay
 - [ ] Candidate comparison panel
 
 ---
@@ -541,6 +540,8 @@ mango/
 - [!] Prettier not yet configured (oxlint covers frontend linting).
 - [!] Identity observation history not yet stored — memory currently snapshots
       prototypes per video; per-observation history lands with re-id phase.
+- [!] Re-ID acceptance is single-threshold cosine (mock); production re-id will
+      add motion gating and multi-candidate ranking.
 - [!] Live dev API server on :8000 was restarted to pick up new schema; dev
       DB under `data/` is regenerated on supervisor restart.
 
@@ -555,8 +556,8 @@ mango/
 
 ## Test Status
 
-- Backend: 19 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence)
-- ML: 34 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism)
+- Backend: 21 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, reid endpoints)
+- ML: 41 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset)
 - Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
 ## Decisions Log
@@ -584,3 +585,7 @@ mango/
 | 2026-09-09 | Memory quality score = confidence × (0.55 if occluded); update only if ≥ min_quality | Low-quality/occluded observations contribute but with damped weight and no prototype poisoning |
 | 2026-09-09 | Detections stamped with nearest-track id (≤60px) before embedding | Enables per-observation identity linkage without altering the tracker interface |
 | 2026-09-09 | IdentityPrototype stored per-video as JSON, replaced on reprocessing | Same semantics as tracks: video shows the latest run's memory state |
+| 2026-09-09 | Re-ID matching uses cosine ≥ 0.8 (stricter than memory's 0.7) | Accepts only confident recoveries; memory stays permissive for identity update |
+| 2026-09-09 | MockFruit gains `absent_windows` (full disappearance, no detections) | Produces genuine tracker losses → recoveries so re-id is exercisable in mock mode |
+| 2026-09-09 | Re-id events stored per-video, replaced on reprocessing | Consistent with tracks/identities: latest run wins |
+| 2026-09-09 | Re-identification runs inside `learn_identities` frame loop | Queries memory before this frame's updates, mirroring online operation |
