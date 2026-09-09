@@ -19,6 +19,12 @@ def _frame(seed: int, size: tuple[int, int] = (360, 640)) -> np.ndarray:
     return rng.integers(0, 256, size=(size[0], size[1], 3), dtype=np.uint8)
 
 
+def _fruit_frame(x: int, y: int, color: tuple[int, int, int]) -> np.ndarray:
+    frame = np.zeros((360, 640, 3), dtype=np.uint8)
+    frame[y : y + 40, x : x + 40] = color
+    return frame
+
+
 def _dets(frame_id: int, *boxes: tuple) -> FrameDetections:
     return FrameDetections(
         frame_id=frame_id,
@@ -56,10 +62,11 @@ def test_same_crop_embeds_similarly() -> None:
 
 def test_different_regions_embed_less_similarly() -> None:
     extractor = MockEmbeddingExtractor()
-    frame = _frame(11)
-    a = extractor.extract(frame, _dets(0, (100, 100, 40, 40)))[0]
-    b = extractor.extract(frame, _dets(0, (520, 220, 40, 40)))[0]
-    assert cosine_similarity(a.vector, b.vector) < 0.99
+    orange = _fruit_frame(100, 100, (0, 150, 210))
+    red = _fruit_frame(520, 220, (0, 0, 230))
+    a = extractor.extract(orange, _dets(0, (100, 100, 40, 40)))[0]
+    b = extractor.extract(red, _dets(0, (520, 220, 40, 40)))[0]
+    assert cosine_similarity(a.vector, b.vector) < 0.95
 
 
 def test_occlusion_flag_from_confidence() -> None:

@@ -18,7 +18,7 @@ from .base import Embedding, EmbeddingExtractor
 
 EMBEDDING_DIM = 32
 OCCLUSION_CONFIDENCE = 0.35
-NOISE_SCALE = 0.5
+NOISE_SCALE = 0.15
 
 
 class MockEmbeddingExtractor(EmbeddingExtractor):
