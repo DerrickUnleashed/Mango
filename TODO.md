@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 10 — Analytics (aggregations, per-frame counts, charts) — Phase 9 camera motion completed
-**Milestone:** Per-video analytics dashboard aggregating detections, tracks, identities, and recoveries
-**Overall Progress:** 61%
+**Phase:** 7b — Identity Observation History (per-observation record, timeline, representative frames)
+**Milestone:** Per-observation identity history so users can trace when/how each identity was observed
+**Overall Progress:** 65%
 **Last Updated:** 2026-09-09
 
 ---
@@ -425,22 +425,22 @@ mango/
 ## Phase 10 — Analytics
 
 ### Backend
-- [ ] Analytics aggregation queries
-- [ ] Fruit count per frame
-- [ ] Unique identity count
-- [ ] Track statistics
-- [ ] Occlusion statistics
-- [ ] Confidence distribution
-- [ ] FPS computation
-- [ ] Analytics endpoint
+- [x] Analytics aggregation queries
+- [x] Fruit count per frame
+- [x] Unique identity count
+- [x] Track statistics
+- [x] Occlusion statistics
+- [x] Confidence distribution
+- [x] FPS computation
+- [x] Analytics endpoint
 
 ### Frontend
-- [ ] Analytics page
-- [ ] Fruits per frame chart
-- [ ] Unique identities chart
-- [ ] Active/lost tracks chart
-- [ ] Confidence distribution chart
-- [ ] Occlusion duration chart
+- [x] Analytics page section
+- [x] Fruits per frame chart
+- [x] Unique identities chart (stat)
+- [x] Active/lost tracks chart
+- [x] Confidence distribution chart
+- [x] Occlusion duration chart (stat + distribution)
 - [ ] FPS timeline chart
 - [ ] Summary statistics cards
 
@@ -556,7 +556,7 @@ mango/
 
 ## Test Status
 
-- Backend: 28 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, reid endpoints, detection persistence, camera-motion estimate + compensation)
+- Backend: 31 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations)
 - ML: 49 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping)
 - Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
@@ -591,3 +591,4 @@ mango/
 | 2026-09-09 | Re-identification runs inside `learn_identities` frame loop | Queries memory before this frame's updates, mirroring online operation |
 | 2026-09-09 | Camera motion compensation shifts detection bboxes before tracking | Keeps tracker/embedding interfaces unchanged; compensation is a boundary concern |
 | 2026-09-09 | Mock drift estimator keeps drift constant per frame | Cumulative offset is analytic (drift × frame), so tests are exact |
+| 2026-09-09 | Analytics computed on demand from persisted rows | No extra pipeline step or schema; aggregates reflect the video's latest run |
