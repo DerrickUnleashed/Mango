@@ -44,6 +44,7 @@ export interface VideoListResponse {
 export interface ProcessVideoRequest {
   confidenceThreshold?: number
   inferenceMode?: 'mock' | 'real'
+  tracker?: 'mock' | 'bytetrack'
   maxFrames?: number
 }
 

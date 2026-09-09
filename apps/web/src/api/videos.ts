@@ -1,4 +1,5 @@
 import type {
+  PersistedTrackListResponse,
   ProcessVideoRequest,
   ProcessVideoResponse,
   UploadVideoResponse,
@@ -13,6 +14,10 @@ export function getVideos(): Promise<VideoListResponse> {
 
 export function getVideo(id: string): Promise<Video> {
   return apiRequest<Video>(`/videos/${id}`)
+}
+
+export function getTracks(id: string): Promise<PersistedTrackListResponse> {
+  return apiRequest<PersistedTrackListResponse>(`/videos/${id}/tracks`)
 }
 
 export function uploadVideo(

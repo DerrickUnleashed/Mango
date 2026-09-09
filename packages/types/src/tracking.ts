@@ -47,3 +47,25 @@ export interface TrackListResponse {
   tracks: Track[]
   total: number
 }
+
+export interface PersistedTrackPoint {
+  frameId: number
+  bbox: [number, number, number, number]
+  confidence: number
+  isOccluded: boolean
+}
+
+export interface PersistedTrack {
+  id: string
+  jobId: string
+  videoId: string
+  trackId: number
+  status: 'active' | 'lost'
+  points: PersistedTrackPoint[]
+  createdAt: string | null
+}
+
+export interface PersistedTrackListResponse {
+  tracks: PersistedTrack[]
+  total: number
+}

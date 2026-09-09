@@ -1,19 +1,22 @@
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useProcessVideo, useVideo } from '../hooks/useVideos'
 import { useToast } from '../components/ui/useToast'
+import { TrackVisualizer } from '../components/tracking/TrackVisualizer'
 
 export function VideoDetailPage() {
   const { videoId = '' } = useParams()
   const { push } = useToast()
   const video = useVideo(videoId)
   const process = useProcessVideo()
+  const [tracker, setTracker] = useState<'mock' | 'bytetrack'>('mock')
 
   const job = video.data?.processingJob ?? null
   const isProcessing = job?.status === 'running' || job?.status === 'queued'
 
   function startProcessing() {
     process.mutate(
-      { videoId, request: { inferenceMode: 'mock' } },
+      { videoId, request: { inferenceMode: 'mock', tracker } },
       {
         onSuccess: () => push('Processing started', 'success'),
         onError: (err) => push(`Failed to start: ${err.message}`, 'error'),
@@ -52,11 +55,24 @@ export function VideoDetailPage() {
         </p>
       </div>
 
+      {/* Tracking visualization — shown once the video has been processed */}
+      {v.status === 'processed' && v.width && v.height && v.frameCount && (
+        <TrackVisualizer
+          videoId={v.id}
+          width={v.width}
+          height={v.height}
+          frameCount={v.frameCount}
+          enabled
+        />
+      )}
+
       {/* Preview area — frame visualization will be implemented in a later phase */}
       <div className="flex aspect-video items-center justify-center rounded-xl border border-surface-800 bg-surface-950">
         <div className="text-center">
           <span className="text-4xl" aria-hidden="true">🎥</span>
-          <p className="mt-2 text-sm text-surface-500">Video preview</p>
+          <p className="mt-2 text-sm text-surface-500">
+            Video preview {v.status === 'processed' ? '(track overlay above)' : ''}
+          </p>
         </div>
       </div>
 
@@ -71,6 +87,25 @@ export function VideoDetailPage() {
                 : 'Run the analysis pipeline to detect, track, and re-identify fruits.'}
             </p>
             {job?.error && <p className="mt-1 text-sm text-red-400">Error: {job.error}</p>}
+          </div>
+          <div className="flex items-center gap-2">
+            <label
+              className="text-xs font-medium text-surface-400"
+              htmlFor="tracker-select"
+              title="Re-run processing with the selected tracker"
+            >
+              Tracker
+            </label>
+            <select
+              id="tracker-select"
+              value={tracker}
+              onChange={(e) => setTracker(e.target.value as 'mock' | 'bytetrack')}
+              disabled={isProcessing || process.isPending}
+              className="rounded-lg border border-surface-700 bg-surface-900 px-3 py-2 text-sm text-surface-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="mock">Mock</option>
+              <option value="bytetrack">ByteTrack</option>
+            </select>
           </div>
           <button
             type="button"

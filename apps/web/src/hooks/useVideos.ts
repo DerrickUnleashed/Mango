@@ -7,6 +7,7 @@ import type {
 import {
   deleteVideo,
   getHealth,
+  getTracks,
   getVideo,
   getVideos,
   processVideo,
@@ -25,6 +26,19 @@ export function useVideo(videoId: string) {
     queryKey: ['videos', videoId],
     queryFn: () => getVideo(videoId),
     enabled: Boolean(videoId),
+    refetchInterval: (query) => {
+      const job = query.state.data?.processingJob
+      const active = job?.status === 'running' || job?.status === 'queued'
+      return active ? 2000 : false
+    },
+  })
+}
+
+export function useTracks(videoId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['videos', videoId, 'tracks'],
+    queryFn: () => getTracks(videoId),
+    enabled: enabled && Boolean(videoId),
   })
 }
 
