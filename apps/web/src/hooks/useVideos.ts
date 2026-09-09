@@ -8,6 +8,7 @@ import {
   deleteVideo,
   getHealth,
   getIdentities,
+  getReidEvents,
   getTracks,
   getVideo,
   getVideos,
@@ -51,6 +52,14 @@ export function useIdentities(videoId: string, enabled: boolean) {
   })
 }
 
+export function useReidEvents(videoId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['videos', videoId, 'reid-events'],
+    queryFn: () => getReidEvents(videoId),
+    enabled: enabled && Boolean(videoId),
+  })
+}
+
 export function useUploadVideo(onSuccess?: (video: Video) => void) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -84,6 +93,9 @@ export function useProcessVideo() {
       })
       queryClient.invalidateQueries({
         queryKey: ['videos', variables.videoId, 'identities'],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['videos', variables.videoId, 'reid-events'],
       })
     },
   })

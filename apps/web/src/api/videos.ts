@@ -1,5 +1,6 @@
 import type {
   PersistedIdentityListResponse,
+  PersistedReidListResponse,
   PersistedTrackListResponse,
   ProcessVideoRequest,
   ProcessVideoResponse,
@@ -23,6 +24,10 @@ export function getTracks(id: string): Promise<PersistedTrackListResponse> {
 
 export function getIdentities(id: string): Promise<PersistedIdentityListResponse> {
   return apiRequest<PersistedIdentityListResponse>(`/videos/${id}/identities`)
+}
+
+export function getReidEvents(id: string): Promise<PersistedReidListResponse> {
+  return apiRequest<PersistedReidListResponse>(`/videos/${id}/reid-events`)
 }
 
 export function uploadVideo(

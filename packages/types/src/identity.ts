@@ -61,6 +61,25 @@ export interface PersistedIdentityListResponse {
   total: number
 }
 
+export interface PersistedReidEvent {
+  id: string
+  videoId: string
+  trackId: number
+  victimTrackId: number
+  identityId: number
+  lostFrameId: number
+  reappearanceFrameId: number
+  similarity: number
+  confidence: number
+  accepted: boolean
+  createdAt: string | null
+}
+
+export interface PersistedReidListResponse {
+  events: PersistedReidEvent[]
+  total: number
+}
+
 export interface ReIdentificationEvent {
   id: string
   videoId: string
