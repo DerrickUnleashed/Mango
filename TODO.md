@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 7b — Identity Observation History (per-observation record, timeline, representative frames)
-**Milestone:** Per-observation identity history so users can trace when/how each identity was observed
-**Overall Progress:** 65%
+**Phase:** 11 — ML Evaluation (REID steering) — Phase 7b observation history completed (remaining: representative frames)
+**Milestone:** Ground-truth-scored evaluation harness so mock-lifted designs can be validated against real data
+**Overall Progress:** 68%
 **Last Updated:** 2026-09-09
 
 ---
@@ -361,17 +361,17 @@ mango/
 - [x] Moving-average prototype update
 - [x] Low-quality observation suppression
 - [x] Memory storage and retrieval
-- [ ] Identity observation history
+- [x] Identity observation history
 
 ### Backend
 - [x] Identity SQLAlchemy models
 - [x] Identity prototype endpoints
-- [ ] Identity observation endpoints
+- [x] Identity observation endpoints
 
 ### Frontend
 - [x] Identity explorer panel (list, confidence badge, quality/observations)
-- [ ] Identity detail panel
-- [ ] Observation timeline
+- [x] Identity detail panel
+- [x] Observation timeline
 - [ ] Representative frames display
 
 ---
@@ -556,7 +556,7 @@ mango/
 
 ## Test Status
 
-- Backend: 31 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations)
+- Backend: 33 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations)
 - ML: 49 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping)
 - Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
