@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 5 — Tracking (frontend visualization complete)
-**Milestone:** End-to-end tracking: pipeline stage, persistence, query API, and overlay visualization
-**Overall Progress:** 30%
+**Phase:** 6 — Identity Learning (embedding interface + mock embedder)
+**Milestone:** Appearance embeddings with re-id semantics; deterministic mock for later memory/re-id phases
+**Overall Progress:** 33%
 **Last Updated:** 2026-09-09
 
 ---
@@ -134,8 +134,8 @@ mango/
 - [x] Tracker tests pass
 
 ### QG 6 — Identity Learning
-- [ ] Embedding interface implemented
-- [ ] Mock embedding model available
+- [x] Embedding interface implemented
+- [x] Mock embedding model available
 - [ ] Positive pair generation
 - [ ] Negative pair generation
 - [ ] Temporal consistency representation
@@ -143,7 +143,7 @@ mango/
 - [ ] Visibility filtering
 - [ ] Hard-negative mechanism
 - [ ] Identity embeddings persisted
-- [ ] Embedding tests pass
+- [x] Embedding tests pass
 
 ### QG 7 — Identity Memory
 - [ ] Identity prototype creation
@@ -336,8 +336,8 @@ mango/
 ## Phase 6 — Identity Learning
 
 ### ML
-- [ ] Identity embedding interface
-- [ ] Mock embedder implementation
+- [x] Identity embedding interface
+- [x] Mock embedder implementation
 - [ ] Positive pair generation from tracklets
 - [ ] Negative pair generation
 - [ ] Temporal consistency loss
@@ -539,6 +539,10 @@ mango/
       configured (config files present in `apps/api/alembic/` but unused).
 - [!] Vitest not yet configured for frontend — component tests are pending.
 - [!] Prettier not yet configured (oxlint covers frontend linting).
+- [!] Embeddings not yet persisted or wired into the processing pipeline —
+      backend stores embeddings only when identity memory phase lands.
+- [!] Live dev API server on :8000 was restarted to pick up new schema; dev
+      DB under `data/` is regenerated on supervisor restart.
 
 ## Known Risks
 
@@ -552,7 +556,7 @@ mango/
 ## Test Status
 
 - Backend: 14 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing)
-- ML: 18 tests passing (detector interface, mock determinism, occlusion windows, tracker interface, mock tracker lifecycle, ByteTrack two-stage association, Kalman)
+- ML: 25 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag)
 - Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
 ## Decisions Log
@@ -573,3 +577,6 @@ mango/
 | 2026-09-09 | MockTracker uses centre-distance greedy association | Deterministic, dependency-free stand-in for ByteTrack in dev mode |
 | 2026-09-09 | Tracks stored per-video, replaced on reprocessing | Simplifies visualization (video shows latest run) and avoids stale-job accumulation |
 | 2026-09-09 | `tracks` table persists only active-track trajectories | Lost tracks reported live via TrackResult; history for analytics comes later (identity memory) |
+| 2026-09-09 | Mock embedder: crop color features + position-seeded FNV-1a noise | Deterministic across processes, same-fruit-similar, different-region-separated for dev experiments |
+| 2026-09-09 | Embedding noise seeded by position bin, not frame id | Fruits keep stable embeddings across frames while still location-discriminative |
+| 2026-09-09 | `.gitignore` `models/` rule over-broad — added exceptions for `apps/api/app/models/` | Rule silently excluded the ORM models package from git; whole package newly tracked |
