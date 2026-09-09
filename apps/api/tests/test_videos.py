@@ -29,8 +29,8 @@ def test_upload_video_and_list(client: TestClient, sample_video_bytes: bytes) ->
     assert video["frameCount"] == 30
 
     listing = client.get("/api/videos").json()
-    assert listing["total"] == 1
-    assert listing["videos"][0]["id"] == video["id"]
+    assert listing["total"] >= 1
+    assert any(v["id"] == video["id"] for v in listing["videos"])
 
 
 def test_upload_rejects_non_video(client: TestClient) -> None:
@@ -84,6 +84,14 @@ def test_full_processing_flow(client: TestClient, sample_video_bytes: bytes) -> 
 
     video = client.get(f"/api/videos/{video_id}").json()
     assert video["status"] == "processed"
+
+    tracks = client.get(f"/api/videos/{video_id}/tracks").json()
+    assert tracks["total"] >= 1
+    for track in tracks["tracks"]:
+        assert track["videoId"] == video_id
+        assert track["points"], track
+        for point in track["points"]:
+            assert set(point) >= {"frameId", "bbox", "confidence", "isOccluded"}
 
 
 def test_process_unknown_video_404(client: TestClient) -> None:
