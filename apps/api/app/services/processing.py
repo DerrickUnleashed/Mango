@@ -18,6 +18,7 @@ from orchardvision_ml.detection import MockDetector
 from orchardvision_ml.detection.mock import SCENARIO_ORCHARD
 from orchardvision_ml.identity import MockEmbeddingExtractor
 from orchardvision_ml.memory import MockIdentityMemory
+from orchardvision_ml.reid import MockReIdentifier
 from orchardvision_ml.tracking import ByteTrackAdapter, MockTracker, Tracker
 from sqlalchemy import delete
 
@@ -27,6 +28,7 @@ from app.models import (
     ProcessingJob,
     ProcessingStage,
     ProcessingStatus,
+    ReidEvent,
     Track,
     Video,
 )
@@ -63,6 +65,7 @@ class PipelineSummary:
     total_embeddings: int
     total_identities: int
     suppressed_observations: int
+    total_reidentifications: int
 
 
 class ProcessingService:
@@ -88,7 +91,13 @@ class ProcessingService:
                 video, job, state, config, detections["frame_detections"], db
             )
             identity_summary = self.learn_identities(
-                video, job, state, frames, track_summary["assigned_detections"], db
+                video,
+                job,
+                state,
+                frames,
+                track_summary["assigned_detections"],
+                track_summary["lost_by_frame"],
+                db,
             )
             state.update(ProcessingStage.ANALYTICS, 90.0, "Summarizing results")
             summary = self.analytics_summary(detections, track_summary, identity_summary, config)
@@ -206,6 +215,7 @@ class ProcessingService:
         lost_track_count = 0
         last = None
         assigned_detections: list = []
+        lost_by_frame: list = []
         for index, frame_detection in enumerate(frame_detections):
             if state.cancelled:
                 raise InterruptedError("Processing cancelled")
@@ -215,6 +225,7 @@ class ProcessingService:
             assigned_detections.append(
                 self._assign_track_ids(index, frame_detection, last.active_tracks)
             )
+            lost_by_frame.append(list(last.lost_track_ids))
 
             if index % 20 == 0:
                 progress = 55.0 + 25.0 * (index + 1) / max(frame_count, 1)
@@ -237,6 +248,7 @@ class ProcessingService:
             "new_tracks": new_track_count,
             "lost_tracks": lost_track_count,
             "assigned_detections": assigned_detections,
+            "lost_by_frame": lost_by_frame,
         }
 
     def _assign_track_ids(self, frame_id: int, frame_detections, active_tracks: list):
@@ -312,6 +324,7 @@ class ProcessingService:
         state: JobState,
         frames: list[NDArray],
         assigned_detections: list,
+        lost_by_frame: list,
         db,
     ) -> dict:
         """Extract embeddings and consolidate them into quality-aware identities."""
@@ -319,6 +332,7 @@ class ProcessingService:
         state.update(ProcessingStage.EMBEDDING, 80.0, "Extracting appearance embeddings")
         embedder = MockEmbeddingExtractor()
         memory = MockIdentityMemory()
+        reid = MockReIdentifier()
 
         frame_count = len(frames)
         total_embeddings = 0
@@ -326,8 +340,10 @@ class ProcessingService:
         for index, assigned in enumerate(assigned_detections):
             if state.cancelled:
                 raise InterruptedError("Processing cancelled")
-            for embedding in embedder.extract(frames[index], assigned):
-                total_embeddings += 1
+            embeddings = embedder.extract(frames[index], assigned)
+            total_embeddings += len(embeddings)
+            reid.step(index, lost_by_frame[index], embeddings, memory)
+            for embedding in embeddings:
                 if memory.update(embedding) is None:
                     suppressed += 1
             if index % 20 == 0:
@@ -336,23 +352,27 @@ class ProcessingService:
                 state.update(ProcessingStage.EMBEDDING, progress, msg)
 
         records = self._persist_identities(video, memory, db)
+        reid_records = self._persist_reid_events(video, reid.events, db)
 
         state.update(
             ProcessingStage.MEMORY,
             85.0,
-            f"Consolidated {len(records)} identities in memory",
+            f"Consolidated {len(records)} identities; {len(reid_records)} re-identifications",
         )
         log = job_logger("processing", job_id=state.job_id, video_id=video.id)
         log.info(
-            "Identity step complete: %d embeddings, %d identities, %d suppressed",
+            "Identity step complete: %d embeddings, %d identities, %d suppressed, "
+            "%d reidentifications",
             total_embeddings,
             len(records),
             suppressed,
+            len(reid_records),
         )
         return {
             "total_embeddings": total_embeddings,
             "total_identities": len(records),
             "suppressed_observations": suppressed,
+            "total_reidentifications": len(reid_records),
         }
 
     def _persist_identities(self, video: Video, memory, db) -> list[IdentityRecord]:
@@ -371,6 +391,27 @@ class ProcessingService:
                     last_track_id=identity.last_track_id,
                     is_confident=identity.is_confident,
                     prototype=[float(v) for v in identity.prototype],
+                )
+            )
+        db.add_all(records)
+        return records
+
+    def _persist_reid_events(self, video: Video, events, db) -> list[ReidEvent]:
+        db.execute(delete(ReidEvent).where(ReidEvent.video_id == video.id))
+        records: list[ReidEvent] = []
+        for event in events:
+            records.append(
+                ReidEvent(
+                    id=uuid4().hex,
+                    video_id=video.id,
+                    track_id=event.track_id,
+                    victim_track_id=event.victim_track_id,
+                    identity_id=event.identity_id,
+                    lost_frame_id=event.lost_frame_id,
+                    reappearance_frame_id=event.reappearance_frame_id,
+                    similarity=event.similarity,
+                    confidence=event.confidence,
+                    accepted=event.accepted,
                 )
             )
         db.add_all(records)
@@ -395,6 +436,7 @@ class ProcessingService:
             total_embeddings=identity_result["total_embeddings"],
             total_identities=identity_result["total_identities"],
             suppressed_observations=identity_result["suppressed_observations"],
+            total_reidentifications=identity_result["total_reidentifications"],
         )
 
     def _finalize(

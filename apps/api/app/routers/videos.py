@@ -17,10 +17,17 @@ from app.models import (
     ProcessingJob,
     ProcessingStage,
     ProcessingStatus,
+    ReidEvent,
     Track,
     Video,
 )
-from app.schemas import JobView, MultiIdentityResponse, MultiTrackResponse, ProcessRequest
+from app.schemas import (
+    JobView,
+    MultiIdentityResponse,
+    MultiReidResponse,
+    MultiTrackResponse,
+    ProcessRequest,
+)
 from app.services import (
     MetadataExtractionError,
     PipelineConfig,
@@ -172,6 +179,19 @@ def get_video_identity(
     return row.to_dict()
 
 
+@router.get("/{video_id}/reid-events", response_model=MultiReidResponse)
+def list_video_reid_events(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
+    """Return the re-identification events recovered for a processed video."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+
+    rows = db.scalars(
+        select(ReidEvent).where(ReidEvent.video_id == video_id).order_by(ReidEvent.lost_frame_id)
+    ).all()
+    return {"events": [r.to_dict() for r in rows], "total": len(rows)}
+
+
 @router.delete("/{video_id}")
 def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
     video = db.get(Video, video_id)
@@ -180,6 +200,7 @@ def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict
     storage_service.delete(video.filename)
     db.execute(delete(Track).where(Track.video_id == video_id))
     db.execute(delete(IdentityRecord).where(IdentityRecord.video_id == video_id))
+    db.execute(delete(ReidEvent).where(ReidEvent.video_id == video_id))
     db.execute(delete(ProcessingJob).where(ProcessingJob.video_id == video_id))
     db.delete(video)
     db.commit()

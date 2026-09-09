@@ -124,3 +124,15 @@ def test_identity_detail_endpoint(client: TestClient, sample_video_bytes: bytes)
     missing = client.get(f"/api/videos/{video_id}/identities/99999")
     assert missing.status_code == 404
     assert missing.json()["code"] == "identity_not_found"
+
+
+def test_reid_events_empty_before_processing(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_id = _upload(client, sample_video_bytes)
+    body = client.get(f"/api/videos/{video_id}/reid-events").json()
+    assert body == {"events": [], "total": 0}
+
+
+def test_reid_events_require_existing_video(client: TestClient) -> None:
+    response = client.get("/api/videos/does-not-exist/reid-events")
+    assert response.status_code == 404
+    assert response.json()["code"] == "video_not_found"
