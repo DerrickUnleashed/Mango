@@ -2,9 +2,9 @@
 
 ## Current Status
 
-**Phase:** 8 — Re-Identification (track-loss detection, memory retrieval, recovery events)
-**Milestone:** Fruits that disappear (long occlusion) are recovered by identity memory into new tracks; events persisted and visualized
-**Overall Progress:** 54%
+**Phase:** 9 — Camera Motion (interface, static, estimation, compensation) — Phase 4b detection persistence completed
+**Milestone:** Motion-compensated tracking so stationary identity memory remains stable under camera drift
+**Overall Progress:** 57%
 **Last Updated:** 2026-09-09
 
 ---
@@ -113,15 +113,15 @@ mango/
 - [ ] Frame navigation
 
 ### QG 4 — Detection
-- [ ] Detector interface implemented
-- [ ] Mock detector works
+- [x] Detector interface implemented
+- [x] Mock detector works
 - [ ] Real YOLO adapter implemented
-- [ ] Bounding boxes returned
-- [ ] Confidence scores returned
-- [ ] Detection visualization works
+- [x] Bounding boxes returned
+- [x] Confidence scores returned
+- [x] Detection visualization works
 - [ ] Confidence threshold configurable
-- [ ] Inference errors handled
-- [ ] Detector unit tests pass
+- [x] Inference errors handled
+- [x] Detector unit tests pass
 
 ### QG 5 — Tracking
 - [x] Tracker interface implemented
@@ -297,15 +297,15 @@ mango/
 - [ ] Detection post-processing (NMS)
 
 ### Backend
-- [ ] Store detection results in DB
-- [ ] Detection query endpoints
+- [x] Store detection results in DB
+- [x] Detection query endpoints
 - [x] Integration into processing pipeline
 
 ### Frontend
-- [ ] Detection overlay on video frames
-- [ ] Bounding box rendering
-- [ ] Confidence score display
-- [ ] Detection toggle controls
+- [x] Detection overlay on video frames
+- [x] Bounding box rendering
+- [x] Confidence score display
+- [x] Detection toggle controls
 
 ---
 
@@ -556,7 +556,7 @@ mango/
 
 ## Test Status
 
-- Backend: 21 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, reid endpoints)
+- Backend: 24 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, reid endpoints, detection persistence)
 - ML: 41 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset)
 - Frontend: TypeScript build + typecheck passing; component tests pending (Vitest)
 
