@@ -68,6 +68,23 @@ def test_mock_detector_respects_occlusion_windows() -> None:
     assert not fruit.is_occluded_at(61)
 
 
+def test_mock_fruit_absent_windows_hide_position() -> None:
+    fruit = MockFruit(
+        start_frame=0,
+        end_frame=100,
+        start_x=0.0,
+        start_y=0.0,
+        end_x=100.0,
+        end_y=0.0,
+        absent_windows=((50, 60),),
+    )
+    assert fruit.position_at(49) is not None
+    assert fruit.position_at(50) is None
+    assert fruit.position_at(57) is None
+    assert fruit.position_at(60) is None
+    assert fruit.position_at(61) is not None
+
+
 def test_mock_fruit_positions_bounded() -> None:
     fruit = MockFruit(0, 50, 0.0, 0.0, 100.0, 50.0)
     start = fruit.position_at(0)

@@ -33,10 +33,13 @@ class MockFruit:
     end_x: float
     end_y: float
     occlusion_windows: tuple[tuple[int, int], ...] = ()
+    absent_windows: tuple[tuple[int, int], ...] = ()
     size: int = 40
 
     def position_at(self, frame_id: int) -> tuple[float, float] | None:
         if frame_id < self.start_frame or frame_id > self.end_frame:
+            return None
+        if any(start <= frame_id <= end for start, end in self.absent_windows):
             return None
         span = max(self.end_frame - self.start_frame, 1)
         t = (frame_id - self.start_frame) / span
@@ -58,7 +61,8 @@ SCENARIO_ORCHARD: tuple[MockFruit, ...] = (
         start_y=120,
         end_x=1150,
         end_y=300,
-        occlusion_windows=((80, 110), (210, 235)),
+        occlusion_windows=((80, 110),),
+        absent_windows=((210, 270),),
         size=44,
     ),
     MockFruit(
@@ -101,12 +105,13 @@ SCENARIO_ORCHARD: tuple[MockFruit, ...] = (
     ),
     MockFruit(
         start_frame=20,
-        end_frame=160,
+        end_frame=300,
         start_x=1100,
         start_y=140,
         end_x=700,
         end_y=560,
         occlusion_windows=((120, 130),),
+        absent_windows=((140, 175),),
         size=34,
     ),
     MockFruit(
