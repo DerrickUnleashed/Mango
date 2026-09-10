@@ -27,6 +27,7 @@ class Embedding:
         vector: Unit-norm L2 vector (float32).
         confidence: Detection confidence backing this embedding.
         is_occluded: Whether the object was inside a mock occlusion window.
+        bbox: Detection bounding box ``(x, y, w, h)`` used for motion gating.
     """
 
     track_id: int | None
@@ -34,6 +35,7 @@ class Embedding:
     vector: NDArray[np.float32]
     confidence: float = 0.0
     is_occluded: bool = False
+    bbox: tuple[float, float, float, float] | None = None
 
     @property
     def dimension(self) -> int:

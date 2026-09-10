@@ -545,8 +545,9 @@ mango/
       are now applied by the processing pipeline (via job config); the dashboard does
       not yet display per-job pipeline config in the UI (job config is returned by
       the API).
-- [!] Re-ID acceptance is single-threshold cosine (mock); production re-id will
-      add motion gating and multi-candidate ranking.
+- [!] Re-ID is similarity-ranked with motion gating (plausible reappearance
+      displacement) and multi-candidate ranking; real production re-id will add
+      learned appearance embeddings and per-candidate quality scoring.
 - [!] Live dev API server on :8000 was restarted to pick up new schema; dev
       DB under `data/` is regenerated on supervisor restart.
 
@@ -562,7 +563,7 @@ mango/
 ## Test Status
 
 - Backend: 50 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence, pipeline config passthrough incl. re-id threshold/memory rate, stored settings as processing defaults)
-- ML: 67 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
+- ML: 71 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset, bbox-carrying embeddings, motion-gated recovery, gap-scaled motion cap, multi-candidate ranking past blocked candidates; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
 - Frontend: TypeScript build + typecheck passing; Vitest component tests passing (UI primitives; page-level coverage incremental)
 
 ## Decisions Log

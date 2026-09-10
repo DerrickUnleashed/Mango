@@ -23,6 +23,7 @@ class LostTrackInfo:
     track_id: int
     identity_id: int | None
     lost_at_frame: int
+    last_bbox: tuple[float, float, float, float] | None = None
     recovered: bool = False
 
 

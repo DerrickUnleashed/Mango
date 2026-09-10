@@ -45,6 +45,7 @@ class MockEmbeddingExtractor(EmbeddingExtractor):
                     vector=vec,
                     confidence=det.confidence,
                     is_occluded=det.confidence < OCCLUSION_CONFIDENCE,
+                    bbox=det.bbox,
                 )
             )
         return embeddings

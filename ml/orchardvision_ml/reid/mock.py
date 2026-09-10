@@ -3,27 +3,51 @@
 from __future__ import annotations
 
 from orchardvision_ml.identity import Embedding
-from orchardvision_ml.memory import IdentityMemory
+from orchardvision_ml.memory import Identity, IdentityMemory
 
 from .base import LostTrackInfo, ReIdentificationEvent, ReIdentifier
 
+DEFAULT_MATCH_THRESHOLD = 0.8
+DEFAULT_MAX_DISPLACEMENT_PX = 120.0
+DEFAULT_MAX_SPEED_PX_PER_FRAME = 45.0
+DEFAULT_TOP_K = 5
+
+
+def _center(bbox: tuple[float, float, float, float]) -> tuple[float, float]:
+    x, y, w, h = bbox
+    return (x + w / 2.0, y + h / 2.0)
+
 
 class MockReIdentifier(ReIdentifier):
-    """Greedy memory-backed re-identification for mock pipelines.
+    """Memory-backed re-identification with motion gating.
 
     Tracks are unique across a video (ids never reused), so any brand-new
     track whose embedding matches a known identity is a candidate recovery.
-    The match is accepted only when that identity still has an unrecovered
-    lost track, splitting the lost track's disappearance from the new
-    appearance into a :class:`ReIdentificationEvent`.
+
+    Candidates are ranked by appearance similarity (``top_k``), then filtered:
+
+    1. only identities that still have an unrecovered lost track qualify;
+    2. the reappearing track must sit within a motion-plausible radius of where
+       the lost track disappeared (the allowed radius grows with the gap, so
+       slow drift over long occlusions is permitted).
     """
 
-    def __init__(self, match_threshold: float = 0.8) -> None:
+    def __init__(
+        self,
+        match_threshold: float = DEFAULT_MATCH_THRESHOLD,
+        max_reid_displacement_px: float = DEFAULT_MAX_DISPLACEMENT_PX,
+        max_speed_px_per_frame: float = DEFAULT_MAX_SPEED_PX_PER_FRAME,
+        top_k: int = DEFAULT_TOP_K,
+    ) -> None:
         self.match_threshold = match_threshold
+        self.max_reid_displacement_px = max_reid_displacement_px
+        self.max_speed_px_per_frame = max_speed_px_per_frame
+        self.top_k = max(1, int(top_k))
         self._events: list[ReIdentificationEvent] = []
         self._lost: list[LostTrackInfo] = []
         self._seen_tracks: set[int] = set()
         self._identity_of_track: dict[int, int] = {}
+        self._last_bbox_of_track: dict[int, tuple[float, float, float, float] | None] = {}
 
     def step(
         self,
@@ -35,12 +59,12 @@ class MockReIdentifier(ReIdentifier):
         for lost_id in lost_track_ids:
             if any(lost.track_id == lost_id for lost in self._lost):
                 continue
-            identity_id = self._identity_of_track.get(lost_id)
             self._lost.append(
                 LostTrackInfo(
                     track_id=lost_id,
-                    identity_id=identity_id,
+                    identity_id=self._identity_of_track.get(lost_id),
                     lost_at_frame=frame_id,
+                    last_bbox=self._last_bbox_of_track.get(lost_id),
                 )
             )
 
@@ -52,16 +76,18 @@ class MockReIdentifier(ReIdentifier):
             first_seen = track_id not in self._seen_tracks
             self._seen_tracks.add(track_id)
             if not first_seen:
-                self._remember(track_id, embedding, memory)
+                self._remember_with_bbox(track_id, embedding, memory)
                 continue
 
-            ranked = memory.query(embedding, top_k=1)
+            ranked = memory.query(embedding, top_k=self.top_k)
             if not ranked or ranked[0][1] < self.match_threshold:
                 continue
-            identity_id, similarity = ranked[0][0].identity_id, ranked[0][1]
-            self._identity_of_track[track_id] = identity_id
 
-            victim = self._pending_lost(identity_id)
+            best_identity_id = ranked[0][0].identity_id
+            self._identity_of_track[track_id] = best_identity_id
+            self._last_bbox_of_track[track_id] = embedding.bbox
+
+            victim, identity_id, similarity = self._select_victim(ranked, embedding, frame_id)
             if victim is None:
                 continue
             victim.recovered = True
@@ -79,11 +105,51 @@ class MockReIdentifier(ReIdentifier):
             events.append(event)
         return events
 
-    def _remember(self, track_id: int, embedding: Embedding, memory: IdentityMemory) -> None:
+    def _select_victim(
+        self,
+        ranked: list[tuple[Identity, float]],
+        embedding: Embedding,
+        frame_id: int,
+    ) -> tuple[LostTrackInfo | None, int | None, float]:
+        """Pick the first candidate whose identity is recoverable and motion-plausible."""
+        for identity, similarity in ranked:
+            if similarity < self.match_threshold:
+                break
+            pending = self._pending_lost(identity.identity_id)
+            if pending is None:
+                continue
+            if not self._motion_allowed(pending, embedding.bbox, frame_id):
+                continue
+            return pending, identity.identity_id, similarity
+        return None, None, 0.0
+
+    def _motion_allowed(
+        self,
+        lost: LostTrackInfo,
+        new_bbox: tuple[float, float, float, float] | None,
+        frame_id: int,
+    ) -> bool:
+        """Gate a reappearance by how far it moved from where it disappeared.
+
+        When either position is unknown the gate passes (nothing to compare).
+        Otherwise the allowed displacement grows with the occlusion gap so a
+        fruit drifting while occluded is still recovered.
+        """
+        if lost.last_bbox is None or new_bbox is None:
+            return True
+        gap = max(frame_id - lost.lost_at_frame, 0)
+        cap = self.max_reid_displacement_px + self.max_speed_px_per_frame * gap
+        (ax, ay) = _center(lost.last_bbox)
+        (bx, by) = _center(new_bbox)
+        return ((ax - bx) ** 2 + (ay - by) ** 2) ** 0.5 <= cap
+
+    def _remember_with_bbox(
+        self, track_id: int, embedding: Embedding, memory: IdentityMemory
+    ) -> None:
         ranked = memory.query(embedding, top_k=1)
-        if not ranked or ranked[0][1] < self.match_threshold:
-            return
-        self._identity_of_track[track_id] = ranked[0][0].identity_id
+        if ranked and ranked[0][1] >= self.match_threshold:
+            self._identity_of_track[track_id] = ranked[0][0].identity_id
+        self._last_bbox_of_track[track_id] = embedding.bbox
 
     def _pending_lost(self, identity_id: int) -> LostTrackInfo | None:
         for lost in self._lost:
@@ -104,3 +170,4 @@ class MockReIdentifier(ReIdentifier):
         self._lost.clear()
         self._seen_tracks.clear()
         self._identity_of_track.clear()
+        self._last_bbox_of_track.clear()
