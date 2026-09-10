@@ -4,7 +4,7 @@
 
 **Phase:** 15 — Advanced Re-ID (next)
 **Milestone:** Ground-truth-scored evaluation harness so mock-lifted designs can be validated against real data
-**Overall Progress:** 84%
+**Overall Progress:** 90%
 **Last Updated:** 2026-09-09
 
 ---
@@ -533,32 +533,34 @@ mango/
 
 ## Known Technical Debt
 
-- [!] Job queue: Redis/Celery is wired and config-toggled (see
-      `docker/docker-compose.yml`). With ``CELERY_BROKER_URL`` set, processing
-      dispatches through a Celery worker; without it, jobs run in-process via
-      Starlette ``BackgroundTasks`` (both paths share DB-backed status/progress).
-- [!] Alembic configured and wired (initial migration in `apps/api/alembic/versions`).
-      Existing dev databases created with `create_all` can be aligned via
-      `alembic stamp head` or recreated.
+Resolved items:
+- [x] Job queue: Redis/Celery wired and config-toggled (`docker/docker-compose.yml`).
+      With ``CELERY_BROKER_URL`` set, processing dispatches through a Celery
+      worker; without it, jobs run in-process via Starlette ``BackgroundTasks``.
+      Both paths share DB-backed status/progress; ``job_manager.py`` memory queue
+      was removed.
+- [x] Alembic migrations wired (`apps/api/alembic/versions`: initial schema +
+      job message/cancelled columns). Dev databases created with ``create_all``
+      align via ``alembic stamp head`` or recreate.
+- [x] Prettier configured and enforced via `format`/`format:check` (oxlint covers
+      linting).
+
+Remaining debt:
 - [!] Vitest configured (`apps/web`): component tests for UI primitives exist;
       coverage of full pages is incremental.
-- [!] Prettier configured and enforced via `format`/`format:check` (oxlint covers linting).
 - [!] Frontend `SettingsPage` re-ID threshold / memory rate persist to the API and
-      are now applied by the processing pipeline (via job config); the dashboard does
-      not yet display per-job pipeline config in the UI (job config is returned by
-      the API).
+      are applied by the processing pipeline; the dashboard does not yet display
+      per-job pipeline config in the UI (the API returns it via job status).
 - [!] Re-ID is similarity-ranked with motion gating (plausible reappearance
-      displacement) and multi-candidate ranking; real production re-id will add
-      learned appearance embeddings and per-candidate quality scoring.
-- [!] Live dev API server on :8000 was restarted to pick up new schema; dev
-      DB under `data/` is regenerated on supervisor restart.
+      displacement) and multi-candidate ranking; production re-id will add learned
+      appearance embeddings and per-candidate quality scoring.
 
 ## Known Risks
 
 - [!] GPU availability for real model inference — mitigated by mock mode
 - [!] Large model weights — will use .gitignore and environment config for weight paths
-- [!] Video processing can be slow — async job queue architecture
-- [!] PostgreSQL may not be available for local dev — will provide SQLite fallback
+- [!] Video processing can be slow — async job queue architecture (Celery/Redis)
+- [!] PostgreSQL may not be available for local dev — SQLite fallback provided
 - [!] OpenCV `VideoCapture` reads the full byte string upload into memory — acceptable
       for local dev, revisit with streaming for large files
 
