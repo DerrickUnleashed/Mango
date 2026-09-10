@@ -80,3 +80,4 @@ temp/
 *.sqlite3-wal
 
 .ruff_cache/
+.vscode/
