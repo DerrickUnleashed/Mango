@@ -260,6 +260,11 @@ def test_processing_job_exposes_pipeline_config(
     assert cfg["camera_motion"] == "drift"
     assert cfg["max_frames"] == 6
 
+    video_body = client.get(f"/api/videos/{video_id}").json()
+    job_on_video = video_body["processingJob"]
+    assert job_on_video is not None
+    assert job_on_video["config"] == cfg
+
 
 def test_processing_persists_detections(client: TestClient, sample_video_bytes: bytes) -> None:
     video_id = _upload(client, sample_video_bytes)

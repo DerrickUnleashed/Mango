@@ -544,13 +544,14 @@ Resolved items:
       align via ``alembic stamp head`` or recreate.
 - [x] Prettier configured and enforced via `format`/`format:check` (oxlint covers
       linting).
+- [x] Per-job pipeline config now surfaced in the UI: `video.processingJob.config`
+      (message + config) is returned and rendered on the video detail page.
+- [x] Vitest: page-level coverage added (`VideoDetailPage` renders + config chips);
+      UI plumbing tests auto-clean between cases.
 
 Remaining debt:
-- [!] Vitest configured (`apps/web`): component tests for UI primitives exist;
-      coverage of full pages is incremental.
-- [!] Frontend `SettingsPage` re-ID threshold / memory rate persist to the API and
-      are applied by the processing pipeline; the dashboard does not yet display
-      per-job pipeline config in the UI (the API returns it via job status).
+- [!] Vitest coverage of the remaining pages (Videos, Dashboard, Experiments,
+      Identities, Settings, Analytics, Evaluation) is still incremental.
 - [!] Re-ID is similarity-ranked with motion gating (plausible reappearance
       displacement) and multi-candidate ranking; production re-id will add learned
       appearance embeddings and per-candidate quality scoring.
@@ -568,7 +569,7 @@ Remaining debt:
 
 - Backend: 54 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence, pipeline config passthrough incl. re-id threshold/memory rate, stored settings as processing defaults, Celery enqueue + task execution + shared worker)
 - ML: 71 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset, bbox-carrying embeddings, motion-gated recovery, gap-scaled motion cap, multi-candidate ranking past blocked candidates; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
-- Frontend: TypeScript build + typecheck passing; Vitest component tests passing (UI primitives; page-level coverage incremental)
+- Frontend: TypeScript build + typecheck passing; Vitest passing (component tests, UI plumbing cleanup, page-level video-detail/config coverage; remaining page coverage incremental)
 
 ## Decisions Log
 

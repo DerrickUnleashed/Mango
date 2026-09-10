@@ -16,6 +16,8 @@ class ProcessingJobView(BaseModel):
     stage: str
     progress: float
     inference_mode: str
+    message: str | None = None
+    config: dict[str, object] | None = None
     error: str | None = None
     started_at: datetime | None = None
     completed_at: datetime | None = None
@@ -29,6 +31,8 @@ class ProcessingJobView(BaseModel):
             "stage": self.stage,
             "progress": self.progress,
             "inferenceMode": self.inference_mode,
+            "message": self.message,
+            "config": self.config,
             "error": self.error,
             "startedAt": self.started_at.isoformat() if self.started_at else None,
             "completedAt": self.completed_at.isoformat() if self.completed_at else None,

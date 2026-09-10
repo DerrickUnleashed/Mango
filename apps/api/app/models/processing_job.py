@@ -74,6 +74,7 @@ class ProcessingJob(Base):
             "inferenceMode": self.inference_mode,
             "message": self.message,
             "cancelled": self.cancelled,
+            "config": self.config,
             "error": self.error,
             "startedAt": self.started_at.isoformat() if self.started_at else None,
             "completedAt": self.completed_at.isoformat() if self.completed_at else None,

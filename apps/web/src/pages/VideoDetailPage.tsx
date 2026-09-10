@@ -19,6 +19,20 @@ export function VideoDetailPage() {
   const job = video.data?.processingJob ?? null
   const isProcessing = job?.status === 'running' || job?.status === 'queued'
 
+  const configEntries: Array<[string, string]> = job?.config
+    ? [
+        ['Inference', job.config.inference_mode],
+        ['Confidence', job.config.confidence_threshold.toFixed(2)],
+        ['Tracker', job.config.tracker],
+        ['Camera', job.config.camera_motion],
+        ['Re-ID threshold', job.config.reid_threshold.toFixed(2)],
+        ['Memory update rate', job.config.memory_update_rate.toFixed(2)],
+        ...(job.config.max_frames != null
+          ? [['Max frames', String(job.config.max_frames)] as [string, string]]
+          : []),
+      ]
+    : []
+
   function startProcessing() {
     process.mutate(
       { videoId, request: { inferenceMode: 'mock', tracker, cameraMotion } },
@@ -102,10 +116,24 @@ export function VideoDetailPage() {
             <h2 className="font-medium text-surface-200">Processing</h2>
             <p className="mt-1 text-sm text-surface-400">
               {job
-                ? `Status: ${job.status} · ${job.stage} · ${Math.round(job.progress)}%`
+                ? `Status: ${job.status}${job.message ? ` · ${job.message}` : ''} · ${job.stage} · ${Math.round(job.progress)}%`
                 : 'Run the analysis pipeline to detect, track, and re-identify fruits.'}
             </p>
             {job?.error && <p className="mt-1 text-sm text-red-400">Error: {job.error}</p>}
+            {configEntries.length > 0 && (
+              <dl className="mt-3 flex flex-wrap gap-2" aria-label="Pipeline configuration">
+                {configEntries.map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="rounded-md border border-surface-800 bg-surface-950 px-2 py-1 text-xs text-surface-400"
+                  >
+                    <dt className="inline text-surface-500">{label}</dt>
+                    {` · `}
+                    <dd className="inline text-surface-200">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <label

@@ -24,10 +24,22 @@ export interface ProcessingJob {
   stage: ProcessingStage
   progress: number
   error: string | null
+  message: string | null
+  config: PipelineConfig | null
   inferenceMode: InferenceModeOrigin
   startedAt: string | null
   completedAt: string | null
   createdAt: string
+}
+
+export interface PipelineConfig {
+  inference_mode: 'mock' | 'real'
+  confidence_threshold: number
+  tracker: 'mock' | 'bytetrack'
+  camera_motion: 'static' | 'drift'
+  reid_threshold: number
+  memory_update_rate: number
+  max_frames: number | null
 }
 
 export type InferenceModeOrigin = 'mock' | 'real'
