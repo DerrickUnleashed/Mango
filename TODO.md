@@ -87,7 +87,7 @@ mango/
 - [x] Formatting passes (Ruff format, Prettier)
 - [x] Basic tests pass (17 backend/ML, TS build)
 - [x] Docker setup works
-- [~] Environment configuration documented (.env.example added, docs pending)
+- [x] Environment configuration documented (.env.example + README Configuration section)
 
 ### QG 2 — UI Shell
 - [x] Responsive layout (responsive grids, wrapping controls)
