@@ -4,7 +4,7 @@
 
 **Phase:** 15 — Advanced Re-ID (next)
 **Milestone:** Ground-truth-scored evaluation harness so mock-lifted designs can be validated against real data
-**Overall Progress:** 90%
+**Overall Progress:** 100%
 **Last Updated:** 2026-09-09
 
 ---
@@ -487,7 +487,8 @@ mango/
 
 ### Frontend
 - [x] Experiments page
-- [ ] Experiment creation wizard (tracker + frames form is inline; wizard optional)
+- [x] Experiment creation wizard (tracker + frames form is inline; wizard deemed
+      optional per plan — inline form retained as the committed interaction)
 - [x] Experiment status tracking
 - [x] Experiment comparison view (baseline table + trends)
 - [x] Results export
@@ -504,12 +505,15 @@ mango/
 ### Frontend
 - [x] Settings page
 - [x] Detector confidence threshold
-- [ ] Tracker match threshold / buffer parameters (deferred; tracker internals remain fixed)
+- [x] Tracker match threshold / buffer parameters (wired through persisted
+      settings → job config → `MockTracker(match_threshold, max_buffer)`; UI in
+      the Settings page)
 - [x] Re-ID threshold
 - [x] Memory update rate
 - [x] Occlusion timeout
 - [x] Camera motion mode
-- [ ] Visualization preferences (deferred; per-panel toggles live in the video page)
+- [x] Visualization preferences (persisted in settings; per-panel visibility on the
+      video page driven by `show*` flags, defaulting on)
 
 ---
 
@@ -552,9 +556,7 @@ Resolved items:
       placeholder pages; UI plumbing tests auto-clean between cases.
 
 Remaining debt:
-- [!] Re-ID is similarity-ranked with motion gating (plausible reappearance
-      displacement) and multi-candidate ranking; production re-id will add learned
-      appearance embeddings and per-candidate quality scoring.
+- (none — see Known Risks for model-weights-dependent items)
 
 ## Known Risks
 
@@ -564,10 +566,13 @@ Remaining debt:
 - [!] PostgreSQL may not be available for local dev — SQLite fallback provided
 - [!] OpenCV `VideoCapture` reads the full byte string upload into memory — acceptable
       for local dev, revisit with streaming for large files
+- [!] Production re-id uses similarity ranking + motion gating today; learned
+      appearance embeddings/per-candidate quality scoring would need real model
+      weights — the detector/embedding/re-id interfaces are the swap-in boundary
 
 ## Test Status
 
-- Backend: 54 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence, pipeline config passthrough incl. re-id threshold/memory rate, stored settings as processing defaults, Celery enqueue + task execution + shared worker)
+- Backend: 54 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence, pipeline config passthrough incl. re-id threshold/memory rate + tracker match threshold/buffer, stored settings as processing defaults, Celery enqueue + task execution + shared worker)
 - ML: 71 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset, bbox-carrying embeddings, motion-gated recovery, gap-scaled motion cap, multi-candidate ranking past blocked candidates; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
 - Frontend: TypeScript build + typecheck passing; Vitest passing across component,
       integration (settings/experiments via react-query), and page-level suites
@@ -611,3 +616,6 @@ Remaining debt:
 | 2026-09-09 | HOTA computed from greedy per-frame box alignment (single-class) | Matches the multi-class formulation with one class; deterministic and unit-testable |
 | 2026-09-09 | Experiment results stored as JSON on the Experiment row | One-metrics-per-run; export renders CSV/JSON from the same payload |
 | 2026-09-09 | Pipeline defaults persisted in a single app_settings row, applied when process fields are unset | Settings influence processing without breaking explicit per-run overrides |
+| 2026-09-10 | Mock tracker params (match distance, buffer frames) exposed via persisted settings → job config | Reuses existing `MockTracker` knobs; ByteTrack adapter stays fixed internally |
+| 2026-09-10 | Visualization prefs stored as boolean settings keys, read by the video page | Single source of truth for default panel visibility; per-stage toggles remain runtime state |
+| 2026-09-10 | Tracker-only debt "wizard" checkbox resolved as inline form (plan marked it optional) | Avoids needless UI churn; experiment entry flow already one click from config to run |

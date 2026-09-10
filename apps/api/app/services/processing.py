@@ -52,6 +52,8 @@ class PipelineConfig:
     camera_motion: str = "static"
     reid_threshold: float = 0.6
     memory_update_rate: float = 0.2
+    tracker_match_threshold: float = 120.0
+    tracker_buffer_frames: int = 30
     max_frames: int | None = None
 
     def effective_max_frames(self, total_frames: int) -> int:
@@ -349,7 +351,10 @@ class ProcessingService:
     def _build_tracker(self, config: PipelineConfig) -> Tracker:
         if config.tracker == "bytetrack":
             return ByteTrackAdapter()
-        return MockTracker()
+        return MockTracker(
+            match_threshold=config.tracker_match_threshold,
+            max_buffer=config.tracker_buffer_frames,
+        )
 
     def _persist_tracks(self, job: ProcessingJob, video: Video, result, db) -> list[Track]:
         """Write final active track trajectories into the database.

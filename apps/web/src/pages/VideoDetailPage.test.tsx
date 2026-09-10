@@ -38,6 +38,8 @@ const mocks = vi.hoisted(() => {
             camera_motion: 'static',
             reid_threshold: 0.6,
             memory_update_rate: 0.2,
+            tracker_match_threshold: 120,
+            tracker_buffer_frames: 30,
             max_frames: null,
           },
         }
@@ -61,6 +63,10 @@ vi.mock('../hooks/useVideos', () => ({
     isError: false,
   }),
   useProcessVideo: () => ({ mutate: mocks.mutate, isPending: false }),
+}))
+
+vi.mock('../hooks/useSettings', () => ({
+  useSettings: () => ({ data: undefined, isLoading: false }),
 }))
 
 describe('VideoDetailPage', () => {

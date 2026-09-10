@@ -307,6 +307,10 @@ def process_video(
         or float(stored.get("reidThreshold", settings.default_reid_threshold)),
         memory_update_rate=request.memory_update_rate
         or float(stored.get("memoryUpdateRate", settings.default_memory_update_rate)),
+        tracker_match_threshold=request.tracker_match_threshold
+        or float(stored.get("trackerMatchThreshold", settings.default_tracker_match_threshold)),
+        tracker_buffer_frames=request.tracker_buffer_frames
+        or int(stored.get("trackerBufferFrames", settings.default_tracker_buffer_frames)),
         max_frames=request.max_frames,
     )
 
@@ -321,6 +325,8 @@ def process_video(
             "camera_motion": config.camera_motion,
             "reid_threshold": config.reid_threshold,
             "memory_update_rate": config.memory_update_rate,
+            "tracker_match_threshold": config.tracker_match_threshold,
+            "tracker_buffer_frames": config.tracker_buffer_frames,
             "max_frames": config.max_frames,
         },
     )

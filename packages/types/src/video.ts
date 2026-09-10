@@ -39,6 +39,8 @@ export interface PipelineConfig {
   camera_motion: 'static' | 'drift'
   reid_threshold: number
   memory_update_rate: number
+  tracker_match_threshold: number
+  tracker_buffer_frames: number
   max_frames: number | null
 }
 

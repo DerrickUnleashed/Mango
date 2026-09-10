@@ -243,6 +243,8 @@ def test_processing_job_exposes_pipeline_config(
             "confidence_threshold": 0.42,
             "reid_threshold": 0.5,
             "memory_update_rate": 0.1,
+            "tracker_match_threshold": 200.0,
+            "tracker_buffer_frames": 20,
             "max_frames": 6,
         },
     )
@@ -258,6 +260,8 @@ def test_processing_job_exposes_pipeline_config(
     assert cfg["confidence_threshold"] == 0.42
     assert cfg["tracker"] == "bytetrack"
     assert cfg["camera_motion"] == "drift"
+    assert cfg["tracker_match_threshold"] == 200.0
+    assert cfg["tracker_buffer_frames"] == 20
     assert cfg["max_frames"] == 6
 
     video_body = client.get(f"/api/videos/{video_id}").json()

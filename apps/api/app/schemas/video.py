@@ -115,6 +115,8 @@ class ProcessRequest(BaseModel):
     camera_motion: str = Field(default="static", pattern="^(static|drift)$")
     reid_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
     memory_update_rate: float | None = Field(default=None, ge=0.0, le=1.0)
+    tracker_match_threshold: float | None = Field(default=None, ge=0.0, le=1000.0)
+    tracker_buffer_frames: int | None = Field(default=None, ge=1, le=1000)
     max_frames: int | None = Field(default=None, ge=1, le=100_000)
 
 
@@ -140,7 +142,7 @@ class CreateExperimentRequest(BaseModel):
 
 
 class UpdateSettingsRequest(BaseModel):
-    values: dict[str, float | int | str]
+    values: dict[str, float | int | str | bool]
 
 
 class SettingsResponse(BaseModel):

@@ -63,6 +63,8 @@ def test_processing_uses_stored_threshold_defaults(
                 "confidenceThreshold": 0.55,
                 "reidThreshold": 0.45,
                 "memoryUpdateRate": 0.05,
+                "trackerMatchThreshold": 240.0,
+                "trackerBufferFrames": 12,
             }
         },
     )
@@ -72,6 +74,8 @@ def test_processing_uses_stored_threshold_defaults(
         assert cfg["confidence_threshold"] == 0.55
         assert cfg["reid_threshold"] == 0.45
         assert cfg["memory_update_rate"] == 0.05
+        assert cfg["tracker_match_threshold"] == 240.0
+        assert cfg["tracker_buffer_frames"] == 12
         assert video_id  # keep video_id referenced
     finally:
         client.put("/api/settings", json={"values": DEFAULT_SETTINGS})  # reset

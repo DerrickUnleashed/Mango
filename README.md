@@ -58,7 +58,8 @@ Processing runs per video in a background thread:
    in behind the same interface (`orchardvision_ml.detection`).
 2. **Camera motion compensation** — estimates pan/tilt drift and shifts boxes
    before tracking (`static`/`drift`).
-3. **Tracking** — mock identity-primitive tracker or a ByteTrack-style adapter
+3. **Tracking** — mock identity-primitive tracker (configurable association
+   distance + recovery buffer) or a ByteTrack-style adapter
    (`orchardvision_ml.tracking`).
 4. **Identity embedding + memory** — quality-aware prototypes per fruit with
    online prototype updates (`orchardvision_ml.identity.embedding`/`memory`).
@@ -100,6 +101,19 @@ See `.env.example` for the authoritative list. Key variables:
 - `MAX_UPLOAD_BYTES`, `ALLOWED_VIDEO_MIME_TYPES` — upload constraints
 - `ALLOWED_ORIGINS`, `CORS_ALLOW_CREDENTIALS` — CORS
 - `AUTO_CREATE_TABLES` — dev-friendly `create_all`; set `false` and use `alembic up` for managed schemas, see below
+
+Persisted pipeline defaults (`GET/PUT /api/settings`) control processing defaults
+and video-page visualization:
+
+- `confidenceThreshold`, `reidThreshold`, `memoryUpdateRate`, `occlusionTimeoutSec`
+- `cameraMotionMode` — `static` or `drift` simulation
+- `trackerMatchThreshold` (px) and `trackerBufferFrames` — mock tracker association
+  distance and how long a track survives a missed detection
+- `showTrackVisualizer`, `showIdentitiesPanel`, `showReidPanel`, `showMotionPanel`,
+  `showAnalyticsPanel` — which panels appear on the video detail page
+
+Per-run `POST /api/videos/{id}/process` options override these; unset options
+fall back to the persisted defaults.
 
 ## Database migrations
 

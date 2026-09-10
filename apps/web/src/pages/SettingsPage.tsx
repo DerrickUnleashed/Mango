@@ -10,7 +10,32 @@ const DEFAULTS: PipelineSettingsValues = {
   memoryUpdateRate: 0.2,
   occlusionTimeoutSec: 30,
   cameraMotionMode: 'static',
+  trackerMatchThreshold: 120,
+  trackerBufferFrames: 30,
+  showTrackVisualizer: true,
+  showIdentitiesPanel: true,
+  showReidPanel: true,
+  showMotionPanel: true,
+  showAnalyticsPanel: true,
 }
+
+type NumberKey = Exclude<
+  keyof PipelineSettingsValues,
+  | 'cameraMotionMode'
+  | 'showTrackVisualizer'
+  | 'showIdentitiesPanel'
+  | 'showReidPanel'
+  | 'showMotionPanel'
+  | 'showAnalyticsPanel'
+>
+
+const PANEL_KEYS: Array<{ key: keyof PipelineSettingsValues; label: string }> = [
+  { key: 'showTrackVisualizer', label: 'Tracking overlay' },
+  { key: 'showIdentitiesPanel', label: 'Learned identities' },
+  { key: 'showReidPanel', label: 'Re-identification recoveries' },
+  { key: 'showMotionPanel', label: 'Camera motion estimate' },
+  { key: 'showAnalyticsPanel', label: 'Analytics summary' },
+]
 
 export function SettingsPage() {
   const { push } = useToast()
@@ -44,11 +69,19 @@ export function SettingsPage() {
     )
   }
 
-  const fieldNumber = (key: Exclude<keyof PipelineSettingsValues, 'cameraMotionMode'>) => ({
+  const fieldNumber = (key: NumberKey) => ({
     value: values[key],
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
       const next = e.target.value
       setValues((prev) => ({ ...prev, [key]: Number(next) }))
+      setSaved(false)
+    },
+  })
+
+  const fieldCheckbox = (key: (typeof PANEL_KEYS)[number]['key']) => ({
+    checked: Boolean(values[key]),
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      setValues((prev) => ({ ...prev, [key]: e.target.checked }))
       setSaved(false)
     },
   })
@@ -79,6 +112,44 @@ export function SettingsPage() {
                 {...fieldNumber('confidenceThreshold')}
                 className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none"
               />
+            </label>
+          </div>
+        </section>
+
+        <section className="rounded-xl border border-surface-800 bg-surface-900/60 p-6">
+          <h2 className="mb-4 font-medium text-surface-200">Tracker</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-xs font-medium text-surface-400">
+                Match distance threshold (px)
+              </span>
+              <input
+                type="number"
+                min={0}
+                max={1000}
+                step={10}
+                {...fieldNumber('trackerMatchThreshold')}
+                className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none"
+              />
+              <span className="mt-1 block text-xs text-surface-600">
+                Max centre distance to associate a detection with an existing track.
+              </span>
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-xs font-medium text-surface-400">
+                Track buffer (frames)
+              </span>
+              <input
+                type="number"
+                min={1}
+                max={1000}
+                step={1}
+                {...fieldNumber('trackerBufferFrames')}
+                className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none"
+              />
+              <span className="mt-1 block text-xs text-surface-600">
+                Frames a track survives without a match before it is dropped.
+              </span>
             </label>
           </div>
         </section>
@@ -156,6 +227,25 @@ export function SettingsPage() {
           </fieldset>
         </section>
 
+        <section className="rounded-xl border border-surface-800 bg-surface-900/60 p-6">
+          <h2 className="mb-4 font-medium text-surface-200">Visualization</h2>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {PANEL_KEYS.map((panel) => (
+              <label
+                key={panel.key}
+                className="inline-flex cursor-pointer items-center gap-2 text-sm text-surface-300"
+              >
+                <input
+                  type="checkbox"
+                  {...fieldCheckbox(panel.key)}
+                  className="h-4 w-4 rounded accent-orchard-500"
+                />
+                {panel.label}
+              </label>
+            ))}
+          </div>
+        </section>
+
         <div className="flex items-center gap-4">
           <button
             type="submit"
@@ -182,6 +272,13 @@ function valuesToPayload(values: PipelineSettingsValues): Partial<PipelineSettin
     memoryUpdateRate: Number(values.memoryUpdateRate),
     occlusionTimeoutSec: Number(values.occlusionTimeoutSec),
     cameraMotionMode: values.cameraMotionMode === 'drift' ? 'drift' : 'static',
+    trackerMatchThreshold: Number(values.trackerMatchThreshold),
+    trackerBufferFrames: Number(values.trackerBufferFrames),
+    showTrackVisualizer: Boolean(values.showTrackVisualizer),
+    showIdentitiesPanel: Boolean(values.showIdentitiesPanel),
+    showReidPanel: Boolean(values.showReidPanel),
+    showMotionPanel: Boolean(values.showMotionPanel),
+    showAnalyticsPanel: Boolean(values.showAnalyticsPanel),
   }
   return numeric
 }

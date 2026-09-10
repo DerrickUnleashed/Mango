@@ -57,6 +57,8 @@ class Settings(BaseSettings):
     default_confidence_threshold: float = 0.35
     default_reid_threshold: float = 0.6
     default_memory_update_rate: float = 0.2
+    default_tracker_match_threshold: float = 120.0
+    default_tracker_buffer_frames: int = 30
     auto_create_tables: bool = True
 
     # Job queue (leave CELERY_BROKER_URL unset for the in-process background path)

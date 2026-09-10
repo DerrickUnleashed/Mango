@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useProcessVideo, useVideo } from '../hooks/useVideos'
+import { useSettings } from '../hooks/useSettings'
 import { useToast } from '../components/ui/useToast'
 import { AnalyticsPanel } from '../components/tracking/AnalyticsPanel'
 import { IdentitiesPanel } from '../components/tracking/IdentitiesPanel'
@@ -13,6 +14,7 @@ export function VideoDetailPage() {
   const { push } = useToast()
   const video = useVideo(videoId)
   const process = useProcessVideo()
+  const settings = useSettings()
   const [tracker, setTracker] = useState<'mock' | 'bytetrack'>('mock')
   const [cameraMotion, setCameraMotion] = useState<'static' | 'drift'>('static')
 
@@ -61,6 +63,7 @@ export function VideoDetailPage() {
   }
 
   const v = video.data
+  const prefs = settings.data?.values
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -75,27 +78,39 @@ export function VideoDetailPage() {
       </div>
 
       {/* Tracking visualization — shown once the video has been processed */}
-      {v.status === 'processed' && v.width && v.height && v.frameCount && (
-        <TrackVisualizer
-          videoId={v.id}
-          width={v.width}
-          height={v.height}
-          frameCount={v.frameCount}
-          enabled
-        />
-      )}
+      {v.status === 'processed' &&
+        (prefs?.showTrackVisualizer ?? true) &&
+        v.width &&
+        v.height &&
+        v.frameCount && (
+          <TrackVisualizer
+            videoId={v.id}
+            width={v.width}
+            height={v.height}
+            frameCount={v.frameCount}
+            enabled
+          />
+        )}
 
       {/* Learned identities — shown once the video has been processed */}
-      {v.status === 'processed' && <IdentitiesPanel videoId={v.id} enabled />}
+      {v.status === 'processed' && (prefs?.showIdentitiesPanel ?? true) && (
+        <IdentitiesPanel videoId={v.id} enabled />
+      )}
 
       {/* Re-identification recoveries — shown once the video has been processed */}
-      {v.status === 'processed' && <ReIdPanel videoId={v.id} enabled />}
+      {v.status === 'processed' && (prefs?.showReidPanel ?? true) && (
+        <ReIdPanel videoId={v.id} enabled />
+      )}
 
       {/* Camera motion estimate — shown once the video has been processed */}
-      {v.status === 'processed' && <MotionPanel videoId={v.id} enabled />}
+      {v.status === 'processed' && (prefs?.showMotionPanel ?? true) && (
+        <MotionPanel videoId={v.id} enabled />
+      )}
 
       {/* Aggregated analytics — shown once the video has been processed */}
-      {v.status === 'processed' && <AnalyticsPanel videoId={v.id} enabled />}
+      {v.status === 'processed' && (prefs?.showAnalyticsPanel ?? true) && (
+        <AnalyticsPanel videoId={v.id} enabled />
+      )}
 
       {/* Preview area — frame visualization will be implemented in a later phase */}
       <div className="flex aspect-video items-center justify-center rounded-xl border border-surface-800 bg-surface-950">

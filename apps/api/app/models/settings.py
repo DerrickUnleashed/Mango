@@ -23,6 +23,13 @@ DEFAULT_SETTINGS: dict = {
     "memoryUpdateRate": 0.2,
     "occlusionTimeoutSec": 30,
     "cameraMotionMode": "static",
+    "trackerMatchThreshold": 120.0,
+    "trackerBufferFrames": 30,
+    "showTrackVisualizer": True,
+    "showIdentitiesPanel": True,
+    "showReidPanel": True,
+    "showMotionPanel": True,
+    "showAnalyticsPanel": True,
 }
 
 

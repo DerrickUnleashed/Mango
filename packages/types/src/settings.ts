@@ -6,6 +6,13 @@ export interface PipelineSettingsValues {
   memoryUpdateRate: number
   occlusionTimeoutSec: number
   cameraMotionMode: PipelineCameraMotionMode
+  trackerMatchThreshold: number
+  trackerBufferFrames: number
+  showTrackVisualizer: boolean
+  showIdentitiesPanel: boolean
+  showReidPanel: boolean
+  showMotionPanel: boolean
+  showAnalyticsPanel: boolean
 }
 
 export interface SettingsResponse {
