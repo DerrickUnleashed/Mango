@@ -142,11 +142,11 @@ class CreateExperimentRequest(BaseModel):
 
 
 class UpdateSettingsRequest(BaseModel):
-    values: dict[str, float | int | str | bool]
+    values: dict[str, bool | str | int | float]
 
 
 class SettingsResponse(BaseModel):
-    values: dict[str, float | int | str]
+    values: dict[str, bool | str | int | float]
     revision: int
     updatedAt: str | None = None
 

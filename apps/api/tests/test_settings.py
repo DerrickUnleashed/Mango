@@ -46,6 +46,18 @@ def test_update_settings_ignores_unknown_keys(client: TestClient) -> None:
     assert body["values"] == DEFAULT_SETTINGS
 
 
+def test_boolean_settings_round_trip_as_booleans(client: TestClient) -> None:
+    body = client.put(
+        "/api/settings",
+        json={"values": {"showTrackVisualizer": False, "showReidPanel": True}},
+    ).json()
+    assert body["values"]["showTrackVisualizer"] is False
+    assert body["values"]["showReidPanel"] is True
+    stored = client.get("/api/settings").json()
+    assert stored["values"]["showTrackVisualizer"] is False
+    assert stored["values"]["showReidPanel"] is True
+
+
 def test_settings_persist_across_calls(client: TestClient) -> None:
     client.put("/api/settings", json={"values": {"confidenceThreshold": 0.6}})
     body = client.get("/api/settings").json()
