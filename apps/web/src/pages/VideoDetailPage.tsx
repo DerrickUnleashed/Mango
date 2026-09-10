@@ -86,7 +86,9 @@ export function VideoDetailPage() {
       {/* Preview area — frame visualization will be implemented in a later phase */}
       <div className="flex aspect-video items-center justify-center rounded-xl border border-surface-800 bg-surface-950">
         <div className="text-center">
-          <span className="text-4xl" aria-hidden="true">🎥</span>
+          <span className="text-4xl" aria-hidden="true">
+            🎥
+          </span>
           <p className="mt-2 text-sm text-surface-500">
             Video preview {v.status === 'processed' ? '(track overlay above)' : ''}
           </p>

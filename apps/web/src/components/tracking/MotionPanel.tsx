@@ -24,9 +24,7 @@ export function MotionPanel({ videoId, enabled }: MotionPanelProps) {
         <div className="flex items-center gap-2">
           <span
             className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-              isDrifting
-                ? 'bg-amber-500/15 text-amber-300'
-                : 'bg-emerald-500/15 text-emerald-300'
+              isDrifting ? 'bg-amber-500/15 text-amber-300' : 'bg-emerald-500/15 text-emerald-300'
             }`}
           >
             {isDrifting ? 'Drifting camera' : 'Static camera'}
@@ -51,14 +49,8 @@ export function MotionPanel({ videoId, enabled }: MotionPanelProps) {
             label="Drift (px/frame)"
             value={`${estimate.dxPerFrame.toFixed(2)}×${estimate.dyPerFrame.toFixed(2)}`}
           />
-          <Stat
-            label="Frames analyzed"
-            value={estimate.framesAnalyzed.toLocaleString()}
-          />
-          <Stat
-            label="Compensation"
-            value={estimate.compensationApplied ? 'Applied' : 'None'}
-          />
+          <Stat label="Frames analyzed" value={estimate.framesAnalyzed.toLocaleString()} />
+          <Stat label="Compensation" value={estimate.compensationApplied ? 'Applied' : 'None'} />
         </dl>
       )}
     </div>

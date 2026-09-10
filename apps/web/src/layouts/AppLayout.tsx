@@ -20,7 +20,8 @@ function Icon({ name }: { name: string }) {
     refresh: 'M4 12a8 8 0 1 1 2.34 5.66M4 12v-6M4 12h6',
     chart: 'M4 20h16M6 16v-5M10 16V8M14 16v-7M18 16v-4',
     target: 'M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z',
-    flask: 'M9 3h6M10 3v6l-5.5 8a2.5 2.5 0 0 0 2.1 3.8h10.8a2.5 2.5 0 0 0 2.1-3.8L14 9V3M7.2 14h9.6',
+    flask:
+      'M9 3h6M10 3v6l-5.5 8a2.5 2.5 0 0 0 2.1 3.8h10.8a2.5 2.5 0 0 0 2.1-3.8L14 9V3M7.2 14h9.6',
     gear: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z',
   }
   return (
@@ -39,7 +40,17 @@ function Icon({ name }: { name: string }) {
   )
 }
 
-function SidebarLink({ to, label, icon, end }: { to: string; label: string; icon: string; end?: boolean }) {
+function SidebarLink({
+  to,
+  label,
+  icon,
+  end,
+}: {
+  to: string
+  label: string
+  icon: string
+  end?: boolean
+}) {
   return (
     <NavLink
       to={to}
@@ -79,9 +90,21 @@ function Sidebar({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-surface-950">
       <aside className="hidden w-60 shrink-0 flex-col border-r border-surface-800 bg-surface-900/60 md:flex">
         <div className="flex items-center gap-2 px-4 py-5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orchard-600 text-white" aria-hidden="true">
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M4 20V10M4 8V4M10 20v-6M10 12V4M16 20V14M16 12V4M22 20v-4M22 14V4" strokeLinecap="round" />
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-orchard-600 text-white"
+            aria-hidden="true"
+          >
+            <svg
+              className="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            >
+              <path
+                d="M4 20V10M4 8V4M10 20v-6M10 12V4M16 20V14M16 12V4M22 20v-4M22 14V4"
+                strokeLinecap="round"
+              />
             </svg>
           </div>
           <div>

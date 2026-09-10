@@ -5,9 +5,7 @@ export function getSettings(): Promise<SettingsResponse> {
   return apiRequest<SettingsResponse>('/settings')
 }
 
-export function updateSettings(
-  payload: UpdateSettingsPayload,
-): Promise<SettingsResponse> {
+export function updateSettings(payload: UpdateSettingsPayload): Promise<SettingsResponse> {
   return apiRequest<SettingsResponse>('/settings', {
     method: 'PUT',
     body: JSON.stringify(payload),

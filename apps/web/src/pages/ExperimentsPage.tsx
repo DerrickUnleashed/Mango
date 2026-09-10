@@ -150,7 +150,10 @@ export function ExperimentsPage() {
                   <tr key={row.tracker} className="border-b border-surface-800/50">
                     <td className="py-2 pr-4 font-medium text-surface-200">{row.tracker}</td>
                     {METRIC_ROWS.map((metric) => (
-                      <td key={metric.key} className="py-2 pr-4 text-right font-mono text-surface-300">
+                      <td
+                        key={metric.key}
+                        className="py-2 pr-4 text-right font-mono text-surface-300"
+                      >
                         {row.metrics[metric.key] !== null
                           ? row.metrics[metric.key]!.toFixed(metric.digits)
                           : '—'}
@@ -190,7 +193,9 @@ export function ExperimentsPage() {
             No experiments yet — pick a tracker above and run one.
           </p>
         )}
-        {isLoading && <p className="px-4 py-8 text-center text-sm text-surface-500">Loading experiments…</p>}
+        {isLoading && (
+          <p className="px-4 py-8 text-center text-sm text-surface-500">Loading experiments…</p>
+        )}
         {experiments.map((experiment) => (
           <ExperimentRow
             key={experiment.id}
@@ -281,7 +286,10 @@ function ExperimentRow({
       {experiment.status === 'completed' && experiment.metrics && (
         <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {METRIC_ROWS.map((row) => (
-            <div key={row.key} className="rounded-lg border border-surface-800 bg-surface-900/60 px-3 py-2">
+            <div
+              key={row.key}
+              className="rounded-lg border border-surface-800 bg-surface-900/60 px-3 py-2"
+            >
               <dt className="text-xs text-surface-500">{row.label}</dt>
               <dd className="mt-0.5 font-mono text-sm text-surface-200">
                 {experiment.metrics![row.key].toFixed(row.digits)}
@@ -293,9 +301,7 @@ function ExperimentRow({
       {experiment.status === 'failed' && (
         <p className="mt-3 text-sm text-red-400">{experiment.error ?? 'Experiment failed.'}</p>
       )}
-      {experiment.status === 'running' && (
-        <p className="mt-3 text-sm text-amber-300">Running…</p>
-      )}
+      {experiment.status === 'running' && <p className="mt-3 text-sm text-amber-300">Running…</p>}
     </div>
   )
 }
@@ -361,7 +367,7 @@ function TrendChart({
   const PAD = 6
   const points = runs
     .map((run, index) => ({ ...run, index, value: run.values[metric.key] }))
-    .filter((p): p is (typeof p) & { value: number } => typeof p.value === 'number')
+    .filter((p): p is typeof p & { value: number } => typeof p.value === 'number')
   if (points.length === 0) {
     return (
       <div className="rounded-lg border border-surface-800 bg-surface-900/60 p-4">
@@ -374,10 +380,14 @@ function TrendChart({
   const min = Math.min(...values)
   const max = Math.max(...values)
   const span = max - min || 1
-  const x = (index: number) => PAD + write((index / Math.max(1, points.length - 1)) * (WIDTH - 2 * PAD))
+  const x = (index: number) =>
+    PAD + write((index / Math.max(1, points.length - 1)) * (WIDTH - 2 * PAD))
   const y = (value: number) => HEIGHT - PAD - ((value - min) / span) * (HEIGHT - 2 * PAD)
   const series = (tracker: Experiment['tracker']) =>
-    points.filter((p) => p.tracker === tracker).map((p) => `${x(p.index)},${y(p.value)}`).join(' ')
+    points
+      .filter((p) => p.tracker === tracker)
+      .map((p) => `${x(p.index)},${y(p.value)}`)
+      .join(' ')
   return (
     <div className="rounded-lg border border-surface-800 bg-surface-900/60 p-4">
       <h3 className="text-sm font-medium text-surface-300">{metric.label}</h3>
@@ -402,11 +412,18 @@ function TrendChart({
           strokeLinejoin="round"
         />
         {points.map((p) => (
-          <circle key={`${p.tracker}-${p.index}`} cx={x(p.index)} cy={y(p.value)} r={2.5} fill={p.tracker === 'mock' ? '#22d3ee' : '#fbbf24'} />
+          <circle
+            key={`${p.tracker}-${p.index}`}
+            cx={x(p.index)}
+            cy={y(p.value)}
+            r={2.5}
+            fill={p.tracker === 'mock' ? '#22d3ee' : '#fbbf24'}
+          />
         ))}
       </svg>
       <p className="mt-2 text-[11px] text-surface-500">
-        range {min.toFixed(digits)} – {max.toFixed(digits)} · {metric.higherIsBetter ? 'higher is better' : 'lower is better'}
+        range {min.toFixed(digits)} – {max.toFixed(digits)} ·{' '}
+        {metric.higherIsBetter ? 'higher is better' : 'lower is better'}
       </p>
     </div>
   )

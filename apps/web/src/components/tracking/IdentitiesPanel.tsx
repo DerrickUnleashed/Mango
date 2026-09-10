@@ -62,8 +62,7 @@ export function IdentitiesPanel({ videoId, enabled }: IdentitiesPanelProps) {
         <div>
           <h2 className="font-medium text-surface-200">Identities</h2>
           <p className="text-xs text-surface-500">
-            {identities.length} identity{identities.length === 1 ? '' : 's'} ·{' '}
-            {confident} confident
+            {identities.length} identity{identities.length === 1 ? '' : 's'} · {confident} confident
           </p>
         </div>
       </div>
@@ -93,9 +92,7 @@ function IdentityRow({ identity, videoId }: { identity: PersistedIdentity; video
             className="h-2.5 w-2.5 rounded-full"
             style={{ backgroundColor: colorFor(identity.identityId) }}
           />
-          <span className="font-mono text-sm text-surface-200">
-            id-{identity.identityId}
-          </span>
+          <span className="font-mono text-sm text-surface-200">id-{identity.identityId}</span>
           {identity.isConfident && (
             <span className="rounded-full bg-orchard-600/20 px-2 py-0.5 text-[10px] font-medium text-orchard-300">
               confident
@@ -103,8 +100,8 @@ function IdentityRow({ identity, videoId }: { identity: PersistedIdentity; video
           )}
         </span>
         <span className="text-xs text-surface-500">
-          {identity.firstFrameId}–{identity.lastFrameId} ·{' '}
-          {identity.observationCount} obs · q {identity.quality.toFixed(2)}
+          {identity.firstFrameId}–{identity.lastFrameId} · {identity.observationCount} obs · q{' '}
+          {identity.quality.toFixed(2)}
         </span>
       </button>
 
@@ -122,9 +119,7 @@ function IdentityRow({ identity, videoId }: { identity: PersistedIdentity; video
                 <span className="flex items-center gap-3">
                   <span className="tabular-nums text-surface-300">f{observation.frameId}</span>
                   <span>
-                    {observation.trackId === null
-                      ? 'no track'
-                      : `track ${observation.trackId}`}
+                    {observation.trackId === null ? 'no track' : `track ${observation.trackId}`}
                   </span>
                   {observation.isOccluded && (
                     <span className="rounded-full bg-amber-500/15 px-1.5 py-px text-[10px] text-amber-300">

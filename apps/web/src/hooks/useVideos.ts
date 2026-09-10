@@ -1,9 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type {
-  ProcessVideoRequest,
-  ProcessVideoResponse,
-  Video,
-} from '@orchardvision/types'
+import type { ProcessVideoRequest, ProcessVideoResponse, Video } from '@orchardvision/types'
 import {
   deleteVideo,
   getAnalytics,
@@ -124,7 +120,11 @@ export function useDeleteVideo() {
 
 export function useProcessVideo() {
   const queryClient = useQueryClient()
-  return useMutation<ProcessVideoResponse, Error, { videoId: string; request: ProcessVideoRequest }>({
+  return useMutation<
+    ProcessVideoResponse,
+    Error,
+    { videoId: string; request: ProcessVideoRequest }
+  >({
     mutationFn: ({ videoId, request }) => processVideo(videoId, request),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['videos', variables.videoId] })

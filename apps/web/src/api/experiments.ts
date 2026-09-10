@@ -9,9 +9,7 @@ export function getExperiments(): Promise<ExperimentListResponse> {
   return apiRequest<ExperimentListResponse>('/experiments')
 }
 
-export function createExperiment(
-  request: CreateExperimentRequest,
-): Promise<Experiment> {
+export function createExperiment(request: CreateExperimentRequest): Promise<Experiment> {
   return apiRequest<Experiment>('/experiments', {
     method: 'POST',
     body: JSON.stringify(request),

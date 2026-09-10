@@ -3,7 +3,13 @@ import { useToast } from '../components/ui/useToast'
 import { useDeleteVideo, useUploadVideo, useVideos } from '../hooks/useVideos'
 import { ApiError } from '../api/client'
 
-const ACCEPTED_TYPES = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm', 'video/mpeg']
+const ACCEPTED_TYPES = [
+  'video/mp4',
+  'video/quicktime',
+  'video/x-msvideo',
+  'video/webm',
+  'video/mpeg',
+]
 const MAX_SIZE_BYTES = 2 * 1024 * 1024 * 1024
 
 export function VideosPage() {
@@ -59,7 +65,9 @@ export function VideosPage() {
         />
         {upload.isPending ? (
           <>
-            <span className="text-2xl" aria-hidden="true">Uploading…</span>
+            <span className="text-2xl" aria-hidden="true">
+              Uploading…
+            </span>
             <span className="text-sm text-surface-400">
               {upload.variables?.file.name} — please wait
             </span>
@@ -69,9 +77,7 @@ export function VideosPage() {
             <span className="text-sm font-medium text-surface-300">
               Drop a video here, or click to browse
             </span>
-            <span className="text-xs text-surface-500">
-              MP4, MOV, AVI, WebM, MPEG · up to 2 GB
-            </span>
+            <span className="text-xs text-surface-500">MP4, MOV, AVI, WebM, MPEG · up to 2 GB</span>
           </>
         )}
       </label>
@@ -85,7 +91,9 @@ export function VideosPage() {
       {/* Video list */}
       <section aria-label="Video library" className="space-y-3">
         {videos.isLoading ? (
-          <p className="text-sm text-surface-500" role="status">Loading videos…</p>
+          <p className="text-sm text-surface-500" role="status">
+            Loading videos…
+          </p>
         ) : videos.isError ? (
           <p className="text-sm text-red-400" role="alert">
             Failed to load videos. Is the API running on port 8000?
@@ -101,11 +109,16 @@ export function VideosPage() {
               <li key={video.id}>
                 <article className="group rounded-xl border border-surface-800 bg-surface-900/60 transition-colors hover:border-surface-700">
                   <div className="flex aspect-video items-center justify-center bg-surface-950">
-                    <span className="text-surface-600" aria-hidden="true">🎬</span>
+                    <span className="text-surface-600" aria-hidden="true">
+                      🎬
+                    </span>
                     <span className="sr-only">Video thumbnail placeholder</span>
                   </div>
                   <div className="p-4">
-                    <h2 className="truncate font-medium text-surface-200" title={video.originalName}>
+                    <h2
+                      className="truncate font-medium text-surface-200"
+                      title={video.originalName}
+                    >
                       {video.originalName}
                     </h2>
                     <p className="mt-1 text-xs text-surface-500">

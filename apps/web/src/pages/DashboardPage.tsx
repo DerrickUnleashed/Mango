@@ -75,7 +75,9 @@ export function DashboardPage() {
                   onClick={() => navigate(`/videos/${video.id}`)}
                   className="flex w-full items-center justify-between rounded-lg border border-surface-800 bg-surface-900 px-4 py-3 text-left transition-colors hover:border-surface-700 hover:bg-surface-800"
                 >
-                  <span className="truncate font-medium text-surface-200">{video.originalName}</span>
+                  <span className="truncate font-medium text-surface-200">
+                    {video.originalName}
+                  </span>
                   <span className="ml-4 shrink-0 text-xs text-surface-500">{video.status}</span>
                 </button>
               </li>

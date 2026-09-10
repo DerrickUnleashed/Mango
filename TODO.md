@@ -540,7 +540,7 @@ mango/
       `alembic stamp head` or recreated.
 - [!] Vitest configured (`apps/web`): component tests for UI primitives exist;
       coverage of full pages is incremental.
-- [!] Prettier not yet configured (oxlint covers frontend linting).
+- [!] Prettier configured and enforced via `format`/`format:check` (oxlint covers linting).
 - [!] Frontend `SettingsPage` re-ID threshold / memory rate persist to the API and
       are now applied by the processing pipeline (via job config); the dashboard does
       not yet display per-job pipeline config in the UI (job config is returned by

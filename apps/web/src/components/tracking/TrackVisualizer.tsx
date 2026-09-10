@@ -60,7 +60,10 @@ export function TrackVisualizer({
       const visible = track.points.filter((p) => p.frameId <= frame)
       if (visible.length >= 2) {
         ctx.beginPath()
-        ctx.moveTo(visible[0].bbox[0] + visible[0].bbox[2] / 2, visible[0].bbox[1] + visible[0].bbox[3] / 2)
+        ctx.moveTo(
+          visible[0].bbox[0] + visible[0].bbox[2] / 2,
+          visible[0].bbox[1] + visible[0].bbox[3] / 2,
+        )
         for (const p of visible.slice(1)) {
           ctx.lineTo(p.bbox[0] + p.bbox[2] / 2, p.bbox[1] + p.bbox[3] / 2)
         }
@@ -240,8 +243,7 @@ function TrackRow({ track, highlighted, onSelect }: TrackRowProps) {
           <span className="font-mono text-sm text-surface-200">#{track.trackId}</span>
         </span>
         <span className="text-xs text-surface-500">
-          {first}–{last} · {track.points.length} obs ·{' '}
-          {averageConfidence(track).toFixed(2)}
+          {first}–{last} · {track.points.length} obs · {averageConfidence(track).toFixed(2)}
         </span>
       </button>
     </li>
@@ -250,7 +252,5 @@ function TrackRow({ track, highlighted, onSelect }: TrackRowProps) {
 
 function averageConfidence(track: PersistedTrack): number {
   if (!track.points.length) return 0
-  return (
-    track.points.reduce((sum, p) => sum + p.confidence, 0) / track.points.length
-  )
+  return track.points.reduce((sum, p) => sum + p.confidence, 0) / track.points.length
 }

@@ -59,7 +59,10 @@ export function Toaster() {
           key={toast.id}
           className={`pointer-events-auto flex items-start gap-3 rounded-lg border px-4 py-3 shadow-lg ${variantStyles[toast.variant]}`}
         >
-          <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${variantDot[toast.variant]}`} aria-hidden="true" />
+          <span
+            className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${variantDot[toast.variant]}`}
+            aria-hidden="true"
+          />
           <p className="flex-1 text-sm">{toast.message}</p>
           <button
             type="button"

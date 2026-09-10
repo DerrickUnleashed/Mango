@@ -43,17 +43,15 @@ export function getDetections(
 }
 
 export function getMotionEstimate(id: string): Promise<CameraMotionEstimate | null> {
-  return apiRequest<{ estimate: CameraMotionEstimate | null }>(
-    `/videos/${id}/motion`,
-  ).then((body) => body.estimate)
+  return apiRequest<{ estimate: CameraMotionEstimate | null }>(`/videos/${id}/motion`).then(
+    (body) => body.estimate,
+  )
 }
 
-export function getAnalytics(
-  id: string,
-): Promise<AnalyticsSummary | null> {
-  return apiRequest<{ summary: AnalyticsSummary | null }>(
-    `/videos/${id}/analytics`,
-  ).then((body) => body.summary)
+export function getAnalytics(id: string): Promise<AnalyticsSummary | null> {
+  return apiRequest<{ summary: AnalyticsSummary | null }>(`/videos/${id}/analytics`).then(
+    (body) => body.summary,
+  )
 }
 
 export function getIdentityObservations(
@@ -97,9 +95,7 @@ export function getHealth(): Promise<{
   service: string
   version: string
 }> {
-  return apiRequest<{ status: string; service: string; version: string }>(
-    '/health',
-  )
+  return apiRequest<{ status: string; service: string; version: string }>('/health')
 }
 
 export * from './client'

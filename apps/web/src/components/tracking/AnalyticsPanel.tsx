@@ -28,9 +28,7 @@ export function AnalyticsPanel({ videoId, enabled }: AnalyticsPanelProps) {
       </div>
 
       {isLoading && <p className="mt-4 text-sm text-surface-500">Loading analytics…</p>}
-      {isError && (
-        <p className="mt-4 text-sm text-red-400">Failed to load video analytics.</p>
-      )}
+      {isError && <p className="mt-4 text-sm text-red-400">Failed to load video analytics.</p>}
       {!isLoading && !isError && summary === null && (
         <p className="mt-4 text-sm text-surface-500">
           No analytics yet — run processing to aggregate results.
@@ -80,12 +78,13 @@ export function AnalyticsPanel({ videoId, enabled }: AnalyticsPanelProps) {
             <Stat
               label="Processing time"
               value={
-                summary.processingSeconds > 0
-                  ? `${summary.processingSeconds.toFixed(1)}s`
-                  : '—'
+                summary.processingSeconds > 0 ? `${summary.processingSeconds.toFixed(1)}s` : '—'
               }
             />
-            <Stat label="Occlusion run types" value={summary.occlusionDurationDistribution.length.toString()} />
+            <Stat
+              label="Occlusion run types"
+              value={summary.occlusionDurationDistribution.length.toString()}
+            />
           </div>
         </>
       )}

@@ -87,16 +87,29 @@ export function SettingsPage() {
           <h2 className="mb-4 font-medium text-surface-200">Re-Identification</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="mb-1 block text-xs font-medium text-surface-400">Re-ID threshold</span>
-              <input type="number" min={0} max={1} step={0.05} {...fieldNumber('reidThreshold')}
-                className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none" />
+              <span className="mb-1 block text-xs font-medium text-surface-400">
+                Re-ID threshold
+              </span>
+              <input
+                type="number"
+                min={0}
+                max={1}
+                step={0.05}
+                {...fieldNumber('reidThreshold')}
+                className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none"
+              />
             </label>
             <label className="block">
               <span className="mb-1 block text-xs font-medium text-surface-400">
                 Occlusion timeout (seconds)
               </span>
-              <input type="number" min={1} max={600} {...fieldNumber('occlusionTimeoutSec')}
-                className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none" />
+              <input
+                type="number"
+                min={1}
+                max={600}
+                {...fieldNumber('occlusionTimeoutSec')}
+                className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none"
+              />
             </label>
           </div>
         </section>
@@ -104,9 +117,17 @@ export function SettingsPage() {
         <section className="rounded-xl border border-surface-800 bg-surface-900/60 p-6">
           <h2 className="mb-4 font-medium text-surface-200">Identity Memory</h2>
           <label className="block max-w-xs">
-            <span className="mb-1 block text-xs font-medium text-surface-400">Prototype update rate</span>
-            <input type="number" min={0} max={1} step={0.05} {...fieldNumber('memoryUpdateRate')}
-              className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none" />
+            <span className="mb-1 block text-xs font-medium text-surface-400">
+              Prototype update rate
+            </span>
+            <input
+              type="number"
+              min={0}
+              max={1}
+              step={0.05}
+              {...fieldNumber('memoryUpdateRate')}
+              className="w-full rounded-lg border border-surface-700 bg-surface-950 px-3 py-2 text-surface-100 focus:border-orchard-500 focus:outline-none"
+            />
           </label>
         </section>
 
@@ -144,7 +165,9 @@ export function SettingsPage() {
             {saveMutation.isPending ? 'Saving…' : 'Save settings'}
           </button>
           {saved && (
-            <span className="text-sm text-orchard-400" role="status">Saved</span>
+            <span className="text-sm text-orchard-400" role="status">
+              Saved
+            </span>
           )}
         </div>
       </form>
