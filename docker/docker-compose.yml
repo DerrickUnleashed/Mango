@@ -1,0 +1,76 @@
+# OrchardVision production stack: API + Celery worker + Redis broker.
+# The API and worker share the same image so ML + app code versions stay in sync.
+#
+#   docker compose -f docker/docker-compose.yml up --build
+#
+# API          -> http://localhost:8000
+# Worker       -> consumes the CELERY_BROKER_URL queue
+# Redis        -> broker + result backend (internal only)
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: sqlite:////data/orchardvision.db
+      UPLOAD_DIR: /data/uploads
+      PROCESSED_DIR: /data/processed
+      AUTO_CREATE_TABLES: "true"
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      CELERY_TASK_ALWAYS_EAGER: "false"
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - api-data:/data
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--app-dir", "apps/api"]
+
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: sqlite:////data/orchardvision.db
+      UPLOAD_DIR: /data/uploads
+      PROCESSED_DIR: /data/processed
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      CELERY_TASK_ALWAYS_EAGER: "false"
+    volumes:
+      - api-data:/data
+    command:
+      - celery
+      - -A
+      - app.services.celery_app.celery_app
+      - worker
+      - --loglevel=info
+      - --concurrency=2
+
+volumes:
+  redis-data:
+  api-data:

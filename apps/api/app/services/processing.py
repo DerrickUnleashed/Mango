@@ -37,9 +37,8 @@ from app.models import (
     Track,
     Video,
 )
+from app.services.job_state import ProgressState
 from app.services.storage import storage_service
-
-from .job_manager import JobState
 
 DEFAULT_MAX_FRAMES = 600
 MAX_TRACK_ASSIGN_DISTANCE_PX = 60.0
@@ -85,7 +84,7 @@ class ProcessingService:
         db,
         video: Video,
         job: ProcessingJob,
-        state: JobState,
+        state: ProgressState,
         config: PipelineConfig,
     ) -> PipelineSummary:
         log = job_logger("processing", job_id=job.id, video_id=video.id)
@@ -126,7 +125,7 @@ class ProcessingService:
             raise
 
     def extract_frames(
-        self, video: Video, state: JobState, config: PipelineConfig
+        self, video: Video, state: ProgressState, config: PipelineConfig
     ) -> list[NDArray]:
         """Decode up to ``max_frames`` frames from the stored video."""
         max_frames = config.effective_max_frames(video.frame_count or 0)
@@ -170,7 +169,7 @@ class ProcessingService:
         self,
         video: Video,
         job: ProcessingJob,
-        state: JobState,
+        state: ProgressState,
         config: PipelineConfig,
         frames: list[NDArray],
     ) -> dict:
@@ -214,7 +213,7 @@ class ProcessingService:
         self,
         video: Video,
         job: ProcessingJob,
-        state: JobState,
+        state: ProgressState,
         config: PipelineConfig,
         frame_detections: list,
         db,
@@ -411,7 +410,7 @@ class ProcessingService:
         self,
         video: Video,
         job: ProcessingJob,
-        state: JobState,
+        state: ProgressState,
         config: PipelineConfig,
         frames: list[NDArray],
         assigned_detections: list,
@@ -575,7 +574,7 @@ class ProcessingService:
         job: ProcessingJob,
         video: Video,
         summary: PipelineSummary,
-        state: JobState,
+        state: ProgressState,
     ) -> None:
         job.status = ProcessingStatus.COMPLETED
         job.stage = ProcessingStage.COMPLETED

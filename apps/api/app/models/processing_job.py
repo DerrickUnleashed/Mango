@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Float, ForeignKey, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON
 
@@ -52,6 +52,8 @@ class ProcessingJob(Base):
     stage: Mapped[str] = mapped_column(String(32), default=ProcessingStage.UPLOADED)
     progress: Mapped[float] = mapped_column(Float, default=0.0)
     inference_mode: Mapped[str] = mapped_column(String(16), default="mock")
+    message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    cancelled: Mapped[bool] = mapped_column(Boolean, default=False)
 
     config: Mapped[dict] = mapped_column(JSON, default=dict)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -70,6 +72,8 @@ class ProcessingJob(Base):
             "stage": self.stage,
             "progress": self.progress,
             "inferenceMode": self.inference_mode,
+            "message": self.message,
+            "cancelled": self.cancelled,
             "error": self.error,
             "startedAt": self.started_at.isoformat() if self.started_at else None,
             "completedAt": self.completed_at.isoformat() if self.completed_at else None,

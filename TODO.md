@@ -533,8 +533,10 @@ mango/
 
 ## Known Technical Debt
 
-- [!] In-memory job queue (job_manager) — must be replaced with Redis/Celery for
-      production concurrency. Documented in `job_manager.py`.
+- [!] Job queue: Redis/Celery is wired and config-toggled (see
+      `docker/docker-compose.yml`). With ``CELERY_BROKER_URL`` set, processing
+      dispatches through a Celery worker; without it, jobs run in-process via
+      Starlette ``BackgroundTasks`` (both paths share DB-backed status/progress).
 - [!] Alembic configured and wired (initial migration in `apps/api/alembic/versions`).
       Existing dev databases created with `create_all` can be aligned via
       `alembic stamp head` or recreated.
@@ -562,7 +564,7 @@ mango/
 
 ## Test Status
 
-- Backend: 50 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence, pipeline config passthrough incl. re-id threshold/memory rate, stored settings as processing defaults)
+- Backend: 54 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence, pipeline config passthrough incl. re-id threshold/memory rate, stored settings as processing defaults, Celery enqueue + task execution + shared worker)
 - ML: 71 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset, bbox-carrying embeddings, motion-gated recovery, gap-scaled motion cap, multi-candidate ranking past blocked candidates; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
 - Frontend: TypeScript build + typecheck passing; Vitest component tests passing (UI primitives; page-level coverage incremental)
 

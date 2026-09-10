@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import asdict
 from typing import Annotated
 from uuid import uuid4
 
@@ -20,7 +21,6 @@ from app.models import (
     IdentityObservation,
     IdentityRecord,
     ProcessingJob,
-    ProcessingStage,
     ProcessingStatus,
     ReidEvent,
     Track,
@@ -42,41 +42,12 @@ from app.services import (
     PipelineConfig,
     UploadValidationError,
     extract_video_metadata,
-    job_manager,
-    processing_service,
     storage_service,
 )
 from app.services.analytics import compute_video_analytics
+from app.services.celery_app import enqueue_video_processing, run_processing_sync
 
 router = APIRouter(prefix="/videos", tags=["videos"])
-
-
-def _run_processing(job_id: str, video_id: str, config: PipelineConfig) -> None:
-    """Background entry point: opens its own DB session for the worker."""
-    from app.core.database import SessionLocal
-
-    with SessionLocal() as db:
-        job = db.get(ProcessingJob, job_id)
-        video = db.get(Video, video_id)
-        if not job or not video:
-            return
-        try:
-            state = job_manager.register(job_id, video_id, config.inference_mode)
-        except Exception:
-            return
-        job.status = ProcessingStatus.RUNNING
-        db.commit()
-        try:
-            processing_service.run(db, video, job, state, config)
-            db.commit()
-        except Exception:
-            db.rollback()
-            job.status = ProcessingStatus.FAILED
-            job.stage = ProcessingStage.FAILED
-            job.error = "Video processing failed"
-            db.commit()
-        finally:
-            job_manager.remove(job_id)
 
 
 @router.post("", status_code=201)
@@ -358,7 +329,10 @@ def process_video(
     db.commit()
     db.refresh(job)
 
-    background.add_task(_run_processing, job.id, video.id, config)
+    if settings.celery_broker_url:
+        enqueue_video_processing(job.id, video.id, asdict(config))
+    else:
+        background.add_task(run_processing_sync, job.id, video.id, config)
 
     return JobView(
         id=job.id,

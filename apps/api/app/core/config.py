@@ -59,6 +59,11 @@ class Settings(BaseSettings):
     default_memory_update_rate: float = 0.2
     auto_create_tables: bool = True
 
+    # Job queue (leave CELERY_BROKER_URL unset for the in-process background path)
+    celery_broker_url: str | None = None
+    celery_result_backend: str | None = None
+    celery_task_always_eager: bool = False
+
     # CORS
     cors_allow_credentials: bool = True
 

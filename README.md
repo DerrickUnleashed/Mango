@@ -124,8 +124,15 @@ Existing dev databases created with `create_all` can be aligned with
 
   or run `uvicorn app.main:app --workers N` directly. Place behind a reverse proxy
   (Caddy/nginx) for TLS.
-- The in-memory job queue must be replaced with a distributed queue (Redis +
-  Celery) for multi-worker deployments.
+- Job queue: by default videos process in-process via Starlette ``BackgroundTasks``.
+  Set ``CELERY_BROKER_URL``/``CELERY_RESULT_BACKEND`` to dispatch through a Celery
+  worker instead (identical DB-backed status/progress). The full stack is in
+  `docker/docker-compose.yml`:
+
+  ```bash
+  docker compose -f docker/docker-compose.yml up --build
+  ```
+
 - Mock inference is the default; real models (YOLO, embedding net) swap in via
   the detection/embedding interfaces.
 
