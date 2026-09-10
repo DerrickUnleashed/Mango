@@ -7,6 +7,7 @@ import {
   getExperiments,
 } from '../api/experiments'
 import type { Experiment, ExperimentMetrics } from '@orchardvision/types'
+import { useToast } from '../components/ui/useToast'
 
 const METRIC_ROWS: { key: keyof ExperimentMetrics; label: string; digits: number }[] = [
   { key: 'idf1', label: 'IDF1', digits: 3 },
@@ -28,6 +29,7 @@ const TREND_METRICS: { key: keyof ExperimentMetrics; label: string; higherIsBett
 
 export function ExperimentsPage() {
   const queryClient = useQueryClient()
+  const { push } = useToast()
   const { data, isLoading } = useQuery({
     queryKey: ['experiments'],
     queryFn: getExperiments,
@@ -37,14 +39,16 @@ export function ExperimentsPage() {
 
   const createMutation = useMutation({
     mutationFn: createExperiment,
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['experiments'] })
+      push(`Experiment started (${variables.tracker}, ${variables.num_frames} frames)`, 'success')
     },
   })
   const deleteMutation = useMutation({
     mutationFn: deleteExperiment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['experiments'] })
+      push('Experiment deleted', 'success')
     },
   })
 
@@ -59,6 +63,7 @@ export function ExperimentsPage() {
       await createMutation.mutateAsync({ tracker, num_frames: frames })
     } catch {
       setError('Failed to start experiment.')
+      push('Failed to start experiment', 'error')
     }
   }
 
@@ -68,6 +73,7 @@ export function ExperimentsPage() {
       await deleteMutation.mutateAsync(id)
     } catch {
       setError('Failed to delete experiment.')
+      push('Failed to delete experiment', 'error')
     }
   }
 

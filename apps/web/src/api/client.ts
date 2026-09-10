@@ -1,5 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
+export const apiBaseUrl = API_BASE_URL
+
 export class ApiError extends Error {
   readonly status: number
   readonly code: string

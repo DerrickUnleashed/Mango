@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { PersistedTrack } from '@orchardvision/types'
-import { useFrameDetections, useTracks } from '../../hooks/useVideos'
+import type { PersistedReidEvent, PersistedTrack } from '@orchardvision/types'
+import { useFrameDetections, useReidEvents, useTracks } from '../../hooks/useVideos'
 
 const PALETTE = [
   '#f59e0b',
@@ -19,6 +19,41 @@ function colorFor(trackId: number): string {
   return PALETTE[trackId % PALETTE.length]
 }
 
+function centerOf(bbox: number[]): [number, number] {
+  const [x, y, w, h] = bbox
+  return [x + w / 2, y + h / 2]
+}
+
+function drawMarker(ctx: CanvasRenderingContext2D, bbox: number[], color: string, glyph: string) {
+  const [cx, cy] = centerOf(bbox)
+  ctx.save()
+  ctx.font = '14px ui-sans-serif, system-ui'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillStyle = color
+  ctx.globalAlpha = 1
+  ctx.strokeStyle = 'rgba(15, 23, 42, 0.9)'
+  ctx.lineWidth = 3
+  ctx.strokeText(glyph, cx, cy - 16)
+  ctx.fillText(glyph, cx, cy - 16)
+  ctx.restore()
+}
+
+function drawOcclusionBand(ctx: CanvasRenderingContext2D, bbox: number[]) {
+  const [x, y, w, h] = bbox
+  ctx.save()
+  ctx.globalAlpha = 0.16
+  ctx.fillStyle = '#f59e0b'
+  ctx.fillRect(x, y, w, h)
+  ctx.restore()
+  ctx.save()
+  ctx.setLineDash([4, 4])
+  ctx.strokeStyle = 'rgba(251, 191, 36, 0.55)'
+  ctx.lineWidth = 1
+  ctx.strokeRect(x - 3, y - 3, w + 6, h + 6)
+  ctx.restore()
+}
+
 interface TrackVisualizerProps {
   videoId: string
   width: number
@@ -35,8 +70,10 @@ export function TrackVisualizer({
   enabled,
 }: TrackVisualizerProps) {
   const { data, isLoading, isError } = useTracks(videoId, enabled)
+  const { data: reidData } = useReidEvents(videoId, enabled)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const tracks = useMemo(() => data?.tracks ?? [], [data])
+  const events = useMemo(() => reidData?.events ?? [], [reidData])
   const maxFrame = Math.max(0, frameCount - 1)
 
   const [frame, setFrame] = useState(0)
@@ -44,6 +81,16 @@ export function TrackVisualizer({
   const [showDetections, setShowDetections] = useState(true)
   const { data: detectionsData } = useFrameDetections(videoId, frame, enabled)
   const detections = useMemo(() => detectionsData?.detections ?? [], [detectionsData])
+
+  const eventsByTrack = useMemo(() => {
+    const map = new Map<number, PersistedReidEvent[]>()
+    for (const event of events) {
+      const list = map.get(event.trackId) ?? []
+      list.push(event)
+      map.set(event.trackId, list)
+    }
+    return map
+  }, [events])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -55,9 +102,24 @@ export function TrackVisualizer({
     ctx.fillStyle = 'rgba(15, 23, 42, 0.25)'
     ctx.fillRect(0, 0, width, height)
 
+    const pointAt = (track: PersistedTrack, targetFrame: number, edge: 'before' | 'after') => {
+      const ordered = [...track.points].sort((a, b) => a.frameId - b.frameId)
+      if (edge === 'before') {
+        for (let i = ordered.length - 1; i >= 0; i -= 1) {
+          if (ordered[i].frameId <= targetFrame) return ordered[i]
+        }
+      } else {
+        for (const point of ordered) {
+          if (point.frameId >= targetFrame) return point
+        }
+      }
+      return null
+    }
+
     for (const track of tracks) {
       const color = colorFor(track.trackId)
       const visible = track.points.filter((p) => p.frameId <= frame)
+
       if (visible.length >= 2) {
         ctx.beginPath()
         ctx.moveTo(
@@ -90,6 +152,34 @@ export function TrackVisualizer({
         ctx.font = '12px ui-sans-serif, system-ui'
         ctx.fillText(`#${track.trackId}`, x, Math.max(y - 4, 12))
       }
+
+      const trackEvents = eventsByTrack.get(track.trackId) ?? []
+      for (const event of trackEvents) {
+        if (event.accepted && frame >= event.lostFrameId) {
+          const lostPoint = pointAt(track, event.lostFrameId, 'before')
+          const reappearPoint = pointAt(track, event.reappearanceFrameId, 'after')
+          if (lostPoint) {
+            drawMarker(
+              ctx,
+              lostPoint.bbox,
+              event.lostFrameId === frame ? '#fb7185' : '#fb7185',
+              '×',
+            )
+          }
+          if (reappearPoint) {
+            drawMarker(
+              ctx,
+              reappearPoint.bbox,
+              event.reappearanceFrameId === frame ? '#34d399' : '#34d399',
+              '✓',
+            )
+          }
+          if (frame > event.lostFrameId && frame < event.reappearanceFrameId) {
+            const gapPoint = pointAt(track, frame, 'before')
+            if (gapPoint) drawOcclusionBand(ctx, gapPoint.bbox)
+          }
+        }
+      }
     }
 
     if (showDetections) {
@@ -111,9 +201,18 @@ export function TrackVisualizer({
           x,
           Math.max(y + h + 11, 12),
         )
+        if (det.isOccluded) {
+          ctx.beginPath()
+          ctx.rect(x - 2, y - 2, w + 4, h + 4)
+          ctx.strokeStyle = 'rgba(251, 191, 36, 0.85)'
+          ctx.setLineDash([3, 3])
+          ctx.lineWidth = 1.5
+          ctx.stroke()
+          ctx.setLineDash([])
+        }
       }
     }
-  }, [tracks, frame, width, height, showDetections, detections])
+  }, [tracks, eventsByTrack, frame, width, height, showDetections, detections])
 
   const highlight = useMemo(() => {
     if (selected === null) return null
@@ -209,6 +308,10 @@ export function TrackVisualizer({
               track={track}
               highlighted={highlight?.id === track.id}
               onSelect={() => setSelected(selected === track.trackId ? null : track.trackId)}
+              recovered={Boolean(
+                (eventsByTrack.get(track.trackId) ?? []).some((event) => event.accepted),
+              )}
+              lost={!isTrackActive(track, maxFrame)}
             />
           ))}
         </ul>
@@ -220,10 +323,17 @@ export function TrackVisualizer({
 interface TrackRowProps {
   track: PersistedTrack
   highlighted: boolean
+  recovered: boolean
+  lost: boolean
   onSelect: () => void
 }
 
-function TrackRow({ track, highlighted, onSelect }: TrackRowProps) {
+function isTrackActive(track: PersistedTrack, maxFrame: number): boolean {
+  const last = track.points[track.points.length - 1]?.frameId ?? 0
+  return last >= Math.max(0, maxFrame - 1)
+}
+
+function TrackRow({ track, highlighted, recovered, lost, onSelect }: TrackRowProps) {
   const first = track.points[0]?.frameId ?? 0
   const last = track.points[track.points.length - 1]?.frameId ?? 0
   return (
@@ -235,14 +345,29 @@ function TrackRow({ track, highlighted, onSelect }: TrackRowProps) {
           highlighted ? 'bg-surface-800' : 'hover:bg-surface-900'
         }`}
       >
-        <span className="flex items-center gap-2">
+        <span className="flex min-w-0 items-center gap-2">
           <span
-            className="h-2.5 w-2.5 rounded-full"
+            className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
             style={{ backgroundColor: colorFor(track.trackId) }}
           />
           <span className="font-mono text-sm text-surface-200">#{track.trackId}</span>
+          <span className="flex-shrink-0">
+            {recovered ? (
+              <span className="rounded-full bg-orchard-600/20 px-2 py-0.5 text-[10px] font-medium text-orchard-300">
+                recovered
+              </span>
+            ) : lost ? (
+              <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-medium text-amber-300">
+                lost
+              </span>
+            ) : (
+              <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
+                active
+              </span>
+            )}
+          </span>
         </span>
-        <span className="text-xs text-surface-500">
+        <span className="flex-shrink-0 text-xs text-surface-500">
           {first}–{last} · {track.points.length} obs · {averageConfidence(track).toFixed(2)}
         </span>
       </button>

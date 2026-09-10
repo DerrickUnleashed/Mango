@@ -85,6 +85,9 @@ system runs without heavy model weights.
 | `GET /api/videos/{id}/tracks` | Track trajectories |
 | `GET /api/videos/{id}/identities(/observations)` | Identity prototypes + observation history |
 | `GET /api/videos/{id}/reid-events` | Re-identification events |
+| `GET /api/videos/{id}/tracks/{track_id}` | Single track trajectory |
+| `GET /api/videos/{id}/frames/{frame_id}?width=` | On-demand JPEG frame (thumbnails) |
+| `GET /api/videos/{id}/file` | Streamed source video (range requests for seeking) |
 | `GET /api/videos/{id}/detections?frame_id=` | Per-frame persisted detections |
 | `GET /api/videos/{id}/motion` · `GET /api/videos/{id}/analytics` | Motion estimate + aggregates |
 | `GET/POST /api/experiments`, `GET/DELETE /api/experiments/{id}`, `GET /api/experiments/{id}/export` | Evaluation experiment runs (JSON/CSV export) |

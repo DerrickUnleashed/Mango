@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import type { PersistedIdentity } from '@orchardvision/types'
+import type { PersistedIdentity, PersistedIdentityObservation } from '@orchardvision/types'
 import { useIdentities, useIdentityObservations } from '../../hooks/useVideos'
+import { videoFrameUrl } from '../../api/videos'
 
 const PALETTE = [
   '#f59e0b',
@@ -75,6 +76,50 @@ export function IdentitiesPanel({ videoId, enabled }: IdentitiesPanelProps) {
   )
 }
 
+function representativeFrames(
+  observations: PersistedIdentityObservation[],
+): PersistedIdentityObservation[] {
+  if (observations.length === 0) return []
+  const byConfidence = [...observations].sort((a, b) => b.confidence - a.confidence)
+  const picks = [observations[0], byConfidence[0], observations[observations.length - 1]]
+  const seen = new Set<number>()
+  const unique: PersistedIdentityObservation[] = []
+  for (const obs of picks) {
+    if (!seen.has(obs.frameId)) {
+      seen.add(obs.frameId)
+      unique.push(obs)
+    }
+  }
+  return unique.slice(0, 3)
+}
+
+function RepresentativeStrip({
+  videoId,
+  observations,
+}: {
+  videoId: string
+  observations: PersistedIdentityObservation[]
+}) {
+  const frames = representativeFrames(observations)
+  return (
+    <div className="mb-2 flex gap-2">
+      {frames.map((obs) => (
+        <figure key={obs.frameId} className="min-w-0">
+          <img
+            src={videoFrameUrl(videoId, obs.frameId, 160)}
+            alt={`Representative frame ${obs.frameId}`}
+            loading="lazy"
+            className="h-16 w-28 rounded-md border border-surface-800 object-cover"
+          />
+          <figcaption className="mt-0.5 text-center font-mono text-[10px] text-surface-500">
+            f{obs.frameId} · {obs.confidence.toFixed(2)}
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  )
+}
+
 function IdentityRow({ identity, videoId }: { identity: PersistedIdentity; videoId: string }) {
   const [open, setOpen] = useState(false)
   const observations = useIdentityObservations(videoId, open ? identity.identityId : null, open)
@@ -110,6 +155,7 @@ function IdentityRow({ identity, videoId }: { identity: PersistedIdentity; video
           {observations.isLoading && (
             <p className="text-xs text-surface-500">Loading observations…</p>
           )}
+          {obs.length > 0 && <RepresentativeStrip videoId={videoId} observations={obs} />}
           <ul className="max-h-48 space-y-1 overflow-y-auto">
             {obs.map((observation) => (
               <li

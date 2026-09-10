@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useProcessVideo, useVideo } from '../hooks/useVideos'
 import { useSettings } from '../hooks/useSettings'
 import { useToast } from '../components/ui/useToast'
+import { videoFileUrl } from '../api/videos'
 import { AnalyticsPanel } from '../components/tracking/AnalyticsPanel'
 import { IdentitiesPanel } from '../components/tracking/IdentitiesPanel'
 import { MotionPanel } from '../components/tracking/MotionPanel'
@@ -112,16 +113,19 @@ export function VideoDetailPage() {
         <AnalyticsPanel videoId={v.id} enabled />
       )}
 
-      {/* Preview area — frame visualization will be implemented in a later phase */}
-      <div className="flex aspect-video items-center justify-center rounded-xl border border-surface-800 bg-surface-950">
-        <div className="text-center">
-          <span className="text-4xl" aria-hidden="true">
-            🎥
-          </span>
-          <p className="mt-2 text-sm text-surface-500">
-            Video preview {v.status === 'processed' ? '(track overlay above)' : ''}
-          </p>
-        </div>
+      {/* Preview area — plays the uploaded source; the track overlay above
+          mirrors the processed run */}
+      <div className="overflow-hidden rounded-xl border border-surface-800 bg-surface-950">
+        <video
+          src={videoFileUrl(v.id)}
+          controls
+          playsInline
+          preload="metadata"
+          className="block aspect-video w-full bg-black"
+          aria-label={`Video preview for ${v.originalName}`}
+        >
+          <track kind="captions" />
+        </video>
       </div>
 
       {/* Processing controls */}

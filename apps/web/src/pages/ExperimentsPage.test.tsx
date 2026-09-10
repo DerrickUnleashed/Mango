@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { fireEvent } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { Experiment } from '@orchardvision/types'
+import { ToastProvider } from '../components/ui/Toast'
 import { ExperimentsPage } from './ExperimentsPage'
 
 const mocks = vi.hoisted(() => {
@@ -47,9 +48,11 @@ vi.mock('../api/experiments', () => ({
 function renderPage() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   render(
-    <QueryClientProvider client={client}>
-      <ExperimentsPage />
-    </QueryClientProvider>,
+    <ToastProvider>
+      <QueryClientProvider client={client}>
+        <ExperimentsPage />
+      </QueryClientProvider>
+    </ToastProvider>,
   )
 }
 

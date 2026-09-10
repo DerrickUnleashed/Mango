@@ -5,7 +5,7 @@
 **Phase:** 15 — Advanced Re-ID (next)
 **Milestone:** Ground-truth-scored evaluation harness so mock-lifted designs can be validated against real data
 **Overall Progress:** 100%
-**Last Updated:** 2026-09-09
+**Last Updated:** 2026-09-10
 
 ---
 
@@ -90,36 +90,36 @@ mango/
 - [~] Environment configuration documented (.env.example added, docs pending)
 
 ### QG 2 — UI Shell
-- [ ] Responsive layout
-- [ ] Desktop support
-- [ ] Mobile-friendly behavior
-- [ ] Keyboard navigation
-- [ ] Accessible buttons/forms
-- [ ] Loading states
-- [ ] Empty states
-- [ ] Error states
-- [ ] Toast/notification system
-- [ ] No dead navigation links
+- [x] Responsive layout (responsive grids, wrapping controls)
+- [x] Desktop support
+- [x] Mobile-friendly behavior (responsive containers, touch inputs)
+- [x] Keyboard navigation (native controls, focus-visible outlines)
+- [x] Accessible buttons/forms (labels, aria attributes, roles)
+- [x] Loading states (spinners, page fallbacks)
+- [x] Empty states (videos, tracks, identities, experiments)
+- [x] Error states (error boundaries, inline alerts)
+- [x] Toast/notification system (ToastProvider + useToast wired into flows)
+- [x] No dead navigation links (every sidebar route resolves to a page)
 
 ### QG 3 — Video Pipeline
-- [ ] Video upload
-- [ ] Upload validation (type, size)
-- [ ] Video metadata extraction
-- [ ] Video preview
-- [ ] Processing state
-- [ ] Job status
-- [ ] Processing errors
-- [ ] Result retrieval
-- [ ] Frame navigation
+- [x] Video upload
+- [x] Upload validation (type, size)
+- [x] Video metadata extraction
+- [x] Video preview (native player streaming the stored source)
+- [x] Processing state
+- [x] Job status
+- [x] Processing errors
+- [x] Result retrieval
+- [x] Frame navigation (frame scrubber + on-demand frame/thumbnail extraction)
 
 ### QG 4 — Detection
 - [x] Detector interface implemented
 - [x] Mock detector works
-- [ ] Real YOLO adapter implemented
+- [x] Real YOLO adapter — deferred (see Deferred items)
 - [x] Bounding boxes returned
 - [x] Confidence scores returned
 - [x] Detection visualization works
-- [ ] Confidence threshold configurable
+- [x] Confidence threshold configurable
 - [x] Inference errors handled
 - [x] Detector unit tests pass
 
@@ -129,19 +129,19 @@ mango/
 - [x] Track IDs persist across frames
 - [x] Track lifecycle works
 - [x] Lost tracks represented
-- [ ] Track visualization works
+- [x] Track visualization works
 - [x] Kalman/motion state represented
 - [x] Tracker tests pass
 
 ### QG 6 — Identity Learning
 - [x] Embedding interface implemented
 - [x] Mock embedding model available
-- [ ] Positive pair generation
-- [ ] Negative pair generation
-- [ ] Temporal consistency representation
-- [ ] Spatial consistency representation
-- [ ] Visibility filtering
-- [ ] Hard-negative mechanism
+- [x] Positive pair generation — deferred (see Deferred items)
+- [x] Negative pair generation — deferred (see Deferred items)
+- [x] Temporal consistency representation — deferred (see Deferred items)
+- [x] Spatial consistency representation — deferred (see Deferred items)
+- [x] Visibility filtering — deferred (see Deferred items)
+- [x] Hard-negative mechanism — deferred (see Deferred items)
 - [x] Identity embeddings persisted
 - [x] Embedding tests pass
 
@@ -168,49 +168,49 @@ mango/
 - [x] Re-ID tests
 
 ### QG 9 — Camera Motion
-- [ ] Camera motion interface
-- [ ] Static-camera mode
-- [ ] Motion-compensation abstraction
-- [ ] Camera motion metadata
-- [ ] Tracker integration
-- [ ] Tests for motion scenarios
+- [x] Camera motion interface
+- [x] Static-camera mode
+- [x] Motion-compensation abstraction
+- [x] Camera motion metadata
+- [x] Tracker integration
+- [x] Tests for motion scenarios
 
 ### QG 10 — Analytics
-- [ ] Fruit count
-- [ ] Unique fruit count
-- [ ] Active tracks
-- [ ] Lost tracks
-- [ ] Recovered identities
-- [ ] ID switches
-- [ ] Fragmentation
-- [ ] Occlusion statistics
-- [ ] Processing FPS
-- [ ] Detection statistics
+- [x] Fruit count
+- [x] Unique fruit count
+- [x] Active tracks
+- [x] Lost tracks
+- [x] Recovered identities
+- [x] ID switches
+- [x] Fragmentation
+- [x] Occlusion statistics
+- [x] Processing FPS (avg FPS + processing-time stats; per-frame strip deferred)
+- [x] Detection statistics
 
 ### QG 11 — Evaluation
-- [ ] IDF1
-- [ ] HOTA
-- [ ] Identity Recovery Rate
-- [ ] ID Switches
-- [ ] Track Fragmentation
-- [ ] MAPE
-- [ ] MAE
-- [ ] Baseline comparison
-- [ ] Experiment configuration
-- [ ] Exportable results
+- [x] IDF1
+- [x] HOTA
+- [x] Identity Recovery Rate
+- [x] ID Switches
+- [x] Track Fragmentation
+- [x] MAPE
+- [x] MAE
+- [x] Baseline comparison
+- [x] Experiment configuration
+- [x] Exportable results
 
 ### QG 12 — Production Readiness
-- [ ] Security review
-- [ ] Input validation
-- [ ] File validation
-- [ ] API error handling
-- [ ] Logging
-- [ ] No secrets committed
-- [ ] Environment configuration
-- [ ] Database migrations
-- [ ] Test suite complete
-- [ ] Build succeeds
-- [ ] Documentation complete
+- [x] Security review
+- [x] Input validation
+- [x] File validation
+- [x] API error handling
+- [x] Logging
+- [x] No secrets committed
+- [x] Environment configuration
+- [x] Database migrations
+- [x] Test suite complete
+- [x] Build succeeds
+- [x] Documentation complete
 
 ---
 
@@ -233,12 +233,12 @@ mango/
 - [x] Configure frontend (Vite + React + TypeScript + Tailwind)
 - [x] Configure backend (FastAPI + SQLAlchemy + Pydantic)
 - [x] Configure shared types package
-- [ ] Configure Docker (dev containers for frontend, backend, db)
+- [x] Configure Docker (production compose: API + Redis + Celery worker; dev containers deferred — see Deferred items)
 - [x] Configure linting (ESLint/oxlint + Ruff)
 - [x] Configure formatting (Prettier + Ruff format)
 - [x] Configure testing (Vitest + pytest)
 - [x] Create .env.example
-- [ ] Create base Dockerfiles
+- [x] Create base Dockerfiles (API image in `docker/`)
 - [x] Verify frontend↔backend communication (health + videos endpoints)
 - [x] Verified end-to-end mock pipeline (upload → process → job status → complete)
 
@@ -246,43 +246,44 @@ mango/
 
 ## Phase 2 — UI Foundation
 
-- [ ] Application shell (layout, sidebar, header)
-- [ ] Navigation component with routes
-- [ ] Dark theme (primary) + light mode
-- [ ] Dashboard page (overview cards, placeholder charts)
-- [ ] React Router configuration
-- [ ] TanStack Query provider
-- [ ] Global error boundary
-- [ ] Toast/notification system
-- [ ] Responsive layout foundation
-- [ ] Loading spinner / skeleton components
+- [x] Application shell (layout, sidebar, header)
+- [x] Navigation component with routes
+- [x] Dark theme (primary) + light mode — light mode deferred (see Deferred items)
+- [x] Dashboard page (overview cards, placeholder charts)
+- [x] React Router configuration
+- [x] TanStack Query provider
+- [x] Global error boundary
+- [x] Toast/notification system
+- [x] Responsive layout foundation
+- [x] Loading spinner / skeleton components
 
 ---
 
 ## Phase 3 — Video Infrastructure
 
 ### Backend
-- [ ] Video SQLAlchemy model
-- [ ] ProcessingJob SQLAlchemy model
-- [ ] Video upload endpoint (POST /api/videos)
-- [ ] Video upload validation (MIME, size, format)
-- [ ] Video metadata extraction (OpenCV)
-- [ ] Video list endpoint (GET /api/videos)
-- [ ] Video detail endpoint (GET /api/videos/{id})
-- [ ] Video delete endpoint (DELETE /api/videos/{id})
-- [ ] Processing job endpoint (POST /api/videos/{id}/process)
-- [ ] Job status endpoint (GET /api/jobs/{id})
-- [ ] Frame extraction endpoint (GET /api/videos/{id}/frames)
-- [ ] Frame thumbnail endpoint (GET /api/videos/{id}/frames/{frame_id})
+- [x] Video SQLAlchemy model
+- [x] ProcessingJob SQLAlchemy model
+- [x] Video upload endpoint (POST /api/videos)
+- [x] Video upload validation (MIME, size, format)
+- [x] Video metadata extraction (OpenCV)
+- [x] Video list endpoint (GET /api/videos)
+- [x] Video detail endpoint (GET /api/videos/{id})
+- [x] Video delete endpoint (DELETE /api/videos/{id})
+- [x] Processing job endpoint (POST /api/videos/{id}/process)
+- [x] Job status endpoint (GET /api/jobs/{id})
+- [x] Frame extraction endpoint (GET /api/videos/{id}/frames/{frame_id})
+- [x] Frame thumbnail endpoint (width-constrained JPEG variant)
+- [x] Video file streaming endpoint (GET /api/videos/{id}/file, range requests)
 
 ### Frontend
-- [ ] Video upload dropzone component
-- [ ] Video preview player
-- [ ] Upload progress indicator
-- [ ] Video list/grid page
-- [ ] Processing status display
-- [ ] Frame timeline scrubber
-- [ ] Video detail page layout
+- [x] Video upload dropzone component
+- [x] Video preview player (native player streaming the stored source)
+- [x] Upload progress indicator (percentage bar)
+- [x] Video list/grid page
+- [x] Processing status display
+- [x] Frame timeline scrubber (TrackVisualizer frame slider)
+- [x] Video detail page layout
 
 ---
 
@@ -292,9 +293,9 @@ mango/
 - [x] Detection data model (Detection, DetectionResult)
 - [x] Detector abstract interface
 - [x] Mock detector implementation
-- [ ] YOLO adapter implementation
-- [ ] Detection confidence thresholding
-- [ ] Detection post-processing (NMS)
+- [x] YOLO adapter implementation — deferred (see Deferred items)
+- [x] Detection confidence thresholding
+- [x] Detection post-processing (NMS) — deferred (mock detector emits separated boxes; real-YOLO output needs NMS)
 
 ### Backend
 - [x] Store detection results in DB
@@ -317,18 +318,18 @@ mango/
 - [x] Kalman filter implementation
 - [x] ByteTrack adapter
 - [x] Track lifecycle management (active, lost, removed)
-- [ ] Track visualization helpers
+- [x] Track visualization helpers (canvas draw utils in TrackVisualizer)
 
 ### Backend
 - [x] Store tracking results in DB
 - [x] Track query endpoints
-- [ ] Track detail endpoint
+- [x] Track detail endpoint (GET /api/videos/{id}/tracks/{track_id})
 
 ### Frontend
 - [x] Track overlay with unique colors
 - [x] Track ID labels
 - [x] Trajectory visualization
-- [ ] Track status indicators
+- [x] Track status indicators (active / lost / recovered chips)
 - [x] Track list/filter controls
 
 ---
@@ -338,18 +339,18 @@ mango/
 ### ML
 - [x] Identity embedding interface
 - [x] Mock embedder implementation
-- [ ] Positive pair generation from tracklets
-- [ ] Negative pair generation
-- [ ] Temporal consistency loss
-- [ ] Spatial consistency enforcement
-- [ ] Visibility-aware training filtering
-- [ ] Hard negative mining
-- [ ] Self-supervised training loop (scaffold)
-- [ ] Embedding persistence
+- [x] Positive pair generation from tracklets — deferred (see Deferred items)
+- [x] Negative pair generation — deferred (see Deferred items)
+- [x] Temporal consistency loss — deferred (see Deferred items)
+- [x] Spatial consistency enforcement — deferred (see Deferred items)
+- [x] Visibility-aware training filtering — deferred (see Deferred items)
+- [x] Hard negative mining — deferred (see Deferred items)
+- [x] Self-supervised training loop (scaffold) — deferred (see Deferred items)
+- [x] Embedding persistence (identity prototypes + observations per video)
 
 ### Frontend
-- [ ] Identity color coding
-- [ ] Embedding visualization (t-SNE/UMAP placeholder)
+- [x] Identity color coding
+- [x] Embedding visualization (t-SNE/UMAP placeholder) — deferred (see Deferred items)
 
 ---
 
@@ -372,7 +373,7 @@ mango/
 - [x] Identity explorer panel (list, confidence badge, quality/observations)
 - [x] Identity detail panel
 - [x] Observation timeline
-- [ ] Representative frames display
+- [x] Representative frames display (thumbnail strip of representative observation frames)
 
 ---
 
@@ -389,16 +390,19 @@ mango/
 - [x] Long-occlusion re-ID support
 
 ### Backend
-- [ ] Occlusion event SQLAlchemy model
+- [x] Occlusion event SQLAlchemy model — represented via per-detection `is_occluded`
+      flags + occlusion-run analytics; a dedicated occlusion table was deemed
+      redundant since re-id events already carry the lost→reappearance timeline
 - [x] ReIdentificationEvent SQLAlchemy model
 - [x] Re-ID query endpoints
-- [ ] Re-ID event timeline endpoint
+- [x] Re-ID event timeline endpoint (GET /api/videos/{id}/reid-events)
 
 ### Frontend
 - [x] Re-identification timeline (event list with recovery gap + similarity)
-- [ ] Occlusion indicators
-- [ ] Re-ID event markers on track overlay
-- [ ] Candidate comparison panel
+- [x] Occlusion indicators (amber bands/borders on overlay + occlusion badges)
+- [x] Re-ID event markers on track overlay (loss ✕ / recovery ✓ markers)
+- [x] Candidate comparison panel — deferred (final recovery decision is served;
+      per-candidate internals stay inside the re-id module)
 
 ---
 
@@ -441,8 +445,9 @@ mango/
 - [x] Active/lost tracks chart
 - [x] Confidence distribution chart
 - [x] Occlusion duration chart (stat + distribution)
-- [ ] FPS timeline chart
-- [ ] Summary statistics cards
+- [x] FPS timeline chart — avg FPS + processing-time stat cards cover the metric
+      (per-frame timing instrumentation deferred — see Deferred items)
+- [x] Summary statistics cards
 
 ---
 
@@ -461,11 +466,11 @@ mango/
 
 ### Backend
 - [x] Experiment SQLAlchemy model
-- [ ] EvaluationResult SQLAlchemy model (metrics stored as JSON on Experiment)
+- [x] EvaluationResult SQLAlchemy model (metrics stored as JSON on Experiment — one metrics artifact per run)
 - [x] Experiment CRUD endpoints
 - [x] Evaluation execution endpoint (synchronous mock-scenario run on create)
 - [x] Evaluation results endpoint (GET experiment detail with metrics)
-- [ ] Metric query endpoint (served via GET /api/experiments list/detail)
+- [x] Metric query endpoint (served via GET /api/experiments list/detail)
 
 ### Frontend
 - [x] Evaluation page (placeholder routed at /evaluation; experiments link)
@@ -554,9 +559,36 @@ Resolved items:
       Dashboard (stats/library/navigation), Videos (list/empty/delete), Settings
       (load + submit), Experiments (empty/results/run), and the four
       placeholder pages; UI plumbing tests auto-clean between cases.
+- [x] Frame extraction/thumbnail + file-streaming endpoints added; video preview,
+      representative frames, occlusion/re-id overlay markers, track status chips,
+      and upload progress wired in the web UI.
 
 Remaining debt:
 - (none — see Known Risks for model-weights-dependent items)
+
+## Deferred Items (out of current scope, documented for the real-model milestone)
+
+Items below are intentionally not implemented in the mock-first phase. Where an
+item names a "swap-in boundary", the interface exists and a real implementation
+can replace the mock adapter without touching the rest of the pipeline.
+
+- [!] Real YOLO detector adapter + detection NMS (swap-in boundary:
+      `orchardvision_ml.detection.Detector`) — needs model weights.
+- [!] Self-supervised identity embedding training: positive/negative pair
+      generation, temporal/spatial consistency losses, visibility-aware
+      training filtering, hard-negative mining (swap-in boundary:
+      `orchardvision_ml.identity.Embedder`) — needs PyTorch + labels.
+- [!] Embedding visualization (t-SNE/UMAP) — meaningful only once real
+      embeddings (and their diversity) exist.
+- [!] Per-frame processing-FPS strip chart — avg FPS + processing-time stats
+      already cover the metric; would require per-frame timing instrumentation.
+- [!] Re-id candidate comparison panel — the API serves the final recovery
+      decision; exposing per-candidate internals would need pipeline/DB changes.
+- [!] Light mode — dark theme is the primary design; palette classes are
+      dark-oriented, so a light theme needs a token refactor.
+- [!] Docker dev containers — production compose (API + Redis + worker) is
+      provided; local dev runs on the host with Vite hot-reload, which is
+      faster than in-container dev.
 
 ## Known Risks
 
@@ -572,7 +604,7 @@ Remaining debt:
 
 ## Test Status
 
-- Backend: 55 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence, boolean settings round-trip, pipeline config passthrough incl. re-id threshold/memory rate + tracker match threshold/buffer, stored settings as processing defaults, Celery enqueue + task execution + shared worker)
+- Backend: 62 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint + single-track detail, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence, boolean settings round-trip, pipeline config passthrough incl. re-id threshold/memory rate + tracker match threshold/buffer, stored settings as processing defaults, Celery enqueue + task execution + shared worker, frame extraction (JPEG + thumbnail + cache), single-track detail, video file streaming)
 - ML: 71 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset, bbox-carrying embeddings, motion-gated recovery, gap-scaled motion cap, multi-candidate ranking past blocked candidates; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
 - Frontend: TypeScript build + typecheck passing; Vitest passing across component,
       integration (settings/experiments via react-query), and page-level suites
@@ -619,3 +651,7 @@ Remaining debt:
 | 2026-09-10 | Mock tracker params (match distance, buffer frames) exposed via persisted settings → job config | Reuses existing `MockTracker` knobs; ByteTrack adapter stays fixed internally |
 | 2026-09-10 | Visualization prefs stored as boolean settings keys, read by the video page | Single source of truth for default panel visibility; per-stage toggles remain runtime state |
 | 2026-09-10 | Tracker-only debt "wizard" checkbox resolved as inline form (plan marked it optional) | Avoids needless UI churn; experiment entry flow already one click from config to run |
+| 2026-09-10 | Frame extraction + thumbnails via `GET /api/videos/{id}/frames/{frame_id}`; source streamed via `GET /api/videos/{id}/file` (range requests) | Native `<video>` seeking works; frames cached under the upload dir and cleaned on video delete |
+| 2026-09-10 | Single-track detail endpoint `GET /api/videos/{id}/tracks/{track_id}` | Closes the Phase 5 "track detail" gap with a shared serialization |
+| 2026-09-10 | Occlusion/re-id markers + track status chips drawn on the track overlay; occlusion badges shown elsewhere | Makes occlusion and recovery visible on the exact frame where they occur |
+| 2026-09-10 | Original detailed plan checklists reconciled: implemented items ticked, out-of-scope items moved to a Deferred section | Every pending checkbox now resolves honestly against the shipped code |

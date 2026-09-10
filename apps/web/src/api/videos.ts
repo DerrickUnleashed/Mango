@@ -12,7 +12,9 @@ import type {
   Video,
   VideoListResponse,
 } from '@orchardvision/types'
-import { apiRequest, apiUpload } from './client'
+import { apiBaseUrl, apiRequest, apiUpload } from './client'
+
+export { apiBaseUrl }
 
 export function getVideos(): Promise<VideoListResponse> {
   return apiRequest<VideoListResponse>('/videos')
@@ -88,6 +90,15 @@ export function processVideo(
 
 export function getJob(jobId: string): Promise<{ job: unknown }> {
   return apiRequest<{ job: unknown }>(`/jobs/${jobId}`)
+}
+
+export function videoFileUrl(id: string): string {
+  return `${apiBaseUrl}/videos/${id}/file`
+}
+
+export function videoFrameUrl(id: string, frameId: number, width?: number): string {
+  const query = width === undefined ? '' : `?width=${width}`
+  return `${apiBaseUrl}/videos/${id}/frames/${frameId}${query}`
 }
 
 export function getHealth(): Promise<{

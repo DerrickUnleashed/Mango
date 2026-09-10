@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/ui/useToast'
 import { useDeleteVideo, useUploadVideo, useVideos } from '../hooks/useVideos'
@@ -16,6 +17,7 @@ export function VideosPage() {
   const navigate = useNavigate()
   const { push } = useToast()
   const videos = useVideos()
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null)
   const upload = useUploadVideo((video) => {
     push(`Video "${video.originalName}" uploaded`, 'success')
     navigate(`/videos/${video.id}`)
@@ -34,7 +36,8 @@ export function VideosPage() {
       push('File exceeds the 2 GB upload limit.', 'error')
       return
     }
-    upload.mutate({ file })
+    setUploadProgress(0)
+    upload.mutate({ file, onProgress: setUploadProgress })
   }
 
   return (
@@ -69,8 +72,20 @@ export function VideosPage() {
               Uploading…
             </span>
             <span className="text-sm text-surface-400">
-              {upload.variables?.file.name} — please wait
+              {upload.variables?.file.name} — {uploadProgress ?? 0}%
             </span>
+            <div
+              className="h-1.5 w-56 overflow-hidden rounded-full bg-surface-800"
+              role="progressbar"
+              aria-valuenow={uploadProgress ?? 0}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div
+                className="h-full rounded-full bg-orchard-500 transition-all"
+                style={{ width: `${uploadProgress ?? 0}%` }}
+              />
+            </div>
           </>
         ) : (
           <>

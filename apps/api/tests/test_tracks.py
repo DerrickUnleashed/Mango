@@ -45,6 +45,24 @@ def test_tracks_empty_before_processing(client: TestClient, sample_video_bytes: 
     assert body == {"tracks": [], "total": 0}
 
 
+def test_single_track_detail(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_id = _upload(client, sample_video_bytes)
+    body = client.get(f"/api/videos/{video_id}/tracks").json()
+    assert body == {"tracks": [], "total": 0}
+    _process(client, video_id, tracker="mock", max_frames=10)
+
+    tracks = client.get(f"/api/videos/{video_id}/tracks").json()
+    assert tracks["total"] >= 1
+    track_id = tracks["tracks"][0]["trackId"]
+    detail = client.get(f"/api/videos/{video_id}/tracks/{track_id}").json()
+    assert detail["track"]["trackId"] == track_id
+    assert detail["track"]["points"] == tracks["tracks"][0]["points"]
+
+    missing = client.get(f"/api/videos/{video_id}/tracks/9999")
+    assert missing.status_code == 404
+    assert missing.json()["code"] == "track_not_found"
+
+
 def test_processing_with_bytetrack_tracker(client: TestClient, sample_video_bytes: bytes) -> None:
     video_id = _upload(client, sample_video_bytes)
     final = _process(client, video_id, tracker="bytetrack", max_frames=15)

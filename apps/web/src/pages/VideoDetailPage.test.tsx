@@ -77,6 +77,14 @@ describe('VideoDetailPage', () => {
     expect(screen.getByText(/Status: running · Tracking detections/)).toBeInTheDocument()
   })
 
+  it('renders a playable video preview of the uploaded source', () => {
+    mocks.withJob = true
+    render(<VideoDetailPage />)
+    const player = screen.getByLabelText('Video preview for Orchard A.mp4') as HTMLVideoElement
+    expect(player).toBeInTheDocument()
+    expect(player.src).toContain('/api/videos/vid-1/file')
+  })
+
   it('renders the persisted pipeline configuration for a job', () => {
     mocks.withJob = true
     render(<VideoDetailPage />)

@@ -6,7 +6,8 @@ from dataclasses import asdict
 from typing import Annotated
 from uuid import uuid4
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse, Response
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
@@ -46,6 +47,7 @@ from app.services import (
 )
 from app.services.analytics import compute_video_analytics
 from app.services.celery_app import enqueue_video_processing, run_processing_sync
+from app.services.frames import FrameExtractionError, delete_video_frames, extract_frame
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
@@ -123,6 +125,57 @@ def list_video_tracks(video_id: str, db: Annotated[Session, Depends(get_db)]) ->
         select(Track).where(Track.video_id == video_id).order_by(Track.track_id)
     ).all()
     return {"tracks": [r.to_dict() for r in rows], "total": len(rows)}
+
+
+@router.get("/{video_id}/tracks/{track_id}")
+def get_video_track(video_id: str, track_id: int, db: Annotated[Session, Depends(get_db)]) -> dict:
+    """Return a single persisted track trajectory."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+
+    row = db.scalar(select(Track).where(Track.video_id == video_id, Track.track_id == track_id))
+    if not row:
+        raise NotFoundError("track_not_found", f"Track {track_id} not found for video {video_id}")
+    return {"track": row.to_dict()}
+
+
+@router.get("/{video_id}/frames/{frame_id}")
+def get_video_frame(
+    video_id: str,
+    frame_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    width: int | None = None,
+) -> Response:
+    """Return a single frame from the uploaded video as a JPEG image."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+    if not video.frame_count or frame_id < 0 or frame_id >= video.frame_count:
+        raise NotFoundError("frame_not_found", f"Frame {frame_id} out of range")
+
+    try:
+        path = storage_service.resolve(video.filename)
+    except FileNotFoundError as exc:
+        raise NotFoundError("file_not_found", "Stored video file is missing") from exc
+    try:
+        data = extract_frame(video, path, frame_id, width)
+    except FrameExtractionError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return Response(content=data, media_type="image/jpeg")
+
+
+@router.get("/{video_id}/file")
+def stream_video_file(video_id: str, db: Annotated[Session, Depends(get_db)]) -> FileResponse:
+    """Stream the uploaded video file (range requests supported for seeking)."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+    try:
+        path = storage_service.resolve(video.filename)
+    except FileNotFoundError as exc:
+        raise NotFoundError("file_not_found", "Stored video file is missing") from exc
+    return FileResponse(path, media_type=video.mime_type or "video/mp4")
 
 
 @router.get("/{video_id}/identities", response_model=MultiIdentityResponse)
@@ -258,6 +311,7 @@ def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict
     if not video:
         raise NotFoundError("video_not_found", f"Video {video_id} not found")
     storage_service.delete(video.filename)
+    delete_video_frames(video_id)
     db.execute(delete(Track).where(Track.video_id == video_id))
     db.execute(delete(DetectionRecord).where(DetectionRecord.video_id == video_id))
     db.execute(delete(CameraMotionRecord).where(CameraMotionRecord.video_id == video_id))
