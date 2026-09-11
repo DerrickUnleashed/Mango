@@ -94,6 +94,69 @@ def test_full_processing_flow(client: TestClient, sample_video_bytes: bytes) -> 
             assert set(point) >= {"frameId", "bbox", "confidence", "isOccluded"}
 
 
+def test_video_identity_projection(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_id = _upload(client, sample_video_bytes)["video"]["id"]
+
+    process_response = client.post(
+        f"/api/videos/{video_id}/process",
+        json={"inference_mode": "mock", "max_frames": 8},
+    )
+    assert process_response.status_code == 200
+    job_id = process_response.json()["id"]
+    for _ in range(20):
+        final = client.get(f"/api/jobs/{job_id}").json()
+        if final["status"] in {"completed", "failed"}:
+            break
+        time.sleep(0.2)
+    assert final["status"] == "completed", final
+
+    for method in ("tsne", "pca"):
+        response = client.get(f"/api/videos/{video_id}/identities/projection?method={method}")
+        assert response.status_code == 200
+        body = response.json()
+        assert body["method"] == method
+        assert body["total"] >= 1
+        assert body["total"] == len(body["points"])
+        for point in body["points"]:
+            assert isinstance(point["x"], int) or isinstance(point["x"], float)
+            assert isinstance(point["y"], int) or isinstance(point["y"], float)
+            assert "identityId" in point
+            assert "quality" in point
+            assert "observationCount" in point
+            assert "isConfident" in point
+
+    bad = client.get(f"/api/videos/{video_id}/identities/projection?method=bogus")
+    assert bad.status_code == 422
+
+
+def test_video_per_frame_timings(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_id = _upload(client, sample_video_bytes)["video"]["id"]
+
+    process_response = client.post(
+        f"/api/videos/{video_id}/process",
+        json={"inference_mode": "mock", "max_frames": 8},
+    )
+    assert process_response.status_code == 200
+    job_id = process_response.json()["id"]
+    for _ in range(20):
+        final = client.get(f"/api/jobs/{job_id}").json()
+        if final["status"] in {"completed", "failed"}:
+            break
+        time.sleep(0.2)
+    assert final["status"] == "completed", final
+
+    response = client.get(f"/api/videos/{video_id}/per-frame")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] >= 1
+    assert body["total"] == len(body["timings"])
+    frames = [t["frameId"] for t in body["timings"]]
+    assert frames == sorted(frames)
+    for timing in body["timings"]:
+        assert timing["elapsedMs"] >= 0
+        assert timing["fps"] > 0
+
+
 def test_video_serves_latest_processing_job(client: TestClient, sample_video_bytes: bytes) -> None:
     video_id = _upload(client, sample_video_bytes)["video"]["id"]
 

@@ -4,9 +4,11 @@ import {
   deleteVideo,
   getAnalytics,
   getDetections,
+  getFrameTimings,
   getHealth,
   getIdentities,
   getIdentityObservations,
+  getIdentityProjection,
   getMotionEstimate,
   getReidEvents,
   getTracks,
@@ -52,6 +54,14 @@ export function useIdentities(videoId: string, enabled: boolean) {
   })
 }
 
+export function useIdentityProjection(videoId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['videos', videoId, 'identities', 'projection'],
+    queryFn: () => getIdentityProjection(videoId),
+    enabled: enabled && Boolean(videoId),
+  })
+}
+
 export function useReidEvents(videoId: string, enabled: boolean) {
   return useQuery({
     queryKey: ['videos', videoId, 'reid-events'],
@@ -72,6 +82,14 @@ export function useAnalytics(videoId: string, enabled: boolean) {
   return useQuery({
     queryKey: ['videos', videoId, 'analytics'],
     queryFn: () => getAnalytics(videoId),
+    enabled: enabled && Boolean(videoId),
+  })
+}
+
+export function useFrameTimings(videoId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['videos', videoId, 'per-frame'],
+    queryFn: () => getFrameTimings(videoId),
     enabled: enabled && Boolean(videoId),
   })
 }
@@ -135,6 +153,9 @@ export function useProcessVideo() {
         queryKey: ['videos', variables.videoId, 'identities'],
       })
       queryClient.invalidateQueries({
+        queryKey: ['videos', variables.videoId, 'identities', 'projection'],
+      })
+      queryClient.invalidateQueries({
         queryKey: ['videos', variables.videoId, 'reid-events'],
       })
       queryClient.invalidateQueries({
@@ -145,6 +166,9 @@ export function useProcessVideo() {
       })
       queryClient.invalidateQueries({
         queryKey: ['videos', variables.videoId, 'analytics'],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['videos', variables.videoId, 'per-frame'],
       })
     },
   })

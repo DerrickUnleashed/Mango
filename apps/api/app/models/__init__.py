@@ -3,6 +3,7 @@
 from .camera_motion import CameraMotionRecord
 from .detection_record import DetectionRecord
 from .experiment import Experiment, ExperimentStatus
+from .frame_timing import FrameTimingRecord
 from .identity_observation import IdentityObservation
 from .identity_record import IdentityRecord
 from .processing_job import ProcessingJob, ProcessingStage, ProcessingStatus
@@ -18,6 +19,7 @@ __all__ = [
     "DetectionRecord",
     "Experiment",
     "ExperimentStatus",
+    "FrameTimingRecord",
     "GLOBAL_SETTINGS_ID",
     "IdentityObservation",
     "IdentityRecord",

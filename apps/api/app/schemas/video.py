@@ -98,6 +98,12 @@ class MultiIdentityResponse(BaseModel):
     total: int
 
 
+class MultiIdentityProjectionResponse(BaseModel):
+    points: list[dict]
+    method: str
+    total: int
+
+
 class MultiReidResponse(BaseModel):
     events: list[dict]
     total: int
@@ -105,6 +111,11 @@ class MultiReidResponse(BaseModel):
 
 class MultiDetectionResponse(BaseModel):
     detections: list[dict]
+    total: int
+
+
+class MultiFrameTimingResponse(BaseModel):
+    timings: list[dict]
     total: int
 
 

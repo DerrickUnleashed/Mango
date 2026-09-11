@@ -1,6 +1,8 @@
 import type {
   AnalyticsSummary,
   CameraMotionEstimate,
+  FrameTimingListResponse,
+  IdentityProjectionResponse,
   PersistedDetectionListResponse,
   PersistedIdentityListResponse,
   PersistedObservationListResponse,
@@ -32,6 +34,15 @@ export function getIdentities(id: string): Promise<PersistedIdentityListResponse
   return apiRequest<PersistedIdentityListResponse>(`/videos/${id}/identities`)
 }
 
+export function getIdentityProjection(
+  id: string,
+  method: 'tsne' | 'pca' = 'tsne',
+): Promise<IdentityProjectionResponse> {
+  return apiRequest<IdentityProjectionResponse>(
+    `/videos/${id}/identities/projection?method=${method}`,
+  )
+}
+
 export function getReidEvents(id: string): Promise<PersistedReidListResponse> {
   return apiRequest<PersistedReidListResponse>(`/videos/${id}/reid-events`)
 }
@@ -54,6 +65,10 @@ export function getAnalytics(id: string): Promise<AnalyticsSummary | null> {
   return apiRequest<{ summary: AnalyticsSummary | null }>(`/videos/${id}/analytics`).then(
     (body) => body.summary,
   )
+}
+
+export function getFrameTimings(id: string): Promise<FrameTimingListResponse> {
+  return apiRequest<FrameTimingListResponse>(`/videos/${id}/per-frame`)
 }
 
 export function getIdentityObservations(

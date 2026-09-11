@@ -2,23 +2,7 @@ import { useState } from 'react'
 import type { PersistedIdentity, PersistedIdentityObservation } from '@orchardvision/types'
 import { useIdentities, useIdentityObservations } from '../../hooks/useVideos'
 import { videoFrameUrl } from '../../api/videos'
-
-const PALETTE = [
-  '#f59e0b',
-  '#22d3ee',
-  '#a78bfa',
-  '#34d399',
-  '#fb7185',
-  '#60a5fa',
-  '#facc15',
-  '#f472b6',
-  '#4ade80',
-  '#fb923c',
-]
-
-function colorFor(identityId: number): string {
-  return PALETTE[identityId % PALETTE.length]
-}
+import { EmbeddingMap, colorForIdentity } from './EmbeddingMap'
 
 interface IdentitiesPanelProps {
   videoId: string
@@ -26,6 +10,7 @@ interface IdentitiesPanelProps {
 }
 
 export function IdentitiesPanel({ videoId, enabled }: IdentitiesPanelProps) {
+  const [showMap, setShowMap] = useState(false)
   const { data, isLoading, isError } = useIdentities(videoId, enabled)
   const identities = data?.identities ?? []
 
@@ -66,7 +51,20 @@ export function IdentitiesPanel({ videoId, enabled }: IdentitiesPanelProps) {
             {identities.length} identity{identities.length === 1 ? '' : 's'} · {confident} confident
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => setShowMap((value) => !value)}
+          className="rounded-md border border-surface-700 px-2.5 py-1 text-xs text-surface-300 transition-colors hover:bg-surface-800"
+          aria-pressed={showMap}
+        >
+          {showMap ? 'Hide map' : 'Embedding map'}
+        </button>
       </div>
+      {showMap && (
+        <div className="border-b border-surface-800 p-3">
+          <EmbeddingMap videoId={videoId} enabled={enabled} />
+        </div>
+      )}
       <ul className="max-h-72 overflow-y-auto p-2">
         {identities.map((identity) => (
           <IdentityRow key={identity.id} identity={identity} videoId={videoId} />
@@ -135,7 +133,7 @@ function IdentityRow({ identity, videoId }: { identity: PersistedIdentity; video
         <span className="flex items-center gap-2">
           <span
             className="h-2.5 w-2.5 rounded-full"
-            style={{ backgroundColor: colorFor(identity.identityId) }}
+            style={{ backgroundColor: colorForIdentity(identity.identityId) }}
           />
           <span className="font-mono text-sm text-surface-200">id-{identity.identityId}</span>
           {identity.isConfident && (

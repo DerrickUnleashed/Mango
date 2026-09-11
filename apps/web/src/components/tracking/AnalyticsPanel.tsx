@@ -1,4 +1,5 @@
-import { useAnalytics } from '../../hooks/useVideos'
+import { useAnalytics, useFrameTimings } from '../../hooks/useVideos'
+import { FpsStrip } from './FpsStrip'
 
 interface AnalyticsPanelProps {
   videoId: string
@@ -7,6 +8,7 @@ interface AnalyticsPanelProps {
 
 export function AnalyticsPanel({ videoId, enabled }: AnalyticsPanelProps) {
   const { data: summary, isLoading, isError } = useAnalytics(videoId, enabled)
+  const { data: timingsData } = useFrameTimings(videoId, enabled)
 
   if (!enabled) return null
 
@@ -85,6 +87,10 @@ export function AnalyticsPanel({ videoId, enabled }: AnalyticsPanelProps) {
               label="Occlusion run types"
               value={summary.occlusionDurationDistribution.length.toString()}
             />
+          </div>
+
+          <div className="mt-5">
+            <FpsStrip timings={timingsData?.timings ?? []} />
           </div>
         </>
       )}

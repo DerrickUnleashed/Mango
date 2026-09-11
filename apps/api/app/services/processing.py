@@ -9,6 +9,7 @@ changing this orchestration layer.
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from uuid import uuid4
@@ -28,6 +29,7 @@ from app.core.logging import job_logger
 from app.models import (
     CameraMotionRecord,
     DetectionRecord,
+    FrameTimingRecord,
     IdentityObservation,
     IdentityRecord,
     ProcessingJob,
@@ -102,6 +104,7 @@ class ProcessingService:
                 video, job, state, config, detections["frame_detections"], db
             )
             self.persist_detections(video, track_summary["assigned_detections"], db)
+            self.persist_frame_timings(video, detections["frame_timings"], db)
             self.persist_motion_estimate(video, config, detections["processed_frames"], db)
             identity_summary = self.learn_identities(
                 video,
@@ -181,14 +184,18 @@ class ProcessingService:
         confidences: list[float] = []
         frame_count = len(frames)
         frame_detections: list = []
+        frame_timings: list[dict] = []
 
         for index, frame in enumerate(frames):
             if state.cancelled:
                 raise InterruptedError("Processing cancelled")
+            start = time.perf_counter()
             result = detector.detect(frame, index)
+            elapsed_ms = (time.perf_counter() - start) * 1000.0
             total_detections += len(result)
             confidences.extend(d.confidence for d in result.detections)
             frame_detections.append(result)
+            frame_timings.append({"frame_id": index, "elapsed_ms": elapsed_ms})
 
             if index % 20 == 0:
                 progress = 30.0 + 25.0 * (index + 1) / max(frame_count, 1)
@@ -209,6 +216,7 @@ class ProcessingService:
             "total_detections": total_detections,
             "average_confidence": avg_conf,
             "frame_detections": frame_detections,
+            "frame_timings": frame_timings,
         }
 
     def track_frames(
@@ -506,6 +514,23 @@ class ProcessingService:
                     prototype=[float(v) for v in identity.prototype],
                 )
             )
+        db.add_all(records)
+        return records
+
+    def persist_frame_timings(
+        self, video: Video, timings: list[dict], db
+    ) -> list[FrameTimingRecord]:
+        """Replace stored per-frame timing telemetry for a video run."""
+        db.execute(delete(FrameTimingRecord).where(FrameTimingRecord.video_id == video.id))
+        records = [
+            FrameTimingRecord(
+                id=uuid4().hex,
+                video_id=video.id,
+                frame_id=t["frame_id"],
+                elapsed_ms=t["elapsed_ms"],
+            )
+            for t in timings
+        ]
         db.add_all(records)
         return records
 

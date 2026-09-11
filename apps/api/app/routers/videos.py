@@ -6,7 +6,7 @@ from dataclasses import asdict
 from typing import Annotated
 from uuid import uuid4
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, Response
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
@@ -19,6 +19,7 @@ from app.models import (
     AppSettings,
     CameraMotionRecord,
     DetectionRecord,
+    FrameTimingRecord,
     IdentityObservation,
     IdentityRecord,
     ProcessingJob,
@@ -31,6 +32,8 @@ from app.schemas import (
     JobView,
     MultiAnalyticsResponse,
     MultiDetectionResponse,
+    MultiFrameTimingResponse,
+    MultiIdentityProjectionResponse,
     MultiIdentityResponse,
     MultiMotionResponse,
     MultiObservationResponse,
@@ -47,6 +50,7 @@ from app.services import (
 )
 from app.services.analytics import compute_video_analytics
 from app.services.celery_app import enqueue_video_processing, run_processing_sync
+from app.services.embedding_projection import project_prototypes
 from app.services.frames import FrameExtractionError, delete_video_frames, extract_frame
 
 router = APIRouter(prefix="/videos", tags=["videos"])
@@ -193,6 +197,38 @@ def list_video_identities(video_id: str, db: Annotated[Session, Depends(get_db)]
     return {"identities": [r.to_dict() for r in rows], "total": len(rows)}
 
 
+@router.get("/{video_id}/identities/projection", response_model=MultiIdentityProjectionResponse)
+def get_video_identity_projection(
+    video_id: str,
+    method: str = Query(default="tsne", pattern="^(tsne|pca)$"),
+    db: Annotated[Session, Depends(get_db)] = None,
+) -> dict:
+    """Return 2D coordinates per identity prototype for embedding visualization."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+
+    rows = db.scalars(
+        select(IdentityRecord)
+        .where(IdentityRecord.video_id == video_id)
+        .order_by(IdentityRecord.identity_id)
+    ).all()
+    vectors = [r.prototype for r in rows]
+    coordinates = project_prototypes(vectors, method=method)
+    points = [
+        {
+            "x": coordinates[i][0],
+            "y": coordinates[i][1],
+            "identityId": row.identity_id,
+            "quality": row.quality,
+            "observationCount": row.observation_count,
+            "isConfident": row.is_confident,
+        }
+        for i, row in enumerate(rows)
+    ]
+    return {"points": points, "method": method, "total": len(points)}
+
+
 @router.get("/{video_id}/identities/{identity_id}")
 def get_video_identity(
     video_id: str, identity_id: int, db: Annotated[Session, Depends(get_db)]
@@ -279,6 +315,21 @@ def list_video_detections(
     return {"detections": [r.to_dict() for r in rows], "total": len(rows)}
 
 
+@router.get("/{video_id}/per-frame", response_model=MultiFrameTimingResponse)
+def list_video_frame_timings(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
+    """Return per-frame processing timing telemetry for a processed video."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+
+    rows = db.scalars(
+        select(FrameTimingRecord)
+        .where(FrameTimingRecord.video_id == video_id)
+        .order_by(FrameTimingRecord.frame_id)
+    ).all()
+    return {"timings": [r.to_dict() for r in rows], "total": len(rows)}
+
+
 @router.get("/{video_id}/motion", response_model=MultiMotionResponse)
 def get_video_motion(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
     """Return the latest camera-motion estimate for a video."""
@@ -315,6 +366,7 @@ def delete_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict
     db.execute(delete(Track).where(Track.video_id == video_id))
     db.execute(delete(DetectionRecord).where(DetectionRecord.video_id == video_id))
     db.execute(delete(CameraMotionRecord).where(CameraMotionRecord.video_id == video_id))
+    db.execute(delete(FrameTimingRecord).where(FrameTimingRecord.video_id == video_id))
     db.execute(delete(IdentityRecord).where(IdentityRecord.video_id == video_id))
     db.execute(delete(IdentityObservation).where(IdentityObservation.video_id == video_id))
     db.execute(delete(ReidEvent).where(ReidEvent.video_id == video_id))
