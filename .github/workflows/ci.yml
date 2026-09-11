@@ -25,7 +25,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-          cache: uv
 
       - name: Install workspace dependencies
         run: uv sync --frozen --project apps/api --group dev
@@ -55,7 +54,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
           cache: npm
           cache-dependency-path: apps/web/package-lock.json
 
