@@ -157,6 +157,34 @@ def test_video_per_frame_timings(client: TestClient, sample_video_bytes: bytes) 
         assert timing["fps"] > 0
 
 
+def test_video_reid_events_include_candidates(
+    client: TestClient, sample_video_bytes: bytes
+) -> None:
+    video_id = _upload(client, sample_video_bytes)["video"]["id"]
+
+    process_response = client.post(
+        f"/api/videos/{video_id}/process",
+        json={"inference_mode": "mock", "max_frames": 15},
+    )
+    assert process_response.status_code == 200
+    job_id = process_response.json()["id"]
+    for _ in range(20):
+        final = client.get(f"/api/jobs/{job_id}").json()
+        if final["status"] in {"completed", "failed"}:
+            break
+        time.sleep(0.2)
+    assert final["status"] == "completed", final
+
+    body = client.get(f"/api/videos/{video_id}/reid-events").json()
+    for event in body["events"]:
+        assert "candidateIdentityIds" in event
+        assert "candidateScores" in event
+        assert event["identityId"] in event["candidateIdentityIds"]
+        assert len(event["candidateScores"]) == len(event["candidateIdentityIds"])
+        for candidate_id in event["candidateIdentityIds"]:
+            assert str(candidate_id) in event["candidateScores"]
+
+
 def test_video_serves_latest_processing_job(client: TestClient, sample_video_bytes: bytes) -> None:
     video_id = _upload(client, sample_video_bytes)["video"]["id"]
 

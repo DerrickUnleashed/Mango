@@ -94,17 +94,19 @@ export interface PersistedObservationListResponse {
 }
 
 export interface PersistedReidEvent {
-  id: string;
-  videoId: string;
-  trackId: number;
-  victimTrackId: number;
-  identityId: number;
-  lostFrameId: number;
-  reappearanceFrameId: number;
-  similarity: number;
-  confidence: number;
-  accepted: boolean;
-  createdAt: string | null;
+  id: string
+  videoId: string
+  trackId: number
+  victimTrackId: number
+  identityId: number
+  lostFrameId: number
+  reappearanceFrameId: number
+  similarity: number
+  confidence: number
+  accepted: boolean
+  candidateIdentityIds?: number[]
+  candidateScores?: Record<string, number>
+  createdAt: string | null
 }
 
 export interface PersistedReidListResponse {

@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.types import JSON
 
 from app.core.database import Base
 
@@ -29,6 +30,8 @@ class ReidEvent(Base):
     similarity: Mapped[float] = mapped_column(Float)
     confidence: Mapped[float] = mapped_column(Float)
     accepted: Mapped[bool] = mapped_column(Boolean, default=True)
+    candidates: Mapped[list] = mapped_column(JSON, default=list)
+    candidate_scores: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     def to_dict(self) -> dict:
@@ -43,5 +46,7 @@ class ReidEvent(Base):
             "similarity": self.similarity,
             "confidence": self.confidence,
             "accepted": self.accepted,
+            "candidateIdentityIds": self.candidates,
+            "candidateScores": self.candidate_scores,
             "createdAt": self.created_at.isoformat() if self.created_at else None,
         }

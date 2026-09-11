@@ -571,6 +571,11 @@ class ProcessingService:
                     similarity=event.similarity,
                     confidence=event.confidence,
                     accepted=event.accepted,
+                    candidates=list(event.candidate_identity_ids),
+                    candidate_scores={
+                        str(candidate_id): float(score)
+                        for candidate_id, score in event.candidate_scores
+                    },
                 )
             )
         db.add_all(records)

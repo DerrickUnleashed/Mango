@@ -93,6 +93,11 @@ def test_recovery_emits_accepted_event() -> None:
     assert event.lost_frame_id == 4
     assert event.reappearance_frame_id == 5
     assert event.similarity >= reid.match_threshold
+    assert event.identity_id in event.candidate_identity_ids
+    assert len(event.candidate_scores) == len(event.candidate_identity_ids)
+    for candidate_id, score in event.candidate_scores:
+        assert candidate_id in event.candidate_identity_ids
+        assert score >= reid.match_threshold
     assert len(reid.events) == 1
     assert reid.lost_tracks[0].recovered is True
 

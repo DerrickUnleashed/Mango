@@ -29,7 +29,12 @@ class LostTrackInfo:
 
 @dataclass(frozen=True, slots=True)
 class ReIdentificationEvent:
-    """A fruit reappearing after track loss was matched to a known identity."""
+    """A fruit reappearing after track loss was matched to a known identity.
+
+    ``candidate_identity_ids`` / ``candidate_scores`` record every competing
+    identity that scored at or above the match threshold, so the accepted match
+    can be compared against the runners-up.
+    """
 
     track_id: int
     victim_track_id: int
@@ -39,6 +44,8 @@ class ReIdentificationEvent:
     similarity: float
     confidence: float
     accepted: bool
+    candidate_identity_ids: tuple[int, ...] = ()
+    candidate_scores: tuple[tuple[int, float], ...] = ()
 
 
 class ReIdentifier(ABC):

@@ -91,6 +91,7 @@ class MockReIdentifier(ReIdentifier):
             if victim is None:
                 continue
             victim.recovered = True
+            candidates = [(i, s) for i, s in ranked if s >= self.match_threshold]
             event = ReIdentificationEvent(
                 track_id=track_id,
                 victim_track_id=victim.track_id,
@@ -100,6 +101,8 @@ class MockReIdentifier(ReIdentifier):
                 similarity=similarity,
                 confidence=embedding.confidence,
                 accepted=True,
+                candidate_identity_ids=tuple(c.identity_id for c, _ in candidates),
+                candidate_scores=tuple((c.identity_id, float(s)) for c, s in candidates),
             )
             self._events.append(event)
             events.append(event)
