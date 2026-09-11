@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import type { ReactNode } from 'react'
+import { ThemeToggle } from '../components/ui/ThemeToggle'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: 'grid', end: true },
@@ -129,6 +130,7 @@ function Sidebar({ children }: { children: ReactNode }) {
             <span className="rounded-full border border-orchard-800 bg-orchard-900 px-2.5 py-1 text-xs font-medium text-orchard-300">
               Mock Mode
             </span>
+            <ThemeToggle />
           </div>
         </header>
         <main className="min-h-0 flex-1 overflow-y-auto p-6">{children}</main>

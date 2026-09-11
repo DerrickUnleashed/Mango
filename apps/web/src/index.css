@@ -1,32 +1,95 @@
 @import 'tailwindcss';
 
-@theme {
-  --color-orchard-50: #f0f9f1;
-  --color-orchard-100: #dcf0e0;
-  --color-orchard-200: #bce1c4;
-  --color-orchard-300: #8fcba0;
-  --color-orchard-400: #5daf77;
-  --color-orchard-500: #3a9256;
-  --color-orchard-600: #2a7543;
-  --color-orchard-700: #235d37;
-  --color-orchard-800: #1f4a2e;
-  --color-orchard-900: #1a3d27;
-  --color-orchard-950: #0d2216;
+@theme inline {
+  --color-surface-50: var(--surface-50);
+  --color-surface-100: var(--surface-100);
+  --color-surface-200: var(--surface-200);
+  --color-surface-300: var(--surface-300);
+  --color-surface-400: var(--surface-400);
+  --color-surface-500: var(--surface-500);
+  --color-surface-600: var(--surface-600);
+  --color-surface-700: var(--surface-700);
+  --color-surface-800: var(--surface-800);
+  --color-surface-900: var(--surface-900);
+  --color-surface-950: var(--surface-950);
 
-  --color-surface-50: #fafafa;
-  --color-surface-100: #f4f4f5;
-  --color-surface-200: #e4e4e7;
-  --color-surface-300: #d4d4d8;
-  --color-surface-400: #a1a1aa;
-  --color-surface-500: #71717a;
-  --color-surface-600: #52525b;
-  --color-surface-700: #3f3f46;
-  --color-surface-800: #27272a;
-  --color-surface-900: #18181b;
-  --color-surface-950: #09090b;
+  --color-orchard-50: var(--orchard-50);
+  --color-orchard-100: var(--orchard-100);
+  --color-orchard-200: var(--orchard-200);
+  --color-orchard-300: var(--orchard-300);
+  --color-orchard-400: var(--orchard-400);
+  --color-orchard-500: var(--orchard-500);
+  --color-orchard-600: var(--orchard-600);
+  --color-orchard-700: var(--orchard-700);
+  --color-orchard-800: var(--orchard-800);
+  --color-orchard-900: var(--orchard-900);
+  --color-orchard-950: var(--orchard-950);
 
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+/* ------------------------------------------------------------------ */
+/* Theme tokens — dark = BLACK/YELLOW-ORANGE, light = WHITE/YELLOW-    */
+/* The `data-theme` attribute lives on <html> and is managed by the    */
+/* ThemeProvider. Surface weights encode roles (dark-first): 50 = main */
+/* text, 950 = page background. Light mode re-maps them so the same    */
+/* component classes read correctly.                                   */
+/* ------------------------------------------------------------------ */
+
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --surface-50: #fafafa;
+  --surface-100: #f4f4f5;
+  --surface-200: #e4e4e7;
+  --surface-300: #d4d4d8;
+  --surface-400: #a1a1aa;
+  --surface-500: #71717a;
+  --surface-600: #52525b;
+  --surface-700: #3f3f46;
+  --surface-800: #27272a;
+  --surface-900: #18181b;
+  --surface-950: #09090b;
+
+  --orchard-50: #fffbeb;
+  --orchard-100: #fef3c7;
+  --orchard-200: #fde68a;
+  --orchard-300: #fcd34d;
+  --orchard-400: #f59e0b;
+  --orchard-500: #d97706;
+  --orchard-600: #b45309;
+  --orchard-700: #92400e;
+  --orchard-800: #78350f;
+  --orchard-900: #451a03;
+  --orchard-950: #2a1203;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --surface-50: #18181b;
+  --surface-100: #27272a;
+  --surface-200: #3f3f46;
+  --surface-300: #52525b;
+  --surface-400: #71717a;
+  --surface-500: #8b8b94;
+  --surface-600: #a1a1aa;
+  --surface-700: #d4d4d8;
+  --surface-800: #e4e4e7;
+  --surface-900: #f1f1f3;
+  --surface-950: #fafafa;
+
+  --orchard-50: #fffbeb;
+  --orchard-100: #78350f;
+  --orchard-200: #78350f;
+  --orchard-300: #b45309;
+  --orchard-400: #d97706;
+  --orchard-500: #b45309;
+  --orchard-600: #92400e;
+  --orchard-700: #fcd34d;
+  --orchard-800: #fde68a;
+  --orchard-900: #fef3c7;
+  --orchard-950: #fffbeb;
 }
 
 @layer base {
@@ -35,14 +98,135 @@
   }
   body {
     @apply bg-surface-950 text-surface-50;
+    transition:
+      background-color 0.35s ease,
+      color 0.35s ease;
   }
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-orchard-400;
+  }
+  ::selection {
+    background-color: var(--orchard-400);
+    color: #09090b;
   }
 }
 
 @layer utilities {
   .glass-panel {
     @apply bg-surface-900/70 border border-surface-800 backdrop-blur;
+  }
+}
+
+@layer components {
+  .theme-toggle {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    line-height: 0;
+  }
+
+  .theme-toggle-track {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 58px;
+    height: 30px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--surface-800);
+    border: 1px solid var(--surface-700);
+    transition: background-color 0.3s ease;
+  }
+
+  .theme-toggle-icon {
+    display: grid;
+    place-items: center;
+    z-index: 0;
+  }
+
+  .theme-toggle-icon-sun {
+    display: grid;
+    color: var(--surface-200);
+  }
+
+  .theme-toggle-icon-moon {
+    display: none;
+    color: var(--surface-400);
+  }
+
+  .theme-toggle.is-light .theme-toggle-icon-sun {
+    display: none;
+  }
+
+  .theme-toggle.is-light .theme-toggle-icon-moon {
+    display: grid;
+  }
+
+  .theme-toggle-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .theme-toggle-thumb {
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #09090b;
+    background: linear-gradient(135deg, #facc15 0%, #fb923c 100%);
+    box-shadow: 0 4px 12px -2px rgba(249, 115, 22, 0.55);
+    transition: transform 0.35s cubic-bezier(0.3, 0.9, 0.3, 1.2);
+    z-index: 1;
+  }
+
+  .theme-toggle-thumb svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .theme-toggle.is-light .theme-toggle-thumb {
+    transform: translate(26px, -50%);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* View Transition API — expanding "bubble" theme reveal               */
+/* The new theme snapshot is clipped to a circle anchored at the       */
+/* toggle button (--vt-x / --vt-y) and grows until it covers the page. */
+/* ------------------------------------------------------------------ */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  animation: theme-reveal 0.65s cubic-bezier(0.45, 0, 0.2, 1) both;
+}
+
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0px at var(--vt-x, 50%) var(--vt-y, 40px));
+  }
+  to {
+    clip-path: circle(150vmax at var(--vt-x, 50%) var(--vt-y, 40px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001s !important;
   }
 }
