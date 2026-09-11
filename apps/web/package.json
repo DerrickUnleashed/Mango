@@ -37,5 +37,14 @@
     "typescript": "~6.0.2",
     "vite": "^8.2.2",
     "vitest": "^5.0.0"
+  },
+  "optionalDependencies": {
+    "@oxlint/binding-linux-x64-gnu": "1.82.0",
+    "@oxlint/binding-linux-x64-musl": "1.82.0",
+    "@oxlint/binding-linux-arm64-gnu": "1.82.0",
+    "@oxlint/binding-linux-arm64-musl": "1.82.0",
+    "@oxlint/binding-darwin-arm64": "1.82.0",
+    "@oxlint/binding-darwin-x64": "1.82.0",
+    "@oxlint/binding-wasm32-wasi": "1.82.0"
   }
 }
