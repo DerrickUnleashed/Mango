@@ -43,14 +43,21 @@ class Video(Base):
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )
 
-    processing_job: Mapped[ProcessingJob | None] = relationship(
+    processing_jobs: Mapped[list[ProcessingJob]] = relationship(
         "ProcessingJob",
         back_populates="video",
-        uselist=False,
         cascade="all, delete-orphan",
     )
 
+    def _latest_processing_job(self) -> ProcessingJob | None:
+        return max(
+            self.processing_jobs,
+            key=lambda job: (job.created_at or datetime.min, job.id),
+            default=None,
+        )
+
     def to_dict(self) -> dict:
+        latest = self._latest_processing_job()
         return {
             "id": self.id,
             "originalName": self.original_name,
@@ -65,5 +72,5 @@ class Video(Base):
             "codec": self.codec,
             "status": self.status,
             "createdAt": self.created_at.isoformat() if self.created_at else None,
-            "processingJob": self.processing_job.to_dict() if self.processing_job else None,
+            "processingJob": latest.to_dict() if latest else None,
         }

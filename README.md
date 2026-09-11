@@ -50,6 +50,24 @@ uv run --project apps/api ruff check apps/api          # API lint
 cd apps/web && npm run typecheck && npm run lint && npm run build
 ```
 
+## Testing
+
+The full verified matrix runs on every push/PR via GitHub Actions
+(`.github/workflows/ci.yml`). Locally, use the same commands:
+
+```bash
+# Backend + ML (repo root)
+uv run --project apps/api pytest apps/api/tests -q
+uv run --project ml pytest ml/tests -q
+
+# API lint (from apps/api)
+uv run --project apps/api ruff check app tests
+uv run --project apps/api ruff format --check app tests
+
+# Frontend (from apps/web)
+npm run typecheck && npm run lint && npm run test && npm run build && npm run format:check
+```
+
 ## Architecture
 
 Processing runs per video in a background thread:

@@ -557,11 +557,23 @@ Resolved items:
       (message + config) is returned and rendered on the video detail page.
 - [x] Vitest: page-level coverage added — VideoDetail (render + config chips),
       Dashboard (stats/library/navigation), Videos (list/empty/delete), Settings
-      (load + submit), Experiments (empty/results/run), and the four
-      placeholder pages; UI plumbing tests auto-clean between cases.
+      (load + submit), Experiments (empty/results/run), and the standalone
+      Analytics/Identities/Re-Identification/Evaluation pages (video picker +
+      panel wiring, picker switching, evaluation results); UI plumbing tests
+      auto-clean between cases.
 - [x] Frame extraction/thumbnail + file-streaming endpoints added; video preview,
       representative frames, occlusion/re-id overlay markers, track status chips,
       and upload progress wired in the web UI.
+- [x] Standalone pages now render real per-video content: Analytics, Identity
+      Explorer, and Re-Identification each present a processed-video picker
+      backed by the existing panels; Evaluation surfaces the experiment harness
+      (baseline comparison, metric trends, and run history).
+- [x] `Video.processing_job` relationship made deterministic: reprocessing leaves
+      multiple job rows per video, so the serialization now resolves the latest
+      job explicitly (no SAWarning, no arbitrary pick).
+- [x] GitHub Actions CI pipeline (`.github/workflows/ci.yml`) runs the full
+      matrix on push/PR: API + ML tests and ruff checks, and web
+      typecheck/lint/test/format/build.
 
 Remaining debt:
 - (none — see Known Risks for model-weights-dependent items)
@@ -604,12 +616,13 @@ can replace the mock adapter without touching the rest of the pipeline.
 
 ## Test Status
 
-- Backend: 62 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint + single-track detail, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence, boolean settings round-trip, pipeline config passthrough incl. re-id threshold/memory rate + tracker match threshold/buffer, stored settings as processing defaults, Celery enqueue + task execution + shared worker, frame extraction (JPEG + thumbnail + cache), single-track detail, video file streaming)
+- Backend: 63 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint + single-track detail, latest-job resolution on reprocessing, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence, boolean settings round-trip, pipeline config passthrough incl. re-id threshold/memory rate + tracker match threshold/buffer, stored settings as processing defaults, Celery enqueue + task execution + shared worker, frame extraction (JPEG + thumbnail + cache), single-track detail, video file streaming)
 - ML: 71 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset, bbox-carrying embeddings, motion-gated recovery, gap-scaled motion cap, multi-candidate ranking past blocked candidates; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
 - Frontend: TypeScript build + typecheck passing; Vitest passing across component,
       integration (settings/experiments via react-query), and page-level suites
       covering the video detail, dashboard, videos library, settings, experiments,
-      and placeholder pages
+      and the standalone video analytics / identity explorer / re-identification /
+      evaluation pages (27 tests)
 
 ## Decisions Log
 
@@ -655,3 +668,7 @@ can replace the mock adapter without touching the rest of the pipeline.
 | 2026-09-10 | Single-track detail endpoint `GET /api/videos/{id}/tracks/{track_id}` | Closes the Phase 5 "track detail" gap with a shared serialization |
 | 2026-09-10 | Occlusion/re-id markers + track status chips drawn on the track overlay; occlusion badges shown elsewhere | Makes occlusion and recovery visible on the exact frame where they occur |
 | 2026-09-10 | Original detailed plan checklists reconciled: implemented items ticked, out-of-scope items moved to a Deferred section | Every pending checkbox now resolves honestly against the shipped code |
+| 2026-09-11 | Standalone Analytics / Identity Explorer / Re-Identification pages host a processed-video picker feeding the existing panels | Reuses the VideoDetail panels unchanged; cross-video aggregation deferred until the real-model milestone |
+| 2026-09-11 | `/evaluation` route surfaces the experiment harness via a reused `ExperimentsView` | Evaluation IS the experiment runs (baseline comparison + trends); avoids duplicating that UI |
+| 2026-09-11 | `Video.processing_job` relationship replaced by explicit latest-job resolution (`processing_jobs` list + max key) | Reprocessing accumulates job rows; the old `uselist=False` relationship warned and picked arbitrarily |
+| 2026-09-11 | GitHub Actions CI added (`.github/workflows/ci.yml`) running backend + ML + web matrix on push/PR | Locks the full verified matrix into the review loop |

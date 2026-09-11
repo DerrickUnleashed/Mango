@@ -1,14 +1,31 @@
 import { EmptyState } from '../components/ui/EmptyState'
+import { ProcessedVideoPicker } from '../components/videos/ProcessedVideoPicker'
+import { IdentitiesPanel } from '../components/tracking/IdentitiesPanel'
+import { useProcessedVideoSelection } from '../hooks/useProcessedVideoSelection'
 
 export function IdentitiesPage() {
+  const { processed, selected, setSelected } = useProcessedVideoSelection()
   return (
     <div className="mx-auto max-w-7xl">
-      <h1 className="text-2xl font-semibold text-surface-50">Identity Explorer</h1>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-surface-50">Identity Explorer</h1>
+          <p className="mt-1 text-sm text-surface-400">
+            Inspect individual fruit identities, their occlusion history, and quality metrics for a
+            processed video.
+          </p>
+        </div>
+        <ProcessedVideoPicker processed={processed} value={selected} onChange={setSelected} />
+      </div>
       <div className="mt-6">
-        <EmptyState
-          title="No identities tracked yet"
-          description="Process a video to inspect individual fruit identities, their occlusion history, and quality metrics."
-        />
+        {selected ? (
+          <IdentitiesPanel videoId={selected} enabled />
+        ) : (
+          <EmptyState
+            title="No identities tracked yet"
+            description="Process a video to inspect individual fruit identities, their occlusion history, and quality metrics."
+          />
+        )}
       </div>
     </div>
   )

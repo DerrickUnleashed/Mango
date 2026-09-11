@@ -28,6 +28,23 @@ const TREND_METRICS: { key: keyof ExperimentMetrics; label: string; higherIsBett
 ]
 
 export function ExperimentsPage() {
+  return (
+    <div className="mx-auto max-w-7xl">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold text-surface-50">Experiments</h1>
+          <p className="mt-1 text-sm text-surface-400">
+            Run the orchard scenario with different trackers to study identity recovery under
+            occlusion and camera motion.
+          </p>
+        </div>
+      </div>
+      <ExperimentsView />
+    </div>
+  )
+}
+
+export function ExperimentsView() {
   const queryClient = useQueryClient()
   const { push } = useToast()
   const { data, isLoading } = useQuery({
@@ -81,18 +98,8 @@ export function ExperimentsPage() {
   const trends = trendRuns(experiments)
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-surface-50">Experiments</h1>
-          <p className="mt-1 text-sm text-surface-400">
-            Run the orchard scenario with different trackers to study identity recovery under
-            occlusion and camera motion.
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-6 rounded-xl border border-surface-800 bg-surface-950 p-5">
+    <div className="space-y-6">
+      <div className="rounded-xl border border-surface-800 bg-surface-950 p-5">
         <div className="flex flex-wrap items-end gap-4">
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-surface-400">Tracker</span>
@@ -133,7 +140,7 @@ export function ExperimentsPage() {
       </div>
 
       {baseline.length > 1 && (
-        <div className="mt-6 rounded-xl border border-surface-800 bg-surface-950 p-5">
+        <div className="rounded-xl border border-surface-800 bg-surface-950 p-5">
           <h2 className="font-medium text-surface-200">Tracker baseline comparison</h2>
           <p className="mt-1 text-sm text-surface-400">
             Medians across completed runs per tracker.
@@ -175,7 +182,7 @@ export function ExperimentsPage() {
       )}
 
       {trends.length > 0 && (
-        <div className="mt-6 rounded-xl border border-surface-800 bg-surface-950 p-5">
+        <div className="rounded-xl border border-surface-800 bg-surface-950 p-5">
           <h2 className="font-medium text-surface-200">Metric trends over runs</h2>
           <p className="mt-1 text-sm text-surface-400">
             Completed runs in creation order; cyan = mock tracker, amber = bytetrack.
@@ -193,7 +200,7 @@ export function ExperimentsPage() {
         </div>
       )}
 
-      <div className="mt-6 space-y-3">
+      <div className="space-y-3">
         {experiments.length === 0 && !isLoading && (
           <p className="rounded-lg border border-dashed border-surface-800 px-4 py-8 text-center text-sm text-surface-500">
             No experiments yet — pick a tracker above and run one.

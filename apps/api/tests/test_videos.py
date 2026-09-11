@@ -94,6 +94,37 @@ def test_full_processing_flow(client: TestClient, sample_video_bytes: bytes) -> 
             assert set(point) >= {"frameId", "bbox", "confidence", "isOccluded"}
 
 
+def test_video_serves_latest_processing_job(
+    client: TestClient, sample_video_bytes: bytes
+) -> None:
+    video_id = _upload(client, sample_video_bytes)["video"]["id"]
+
+    def _run() -> dict:
+        process_response = client.post(
+            f"/api/videos/{video_id}/process",
+            json={"inference_mode": "mock", "max_frames": 4},
+        )
+        assert process_response.status_code == 200
+        job = process_response.json()
+        final = None
+        for _ in range(20):
+            final = client.get(f"/api/jobs/{job['id']}").json()
+            if final["status"] in {"completed", "failed"}:
+                break
+            time.sleep(0.2)
+        assert final is not None and final["status"] == "completed", final
+        return final
+
+    first = _run()
+    second = _run()
+    assert first["job_id"] != second["job_id"]
+
+    video = client.get(f"/api/videos/{video_id}").json()
+    assert video["processingJob"] is not None
+    assert video["processingJob"]["id"] == second["job_id"]
+    assert video["processingJob"]["config"] == second["config"]
+
+
 def test_process_unknown_video_404(client: TestClient) -> None:
     response = client.post(
         "/api/videos/missing/process",

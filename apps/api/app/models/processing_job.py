@@ -62,7 +62,7 @@ class ProcessingJob(Base):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
-    video: Mapped[Video] = relationship("Video", back_populates="processing_job")
+    video: Mapped[Video] = relationship("Video", back_populates="processing_jobs")
 
     def to_dict(self) -> dict:
         return {
