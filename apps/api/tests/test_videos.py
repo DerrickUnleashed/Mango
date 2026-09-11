@@ -94,9 +94,7 @@ def test_full_processing_flow(client: TestClient, sample_video_bytes: bytes) -> 
             assert set(point) >= {"frameId", "bbox", "confidence", "isOccluded"}
 
 
-def test_video_serves_latest_processing_job(
-    client: TestClient, sample_video_bytes: bytes
-) -> None:
+def test_video_serves_latest_processing_job(client: TestClient, sample_video_bytes: bytes) -> None:
     video_id = _upload(client, sample_video_bytes)["video"]["id"]
 
     def _run() -> dict:

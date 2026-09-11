@@ -30,10 +30,9 @@ jobs:
         run: uv sync --frozen --project apps/api --group dev
 
       - name: Lint (API)
-        working-directory: apps/api
         run: |
-          uv run --project apps/api ruff check app tests
-          uv run --project apps/api ruff format --check app tests
+          uv run --project apps/api ruff check apps/api/app apps/api/tests
+          uv run --project apps/api ruff format --check apps/api/app apps/api/tests
 
       - name: Test API
         run: uv run --project apps/api pytest apps/api/tests -q
@@ -44,9 +43,6 @@ jobs:
   frontend:
     name: Frontend (Web)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/web
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,22 +52,22 @@ jobs:
         with:
           node-version: "24"
           cache: npm
-          cache-dependency-path: apps/web/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
       - name: Typecheck
-        run: npm run typecheck
+        run: npm run typecheck --workspace=apps/web
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint --workspace=apps/web
 
       - name: Test
-        run: npm run test
+        run: npm run test --workspace=apps/web
 
       - name: Format check
-        run: npm run format:check
+        run: npm run format:check --workspace=apps/web
 
       - name: Build
-        run: npm run build
+        run: npm run build --workspace=apps/web
