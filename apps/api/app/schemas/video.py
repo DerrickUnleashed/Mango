@@ -129,6 +129,8 @@ class ProcessRequest(BaseModel):
     tracker_match_threshold: float | None = Field(default=None, ge=0.0, le=1000.0)
     tracker_buffer_frames: int | None = Field(default=None, ge=1, le=1000)
     max_frames: int | None = Field(default=None, ge=1, le=100_000)
+    model_path: str | None = Field(default=None)
+    sliced: int | None = Field(default=None, ge=0, le=6)
 
 
 class MultiMotionResponse(BaseModel):

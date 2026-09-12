@@ -418,6 +418,8 @@ def process_video(
         tracker_buffer_frames=request.tracker_buffer_frames
         or int(stored.get("trackerBufferFrames", settings.default_tracker_buffer_frames)),
         max_frames=request.max_frames,
+        model_path=request.model_path,
+        sliced=request.sliced or 0,
     )
 
     job = ProcessingJob(
@@ -434,6 +436,8 @@ def process_video(
             "tracker_match_threshold": config.tracker_match_threshold,
             "tracker_buffer_frames": config.tracker_buffer_frames,
             "max_frames": config.max_frames,
+            "model_path": config.model_path,
+            "sliced": config.sliced,
         },
     )
     db.add(job)

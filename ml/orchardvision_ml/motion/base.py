@@ -62,6 +62,15 @@ class MotionEstimator(ABC):
         that static objects remain static in the stabilized frame.
         """
 
+    @abstractmethod
+    def decompensate(self, bbox: BBox, frame_index: int) -> BBox:
+        """Map a stabilized bbox back to raw video coordinates.
+
+        The inverse of :meth:`compensate`: adds the cumulative camera motion
+        up to ``frame_index`` so stored/drawn boxes line up with the original
+        (non-stabilized) video frames.
+        """
+
 
 class StaticMotionEstimator(MotionEstimator):
     """Trivial estimator for a fixed camera: no motion to compensate."""
@@ -75,5 +84,9 @@ class StaticMotionEstimator(MotionEstimator):
         return CameraMotionEstimate(frames_analyzed=frame_index + 1)
 
     def compensate(self, bbox: BBox, frame_index: int) -> BBox:
+        del frame_index
+        return bbox
+
+    def decompensate(self, bbox: BBox, frame_index: int) -> BBox:
         del frame_index
         return bbox

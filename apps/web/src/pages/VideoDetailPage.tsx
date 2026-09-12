@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useProcessVideo, useVideo } from '../hooks/useVideos'
 import { useSettings } from '../hooks/useSettings'
@@ -9,6 +9,7 @@ import { IdentitiesPanel } from '../components/tracking/IdentitiesPanel'
 import { MotionPanel } from '../components/tracking/MotionPanel'
 import { ReIdPanel } from '../components/tracking/ReIdPanel'
 import { TrackVisualizer } from '../components/tracking/TrackVisualizer'
+import { VideoTrackingOverlay } from '../components/tracking/VideoTrackingOverlay'
 
 export function VideoDetailPage() {
   const { videoId = '' } = useParams()
@@ -16,8 +17,10 @@ export function VideoDetailPage() {
   const video = useVideo(videoId)
   const process = useProcessVideo()
   const settings = useSettings()
+  const [inferenceMode, setInferenceMode] = useState<'mock' | 'real'>('real')
   const [tracker, setTracker] = useState<'mock' | 'bytetrack'>('mock')
   const [cameraMotion, setCameraMotion] = useState<'static' | 'drift'>('static')
+  const videoRef = useRef<HTMLVideoElement | null>(null)
 
   const job = video.data?.processingJob ?? null
   const isProcessing = job?.status === 'running' || job?.status === 'queued'
@@ -38,7 +41,7 @@ export function VideoDetailPage() {
 
   function startProcessing() {
     process.mutate(
-      { videoId, request: { inferenceMode: 'mock', tracker, cameraMotion } },
+      { videoId, request: { inferenceMode, tracker, cameraMotion } },
       {
         onSuccess: () => push('Processing started', 'success'),
         onError: (err) => push(`Failed to start: ${err.message}`, 'error'),
@@ -115,8 +118,9 @@ export function VideoDetailPage() {
 
       {/* Preview area — plays the uploaded source; the track overlay above
           mirrors the processed run */}
-      <div className="overflow-hidden rounded-xl border border-surface-800 bg-surface-950">
+      <div className="relative overflow-hidden rounded-xl border border-surface-800 bg-surface-950">
         <video
+          ref={videoRef}
           src={videoFileUrl(v.id)}
           controls
           playsInline
@@ -126,6 +130,17 @@ export function VideoDetailPage() {
         >
           <track kind="captions" />
         </video>
+        {v.status === 'processed' && v.width && v.height && v.frameCount && (
+          <VideoTrackingOverlay
+            videoId={v.id}
+            videoRef={videoRef}
+            width={v.width}
+            height={v.height}
+            frameCount={v.frameCount}
+            fps={v.fps ?? 30}
+            enabled
+          />
+        )}
       </div>
 
       {/* Processing controls */}
@@ -153,6 +168,25 @@ export function VideoDetailPage() {
                 ))}
               </dl>
             )}
+          </div>
+          <div className="flex items-center gap-2">
+            <label
+              className="text-xs font-medium text-surface-400"
+              htmlFor="inference-select"
+              title="Mock uses a synthetic detector; Real runs the saved YOLO weights"
+            >
+              Inference
+            </label>
+            <select
+              id="inference-select"
+              value={inferenceMode}
+              onChange={(e) => setInferenceMode(e.target.value as 'mock' | 'real')}
+              disabled={isProcessing || process.isPending}
+              className="rounded-lg border border-surface-700 bg-surface-900 px-3 py-2 text-sm text-surface-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="mock">Mock</option>
+              <option value="real">Real</option>
+            </select>
           </div>
           <div className="flex items-center gap-2">
             <label

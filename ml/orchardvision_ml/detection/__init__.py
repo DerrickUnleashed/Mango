@@ -2,20 +2,20 @@
 
 Public interface: :class:`Detector`, :class:`Detection`, :class:`FrameDetections`.
 Concrete implementations: :class:`MockDetector` (offline dev/test) and the
-YOLO-compatible adapter in ``yolo.py``.
+YOLO-compatible adapter in ``yolo_adapter.py``.
 """
 
 from .base import Detection, Detector, FrameDetections
 from .mock import MockDetector
 from .nms import iou, nms
-from .yolo import YOLODetector
+from .yolo_adapter import YoloDetector
 
 __all__ = [
     "Detection",
     "Detector",
     "FrameDetections",
     "MockDetector",
-    "YOLODetector",
+    "YoloDetector",
     "iou",
     "nms",
 ]

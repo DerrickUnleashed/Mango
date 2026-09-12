@@ -209,6 +209,28 @@ def test_processing_with_drift_compensation(client: TestClient, sample_video_byt
     assert body["compensationApplied"] is True
 
 
+def test_drift_tracks_stored_in_raw_video_coordinates(
+    client: TestClient, sample_video_bytes: bytes
+) -> None:
+    """Regression: drift compensation must not leak into persisted bboxes.
+
+    The slow mock fruit (center ~(400,180) -> (410,190) over 300 frames) barely
+    moves right/down. Compensated coordinates subtract 0.5px/frame from x, which
+    would make its stored bbox drift LEFT on the raw video -> mirrored-overlay UI
+    bug. Stored points must stay in raw video space.
+    """
+    video_id = _upload(client, sample_video_bytes)
+    _process(client, video_id, tracker="mock", max_frames=15, camera_motion="drift")
+
+    tracks = client.get(f"/api/videos/{video_id}/tracks").json()["tracks"]
+    assert tracks
+
+    # Slow fruit has raw bbox left edge x = 400 - 24 = 376 at frame 0.
+    slow = min(tracks, key=lambda t: abs(t["points"][0]["bbox"][0] - 376.0))
+    xs = [p["bbox"][0] for p in slow["points"]]
+    assert xs[-1] > xs[0] - 2.0, xs
+
+
 def test_motion_requires_existing_video(client: TestClient) -> None:
     response = client.get("/api/videos/does-not-exist/motion")
     assert response.status_code == 404

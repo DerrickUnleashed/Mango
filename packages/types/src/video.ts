@@ -61,6 +61,8 @@ export interface ProcessVideoRequest {
   tracker?: 'mock' | 'bytetrack'
   cameraMotion?: 'static' | 'drift'
   maxFrames?: number
+  modelPath?: string
+  sliced?: number
 }
 
 export interface ProcessVideoResponse {

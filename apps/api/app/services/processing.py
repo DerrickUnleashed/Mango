@@ -9,9 +9,11 @@ changing this orchestration layer.
 
 from __future__ import annotations
 
+import os
 import time
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from pathlib import Path
 from uuid import uuid4
 
 import cv2
@@ -45,6 +47,13 @@ from app.services.storage import storage_service
 DEFAULT_MAX_FRAMES = 600
 MAX_TRACK_ASSIGN_DISTANCE_PX = 60.0
 
+DEFAULT_MODEL_PATH = Path(
+    os.environ.get(
+        "YOLO_WEIGHTS_PATH",
+        Path(__file__).resolve().parents[4] / "models" / "mango_yolov8n-4" / "weights" / "best.pt",
+    )
+)
+
 
 @dataclass(frozen=True, slots=True)
 class PipelineConfig:
@@ -57,6 +66,8 @@ class PipelineConfig:
     tracker_match_threshold: float = 120.0
     tracker_buffer_frames: int = 30
     max_frames: int | None = None
+    model_path: str | None = None
+    sliced: int = 0
 
     def effective_max_frames(self, total_frames: int) -> int:
         cap = self.max_frames or DEFAULT_MAX_FRAMES
@@ -170,6 +181,36 @@ class ProcessingService:
         state.update(ProcessingStage.DETECTING, 30.0, f"Detecting across {len(frames)} frames")
         return frames
 
+    def _build_detector(self, config: PipelineConfig):
+        """Pick a detector from the pipeline config.
+
+        ``inference_mode="real"`` loads the trained YOLO weights (via
+        :class:`orchardvision_ml.detection.YoloDetector`); mock mode returns the
+        deterministic scenario detector.
+        """
+        if config.inference_mode == "real":
+            from orchardvision_ml.detection import YoloDetector
+
+            model_path = config.model_path or str(DEFAULT_MODEL_PATH)
+            return YoloDetector(
+                model_path,
+                conf_threshold=config.confidence_threshold,
+                sliced=config.sliced,
+            )
+        return MockDetector(scenario=SCENARIO_ORCHARD)
+
+    def _build_embedder(self, config: PipelineConfig):
+        """Pick an appearance embedder from the pipeline config.
+
+        Real mode uses a pretrained torchvision backbone; mock mode uses the
+        deterministic crop-feature embedder.
+        """
+        if config.inference_mode == "real":
+            from orchardvision_ml.identity import TorchEmbeddingExtractor
+
+            return TorchEmbeddingExtractor()
+        return MockEmbeddingExtractor()
+
     def detect_frames(
         self,
         video: Video,
@@ -179,7 +220,7 @@ class ProcessingService:
         frames: list[NDArray],
     ) -> dict:
         del job
-        detector = MockDetector(scenario=SCENARIO_ORCHARD)
+        detector = self._build_detector(config)
         total_detections = 0
         confidences: list[float] = []
         frame_count = len(frames)
@@ -246,8 +287,9 @@ class ProcessingService:
             last = tracker.update(stable_detection)
             new_track_count += len(last.new_track_ids)
             lost_track_count += len(last.lost_track_ids)
+            assigned = self._assign_track_ids(index, stable_detection, last.active_tracks)
             assigned_detections.append(
-                self._assign_track_ids(index, stable_detection, last.active_tracks)
+                self._decompensate_frame_detections(assigned, motion, index)
             )
             lost_by_frame.append(list(last.lost_track_ids))
 
@@ -257,7 +299,7 @@ class ProcessingService:
                 state.update(ProcessingStage.TRACKING, progress, msg)
 
         # Persist final track trajectories for this video (replace prior runs)
-        tracks = self._persist_tracks(job, video, last, db)
+        tracks = self._persist_tracks(job, video, last, db, motion)
 
         log = job_logger("processing", job_id=state.job_id, video_id=video.id)
         log.info(
@@ -300,6 +342,22 @@ class ProcessingService:
             for det in detections
         ]
         return replace(frame_detection, detections=compensated)
+
+    def _decompensate_frame_detections(self, frame_detection, motion, frame_id):
+        """Shift detection bboxes back into raw (un-stabilized) video space.
+
+        Compensation is only an internal tracking concern; anything persisted
+        (detections, embeddings, observations) must be in raw coordinates so
+        overlays line up with the un-stabilized source video.
+        """
+        detections = frame_detection.detections
+        if motion.name == "static" or not detections:
+            return frame_detection
+        decompensated = [
+            replace(det, bbox=tuple(motion.decompensate(tuple(det.bbox), frame_id)))
+            for det in detections
+        ]
+        return replace(frame_detection, detections=decompensated)
 
     def persist_motion_estimate(
         self, video: Video, config: PipelineConfig, frame_count: int, db
@@ -364,11 +422,14 @@ class ProcessingService:
             max_buffer=config.tracker_buffer_frames,
         )
 
-    def _persist_tracks(self, job: ProcessingJob, video: Video, result, db) -> list[Track]:
+    def _persist_tracks(
+        self, job: ProcessingJob, video: Video, result, db, motion
+    ) -> list[Track]:
         """Write final active track trajectories into the database.
 
         Existing tracks for this video are deleted first so a re-run replaces
-        them atomically within the caller's transaction.
+        them atomically within the caller's transaction. Track points are
+        stored in raw video coordinates (compensation is inverted).
         """
         db.execute(delete(Track).where(Track.video_id == video.id))
         active_tracks = result.active_tracks if result is not None else []
@@ -383,7 +444,7 @@ class ProcessingService:
                 points=[
                     {
                         "frameId": p.frame_id,
-                        "bbox": list(p.bbox),
+                        "bbox": list(motion.decompensate(p.bbox, p.frame_id)),
                         "confidence": p.confidence,
                         "isOccluded": p.is_occluded,
                     }
@@ -433,7 +494,7 @@ class ProcessingService:
         """Extract embeddings and consolidate them into quality-aware identities."""
         del job
         state.update(ProcessingStage.EMBEDDING, 80.0, "Extracting appearance embeddings")
-        embedder = MockEmbeddingExtractor()
+        embedder = self._build_embedder(config)
         memory = MockIdentityMemory(
             match_threshold=config.reid_threshold,
             update_rate=config.memory_update_rate,

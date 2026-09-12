@@ -576,6 +576,17 @@ Resolved items:
       typecheck/lint/test/format/build.
 
 Remaining debt:
+- [x] Real YOLO detector adapter + NMS reconciliation — two overlapping adapters
+      (`detection/yolo.py` vs `yolo_adapter.py`, `YOLODetector` vs `YoloDetector`)
+      collapsed to a single `YoloDetector`; `detection/yolo.py` removed and its
+      unit tests retargeted (`test_nms_yolo.py` keeps the NMS utilities).
+- [x] Camera + torch-embedder wiring — `orchardvision_ml.camera` (OpenCV/synthetic
+      sources) and `TorchEmbeddingExtractor` are now exported package-level;
+      `TorchEmbeddingExtractor` no longer rebuilds its model (and a random
+      projection head) on every call.
+- [x] Real-mode processing — `PipelineConfig.inference_mode="real"` + `model_path`
+      build `YoloDetector`/`TorchEmbeddingExtractor` in `app.services.processing`;
+      `DEFAULT_MODEL_PATH` honored via `YOLO_WEIGHTS_PATH`.
 - (none — see Known Risks for model-weights-dependent items)
 
 ## Deferred Items (out of current scope, documented for the real-model milestone)
@@ -584,12 +595,16 @@ Items below are intentionally not implemented in the mock-first phase. Where an
 item names a "swap-in boundary", the interface exists and a real implementation
 can replace the mock adapter without touching the rest of the pipeline.
 
-- [!] Real YOLO detector adapter + detection NMS (swap-in boundary:
-      `orchardvision_ml.detection.Detector`) — needs model weights.
+- [x] Real YOLO adapter (`orchardvision_ml.detection.YoloDetector`) wired into the
+      API via `inference_mode="real"`; detector trained on `Mango_Dataset2`
+      (yolov8n-4, 50 epochs, mAP50 0.986 / test F1 0.918). Weights are
+      gitignored under `models/` (see `YOLO_WEIGHTS_PATH` env override).
 - [!] Self-supervised identity embedding training: positive/negative pair
       generation, temporal/spatial consistency losses, visibility-aware
-      training filtering, hard-negative mining (swap-in boundary:
-      `orchardvision_ml.identity.Embedder`) — needs PyTorch + labels.
+      training filtering, hard-negative mining. A pretrained-torchvision
+      backbone extractor (`TorchEmbeddingExtractor`) is wired for real mode, but
+      it is *not* self-supervised trained (swap-in boundary:
+      `orchardvision_ml.identity.Embedder`).
 - [!] Embedding visualization (t-SNE/UMAP) — meaningful only once real
       embeddings (and their diversity) exist.
 - [!] Per-frame processing-FPS strip chart — avg FPS + processing-time stats
@@ -616,8 +631,8 @@ can replace the mock adapter without touching the rest of the pipeline.
 
 ## Test Status
 
-- Backend: 63 tests passing (health, video CRUD, upload validation, processing + tracking flow, tracks endpoint + single-track detail, latest-job resolution on reprocessing, tracker selection, reprocessing, identity endpoints + persistence, identity observation timeline, reid endpoints, detection persistence, camera-motion estimate + compensation, analytics aggregations, experiment CRUD + execution + metrics + export, settings defaults + merge + persistence, boolean settings round-trip, pipeline config passthrough incl. re-id threshold/memory rate + tracker match threshold/buffer, stored settings as processing defaults, Celery enqueue + task execution + shared worker, frame extraction (JPEG + thumbnail + cache), single-track detail, video file streaming)
-- ML: 71 tests passing (detector, tracking, identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag; identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset, bbox-carrying embeddings, motion-gated recovery, gap-scaled motion cap, multi-candidate ranking past blocked candidates; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
+- Backend: 72 tests passing (real-vs-mock routing included: `PipelineConfig.inference_mode` selects `YoloDetector`/`TorchEmbeddingExtractor` via `_build_detector`/`_build_embedder`, `DEFAULT_MODEL_PATH` resolution)
+- ML: 118 tests passing (detector interface + MockDetector + YoloDetector (real-weights adapter) + NMS; identity embedding: determinism, unit norm, same-fruit similarity, region separation, occlusion flag, torch-backbone extractor (resnet18, cached model, unit-norm, determinism); identity memory: prototype creation, quality, matching, suppression, determinism; re-id: loss registration, recovery events, rejected recovery, reset, bbox-carrying embeddings, motion-gated recovery, gap-scaled motion cap, multi-candidate ranking past blocked candidates; camera motion: static identity, drift estimation, cumulative compensation, bounds clamping; camera/video: synthetic source iteration, visibility count, opencv round-trip, context manager; pipeline orchestrator: fruit counting, identity consistency, re-id events, per-frame accumulation, video meta, no-embedder skip, short video, motion estimator integration; evaluation: IoU, count accuracy, IDF1/greedy matching, per-frame switch detection, fragmentation, recovery rate, HOTA detection+association, scenario ground truth with absent windows)
 - Frontend: TypeScript build + typecheck passing; Vitest passing across component,
       integration (settings/experiments via react-query), and page-level suites
       covering the video detail, dashboard, videos library, settings, experiments,

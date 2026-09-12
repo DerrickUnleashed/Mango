@@ -51,13 +51,20 @@ data/processed/*
 !data/processed/.gitkeep
 data/experiments/*
 !data/experiments/.gitkeep
-
+# Generated video-labeling dataset (tiles + labels are derived artifacts)
+data/video_dataset/
+!data/video_dataset/.gitkeep
+data/video_dataset/README.md
+data/Mango_Dataset
+data/Mango_Dataset2
+data/first.mp4
 # ML Models
 *.pt
 *.pth
 *.onnx
 *.engine
 *.weights
+
 models/
 
 # The FastAPI "models" package must stay tracked despite the ML `models/` rule
@@ -81,3 +88,6 @@ temp/
 
 .ruff_cache/
 .vscode/
+.tmp/
+.torch-cache/
+.uv-cache/

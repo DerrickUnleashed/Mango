@@ -93,13 +93,21 @@ export function deleteVideo(id: string): Promise<{ ok: boolean }> {
   return apiRequest<{ ok: boolean }>(`/videos/${id}`, { method: 'DELETE' })
 }
 
+function snakeify(request: ProcessVideoRequest): Record<string, unknown> {
+  const body: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(request)) {
+    body[key.replace(/[A-Z]/g, (char) => `_${char.toLowerCase()}`)] = value
+  }
+  return body
+}
+
 export function processVideo(
   id: string,
   request: ProcessVideoRequest,
 ): Promise<ProcessVideoResponse> {
   return apiRequest<ProcessVideoResponse>(`/videos/${id}/process`, {
     method: 'POST',
-    body: JSON.stringify(request),
+    body: JSON.stringify(snakeify(request)),
   })
 }
 

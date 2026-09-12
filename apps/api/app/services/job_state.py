@@ -1,9 +1,9 @@
 """Database-backed job progress state.
 
 The processing pipeline updates a ``state`` object at each stage. Locally the
-state lives in memory (:mod:`app.services.job_manager`); in a distributed
-deployment the Celery worker persists the same fields to the ``processing_jobs``
-row so the API can report live progress without shared memory.
+state lives in memory; in a distributed deployment the Celery worker persists
+the same fields to the ``processing_jobs`` row so the API can report live
+progress without shared memory.
 """
 
 from __future__ import annotations

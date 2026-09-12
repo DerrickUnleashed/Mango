@@ -51,3 +51,12 @@ class MockMotionEstimator(MotionEstimator):
             w,
             h,
         )
+
+    def decompensate(self, bbox: BBox, frame_index: int) -> BBox:
+        x, y, w, h = bbox
+        return (
+            max(0.0, x + self._dx * frame_index),
+            max(0.0, y + self._dy * frame_index),
+            w,
+            h,
+        )

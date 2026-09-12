@@ -28,6 +28,9 @@ class TestStatic:
     def test_compensate_is_identity(self, bbox) -> None:
         assert StaticMotionEstimator().compensate(bbox, 99) == bbox
 
+    def test_decompensate_is_identity(self, bbox) -> None:
+        assert StaticMotionEstimator().decompensate(bbox, 99) == bbox
+
 
 class TestMock:
     def test_constant_per_frame_drift(self) -> None:
@@ -53,6 +56,24 @@ class TestMock:
         compensated = estimator.compensate((5.0, 5.0, 10.0, 10.0), 100)
         assert compensated[0] == 0.0
         assert compensated[1] == 0.0
+
+    def test_decompensate_restores_raw_coordinates(self, bbox) -> None:
+        estimator = MockMotionEstimator(dx_per_frame=0.5, dy_per_frame=0.25)
+        frame_index = 40
+        x, y, _, _ = bbox
+        shifted = (x + 0.5 * frame_index, y + 0.25 * frame_index, 40.0, 40.0)
+        back = estimator.compensate(shifted, frame_index)
+        raw = estimator.decompensate(back, frame_index)
+        assert raw[0] == pytest.approx(x + 0.5 * frame_index)
+        assert raw[1] == pytest.approx(y + 0.25 * frame_index)
+
+    def test_decompensate_roundtrips_compensate(self, bbox) -> None:
+        estimator = MockMotionEstimator(dx_per_frame=0.5, dy_per_frame=0.2)
+        for frame_index in (0, 1, 30, 120):
+            compensated = estimator.compensate(bbox, frame_index)
+            raw = estimator.decompensate(compensated, frame_index)
+            assert raw[0] == pytest.approx(max(0.0, bbox[0]))
+            assert raw[1] == pytest.approx(max(0.0, bbox[1]))
 
     def test_static_flag(self) -> None:
         assert MockMotionEstimator(dx_per_frame=0.0, dy_per_frame=0.0).estimate(0).is_static
