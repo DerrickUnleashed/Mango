@@ -144,9 +144,14 @@ class ByteTrackAdapter(Tracker):
         unmatched_high_dets = [high_dets[i] for i in unmatched_high]
         second_pool = unmatched_high_dets + low_dets
         second_boxes = [d.bbox for d in second_pool]
-        track_boxes = [
-            to_tlwh(track_states[i].filter.get_estimate_xyah()) for i in remaining_track_idx
-        ]
+        track_boxes = []
+        for i in remaining_track_idx:
+            st = track_states[i]
+            last_bbox = st.track.current_bbox
+            if st.frames_since_update > 0 and last_bbox is not None:
+                track_boxes.append(last_bbox)
+            else:
+                track_boxes.append(to_tlwh(st.filter.get_estimate_xyah()))
         matches2, _, _ = _greedy_matches(_iou_matrix(second_boxes, track_boxes), self.match_iou)
 
         for det_idx, trk_idx in matches2:
