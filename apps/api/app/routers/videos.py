@@ -118,6 +118,23 @@ def get_video(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
     return video.to_dict()
 
 
+def _track_to_identity_map(db: Session, video_id: str) -> dict[int, int]:
+    """Map each persisted track id to the identity it was counted under.
+
+    Identity numbering follows the track chain (a reappearance keeps its
+    number), so every observation of a track maps to a single identity.
+    """
+    rows = db.execute(
+        select(IdentityObservation.track_id, IdentityObservation.identity_id)
+        .where(
+            IdentityObservation.video_id == video_id,
+            IdentityObservation.track_id.is_not(None),
+        )
+        .distinct()
+    ).all()
+    return {track_id: identity_id for track_id, identity_id in rows}
+
+
 @router.get("/{video_id}/tracks", response_model=MultiTrackResponse)
 def list_video_tracks(video_id: str, db: Annotated[Session, Depends(get_db)]) -> dict:
     """Return the persisted track trajectories for a processed video."""
@@ -128,7 +145,11 @@ def list_video_tracks(video_id: str, db: Annotated[Session, Depends(get_db)]) ->
     rows = db.scalars(
         select(Track).where(Track.video_id == video_id).order_by(Track.track_id)
     ).all()
-    return {"tracks": [r.to_dict() for r in rows], "total": len(rows)}
+    identities = _track_to_identity_map(db, video_id)
+    tracks = [
+        {**r.to_dict(), "identityId": identities.get(r.track_id)} for r in rows
+    ]
+    return {"tracks": tracks, "total": len(tracks)}
 
 
 @router.get("/{video_id}/tracks/{track_id}")
@@ -141,7 +162,9 @@ def get_video_track(video_id: str, track_id: int, db: Annotated[Session, Depends
     row = db.scalar(select(Track).where(Track.video_id == video_id, Track.track_id == track_id))
     if not row:
         raise NotFoundError("track_not_found", f"Track {track_id} not found for video {video_id}")
-    return {"track": row.to_dict()}
+    identities = _track_to_identity_map(db, video_id)
+    track = {**row.to_dict(), "identityId": identities.get(row.track_id)}
+    return {"track": track}
 
 
 @router.get("/{video_id}/frames/{frame_id}")

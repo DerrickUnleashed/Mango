@@ -41,7 +41,7 @@ export function AnalyticsPanel({ videoId, enabled }: AnalyticsPanelProps) {
         <>
           <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             <Stat label="Total detections" value={summary.totalFruitDetections.toLocaleString()} />
-            <Stat label="Unique identities" value={summary.uniqueIdentities.toLocaleString()} />
+            <Stat label="Mango count" value={summary.uniqueIdentities.toLocaleString()} />
             <Stat label="Active tracks" value={summary.activeTracks.toLocaleString()} />
             <Stat label="Lost tracks" value={summary.lostTracks.toLocaleString()} />
             <Stat label="Re-identified" value={summary.recoveredIdentities.toLocaleString()} />

@@ -1,9 +1,26 @@
-"""Mock re-identifier with deterministic memory querying."""
+"""Mock re-identifier with deterministic track-chain identity numbering.
+
+Identity numbers are assigned per track chain, not by pixel similarity:
+
+  * a brand-new track receives the lowest unused identity number, unless it is
+    a motion- and appearance-plausible reappearance of a lost track, in which
+    case it keeps that identity's number (``renumber same on re-appear``);
+  * while a track is live its identity never changes, so two boxes visible at
+    the same time can never share an identity number;
+  * an identity's number equals the order in which it was first seen.
+
+Appearance similarity is still recorded (and used to rank competing
+reappearance candidates), but identity numbers are owned by the re-identifier
+itself rather than by clustering embeddings.
+"""
 
 from __future__ import annotations
 
-from orchardvision_ml.identity import Embedding
-from orchardvision_ml.memory import Identity, IdentityMemory
+import numpy as np
+from numpy.typing import NDArray
+
+from orchardvision_ml.identity import Embedding, cosine_similarity
+from orchardvision_ml.memory import IdentityMemory
 
 from .base import LostTrackInfo, ReIdentificationEvent, ReIdentifier
 
@@ -19,12 +36,13 @@ def _center(bbox: tuple[float, float, float, float]) -> tuple[float, float]:
 
 
 class MockReIdentifier(ReIdentifier):
-    """Memory-backed re-identification with motion gating.
+    """Track-chain re-identifier with motion-gated reappearance linking.
 
     Tracks are unique across a video (ids never reused), so any brand-new
-    track whose embedding matches a known identity is a candidate recovery.
+    track is either the first sighting of a mango or a recovery of a track
+    that was previously reported lost.
 
-    Candidates are ranked by appearance similarity (``top_k``), then filtered:
+    Recovery candidates are ranked by appearance similarity, then filtered:
 
     1. only identities that still have an unrecovered lost track qualify;
     2. the reappearing track must sit within a motion-plausible radius of where
@@ -48,13 +66,16 @@ class MockReIdentifier(ReIdentifier):
         self._seen_tracks: set[int] = set()
         self._identity_of_track: dict[int, int] = {}
         self._last_bbox_of_track: dict[int, tuple[float, float, float, float] | None] = {}
+        self._next_identity = 1
+        self._profiles: dict[int, NDArray[np.float32]] = {}
+        self._profile_count: dict[int, int] = {}
 
     def step(
         self,
         frame_id: int,
         lost_track_ids: list[int],
         embeddings: list[Embedding],
-        memory: IdentityMemory,
+        memory: IdentityMemory | None = None,
     ) -> list[ReIdentificationEvent]:
         for lost_id in lost_track_ids:
             if any(lost.track_id == lost_id for lost in self._lost):
@@ -75,19 +96,24 @@ class MockReIdentifier(ReIdentifier):
                 continue
             first_seen = track_id not in self._seen_tracks
             self._seen_tracks.add(track_id)
+
             if not first_seen:
-                self._remember_with_bbox(track_id, embedding, memory)
+                identity_id = self._identity_of_track.get(track_id)
+                if identity_id is not None:
+                    self._update_profile(identity_id, embedding.vector)
+                self._last_bbox_of_track[track_id] = embedding.bbox
                 continue
 
-            ranked = memory.query(embedding, top_k=self.top_k)
-            if not ranked or ranked[0][1] < self.match_threshold:
-                continue
-
-            best_identity_id = ranked[0][0].identity_id
-            self._identity_of_track[track_id] = best_identity_id
-            self._last_bbox_of_track[track_id] = embedding.bbox
-
+            ranked = self._query(embedding, self.top_k)
             victim, identity_id, similarity = self._select_victim(ranked, embedding, frame_id)
+            if victim is None:
+                identity_id = self._next_identity
+                self._next_identity += 1
+
+            self._identity_of_track[track_id] = identity_id
+            self._last_bbox_of_track[track_id] = embedding.bbox
+            self._update_profile(identity_id, embedding.vector)
+
             if victim is None:
                 continue
             victim.recovered = True
@@ -101,29 +127,44 @@ class MockReIdentifier(ReIdentifier):
                 similarity=similarity,
                 confidence=embedding.confidence,
                 accepted=True,
-                candidate_identity_ids=tuple(c.identity_id for c, _ in candidates),
-                candidate_scores=tuple((c.identity_id, float(s)) for c, s in candidates),
+                candidate_identity_ids=tuple(c for c, _ in candidates),
+                candidate_scores=tuple(candidates),
             )
             self._events.append(event)
             events.append(event)
         return events
 
+    def identity_for_track(self, track_id: int) -> int | None:
+        """The identity number assigned to ``track_id`` (``None`` if unknown)."""
+        return self._identity_of_track.get(track_id)
+
+    def _query(self, embedding: Embedding, top_k: int) -> list[tuple[int, float]]:
+        scored = [
+            (
+                identity_id,
+                float(cosine_similarity(profile, embedding.vector)),
+            )
+            for identity_id, profile in self._profiles.items()
+        ]
+        scored.sort(key=lambda pair: pair[1], reverse=True)
+        return scored[:top_k]
+
     def _select_victim(
         self,
-        ranked: list[tuple[Identity, float]],
+        ranked: list[tuple[int, float]],
         embedding: Embedding,
         frame_id: int,
     ) -> tuple[LostTrackInfo | None, int | None, float]:
         """Pick the first candidate whose identity is recoverable and motion-plausible."""
-        for identity, similarity in ranked:
+        for identity_id, similarity in ranked:
             if similarity < self.match_threshold:
                 break
-            pending = self._pending_lost(identity.identity_id)
+            pending = self._pending_lost(identity_id)
             if pending is None:
                 continue
             if not self._motion_allowed(pending, embedding.bbox, frame_id):
                 continue
-            return pending, identity.identity_id, similarity
+            return pending, identity_id, similarity
         return None, None, 0.0
 
     def _motion_allowed(
@@ -146,19 +187,23 @@ class MockReIdentifier(ReIdentifier):
         (bx, by) = _center(new_bbox)
         return ((ax - bx) ** 2 + (ay - by) ** 2) ** 0.5 <= cap
 
-    def _remember_with_bbox(
-        self, track_id: int, embedding: Embedding, memory: IdentityMemory
-    ) -> None:
-        ranked = memory.query(embedding, top_k=1)
-        if ranked and ranked[0][1] >= self.match_threshold:
-            self._identity_of_track[track_id] = ranked[0][0].identity_id
-        self._last_bbox_of_track[track_id] = embedding.bbox
-
     def _pending_lost(self, identity_id: int) -> LostTrackInfo | None:
         for lost in self._lost:
             if lost.identity_id == identity_id and not lost.recovered:
                 return lost
         return None
+
+    def _update_profile(self, identity_id: int, vector: NDArray[np.float32]) -> None:
+        """Blend a fresh observation into an identity's appearance profile."""
+        if identity_id not in self._profiles:
+            self._profiles[identity_id] = vector.astype(np.float32)
+            self._profile_count[identity_id] = 1
+            return
+        count = self._profile_count[identity_id]
+        blended = (self._profiles[identity_id] * count + vector) / (count + 1)
+        norm = float(np.linalg.norm(blended)) or 1.0
+        self._profiles[identity_id] = (blended / norm).astype(np.float32)
+        self._profile_count[identity_id] = count + 1
 
     @property
     def events(self) -> list[ReIdentificationEvent]:
@@ -174,3 +219,6 @@ class MockReIdentifier(ReIdentifier):
         self._seen_tracks.clear()
         self._identity_of_track.clear()
         self._last_bbox_of_track.clear()
+        self._profiles.clear()
+        self._profile_count.clear()
+        self._next_identity = 1

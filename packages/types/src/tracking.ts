@@ -60,6 +60,7 @@ export interface PersistedTrack {
   jobId: string;
   videoId: string;
   trackId: number;
+  identityId: number | null;
   status: "active" | "lost";
   points: PersistedTrackPoint[];
   createdAt: string | null;

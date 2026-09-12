@@ -344,6 +344,38 @@ def test_identity_observations_persisted(client: TestClient, sample_video_bytes:
     assert frame_ids == sorted(frame_ids)
 
 
+def test_tracks_carry_counted_mango_numbers(
+    client: TestClient, sample_video_bytes: bytes
+) -> None:
+    """Tracks are numbered 1..N with distinct numbers for visible mangoes.
+
+    The 30-frame sample exposes mangoes 0..5 (six distinct fruits), so exactly
+    six identities must be counted — not one merged identity — and every track
+    must resolve to one of those numbers.
+    """
+    video_id = _upload(client, sample_video_bytes)
+    final = _process(client, video_id, tracker="mock")
+    assert final["status"] == "completed", final
+
+    tracks = client.get(f"/api/videos/{video_id}/tracks").json()
+    assert tracks["total"] >= 1
+    for track in tracks["tracks"]:
+        assert track["identityId"] is not None, track
+        assert 1 <= track["identityId"]
+    number_of_numbers = len({t["identityId"] for t in tracks["tracks"]})
+    assert number_of_numbers == tracks["total"]
+
+    identities = client.get(f"/api/videos/{video_id}/identities").json()
+    identity_ids = [r["identityId"] for r in identities["identities"]]
+    assert identity_ids == sorted(identity_ids)
+    assert len(identity_ids) == len(set(identity_ids))
+    assert identities["total"] == 6, identities["total"]
+    assert max(identity_ids) == 6
+
+    analytics = client.get(f"/api/videos/{video_id}/analytics").json()
+    assert analytics["summary"]["uniqueIdentities"] == 6
+
+
 def test_identity_observations_require_existing_id(
     client: TestClient, sample_video_bytes: bytes
 ) -> None:

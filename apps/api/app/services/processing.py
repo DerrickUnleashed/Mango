@@ -21,7 +21,7 @@ from numpy.typing import NDArray
 from orchardvision_ml.detection import MockDetector
 from orchardvision_ml.detection.mock import SCENARIO_ORCHARD
 from orchardvision_ml.identity import MockEmbeddingExtractor
-from orchardvision_ml.memory import MockIdentityMemory
+from orchardvision_ml.memory import DEFAULT_MIN_QUALITY, Identity, moving_average, quality_score
 from orchardvision_ml.motion import MockMotionEstimator, MotionEstimator, StaticMotionEstimator
 from orchardvision_ml.reid import MockReIdentifier
 from orchardvision_ml.tracking import ByteTrackAdapter, MockTracker, Tracker
@@ -491,31 +491,58 @@ class ProcessingService:
         lost_by_frame: list,
         db,
     ) -> dict:
-        """Extract embeddings and consolidate them into quality-aware identities."""
+        """Assign track-chain identities and consolidate their appearance profiles.
+
+        Each short-term track belongs to exactly one identity: brand-new tracks
+        get a new mango number, reappearances of a lost track keep the original
+        number (via the re-identifier). Appearance embeddings are accumulated
+        against those numbers for the prototype record — never used to cluster
+        simultaneously-visible boxes together.
+        """
         del job
         state.update(ProcessingStage.EMBEDDING, 80.0, "Extracting appearance embeddings")
         embedder = self._build_embedder(config)
-        memory = MockIdentityMemory(
-            match_threshold=config.reid_threshold,
-            update_rate=config.memory_update_rate,
-        )
         reid = MockReIdentifier(match_threshold=config.reid_threshold)
 
         frame_count = len(frames)
         total_embeddings = 0
         suppressed = 0
         observations: list = []
+        identities: dict[int, Identity] = {}
         for index, assigned in enumerate(assigned_detections):
             if state.cancelled:
                 raise InterruptedError("Processing cancelled")
             embeddings = embedder.extract(frames[index], assigned)
             total_embeddings += len(embeddings)
-            reid.step(index, lost_by_frame[index], embeddings, memory)
+            reid.step(index, lost_by_frame[index], embeddings)
             for embedding, det in zip(embeddings, assigned.detections, strict=True):
-                identity = memory.update(embedding)
-                if identity is None:
+                identity_id = reid.identity_for_track(embedding.track_id)
+                if identity_id is None:
                     suppressed += 1
                     continue
+                identity = identities.get(identity_id)
+                if identity is None:
+                    identity = Identity(
+                        identity_id=identity_id,
+                        prototype=embedding.vector.astype("float32"),
+                        quality=0.0,
+                        observation_count=0,
+                        first_frame_id=embedding.frame_id,
+                        last_frame_id=embedding.frame_id,
+                        last_track_id=embedding.track_id,
+                    )
+                    identities[identity_id] = identity
+                quality = quality_score(embedding.confidence, embedding.is_occluded)
+                if quality < DEFAULT_MIN_QUALITY:
+                    suppressed += 1
+                    continue
+                identity.prototype = moving_average(
+                    identity.prototype, embedding.vector, config.memory_update_rate
+                )
+                identity.quality = 0.9 * identity.quality + 0.1 * quality
+                identity.observation_count += 1
+                identity.last_frame_id = embedding.frame_id
+                identity.last_track_id = embedding.track_id
                 observations.append(
                     {
                         "identity_id": identity.identity_id,
@@ -532,7 +559,7 @@ class ProcessingService:
                 msg = f"Embedding frame {index + 1}/{frame_count}"
                 state.update(ProcessingStage.EMBEDDING, progress, msg)
 
-        records = self._persist_identities(video, memory, db)
+        records = self._persist_identities(video, identities, db)
         self._persist_identity_observations(video, observations, db)
         reid_records = self._persist_reid_events(video, reid.events, db)
 
@@ -557,10 +584,13 @@ class ProcessingService:
             "total_reidentifications": len(reid_records),
         }
 
-    def _persist_identities(self, video: Video, memory, db) -> list[IdentityRecord]:
+    def _persist_identities(
+        self, video: Video, identities: dict[int, Identity], db
+    ) -> list[IdentityRecord]:
         db.execute(delete(IdentityRecord).where(IdentityRecord.video_id == video.id))
         records: list[IdentityRecord] = []
-        for identity in memory.identities:
+        for identity_id in sorted(identities):
+            identity = identities[identity_id]
             records.append(
                 IdentityRecord(
                     id=uuid4().hex,

@@ -1,10 +1,11 @@
 """Long-term re-identification abstraction.
 
-A ``ReIdentifier`` watches short-term tracks for loss and reappearance. When a
-fruit disappears (track lost) and later shows up again as a brand-new track,
-the re-identifier queries identity memory with the new track's appearance
-embedding. A confident match against an identity that has a pending (unrecovered)
-lost track produces a re-identification event — the fruit was recovered.
+A ``ReIdentifier`` watches short-term tracks for loss and reappearance and
+owns the long-term identity numbers: a brand-new track receives a new number
+unless it is a plausible reappearance of a lost track, in which case it keeps
+the original number. Appearance similarity ranks competing reappearance
+candidates, but identity numbers are decided by the track chain, not by
+embedding clustering.
 """
 
 from __future__ import annotations
@@ -57,7 +58,7 @@ class ReIdentifier(ABC):
         frame_id: int,
         lost_track_ids: list[int],
         embeddings: list[Embedding],
-        memory: IdentityMemory,
+        memory: IdentityMemory | None = None,
     ) -> list[ReIdentificationEvent]:
         """Process one pipeline frame.
 
@@ -66,7 +67,8 @@ class ReIdentifier(ABC):
             lost_track_ids: Tracks reported lost by the tracker at this frame.
             embeddings: Embeddings produced for this frame (may have
                 ``track_id=None`` for unmatched detections).
-            memory: The accumulated identity memory to query against.
+            memory: Legacy identity memory, retained for composability. The
+                chain-numbering re-identifier does not need it.
 
         Returns:
             Events emitted at this frame.

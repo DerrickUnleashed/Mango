@@ -110,7 +110,8 @@ export function drawTrackOverlay(ctx: CanvasRenderingContext2D, state: TrackOver
   }
 
   for (const track of tracks) {
-    const color = trackColor(track.trackId)
+    const id = track.identityId ?? track.trackId
+    const color = trackColor(id)
     const visible = track.points.filter((p) => p.frameId <= frame)
 
     if (visible.length >= 2) {
@@ -140,7 +141,7 @@ export function drawTrackOverlay(ctx: CanvasRenderingContext2D, state: TrackOver
       ctx.fillRect(x, y, w, h)
       ctx.globalAlpha = 1
       ctx.font = '12px ui-sans-serif, system-ui'
-      ctx.fillText(`#${track.trackId}`, x, Math.max(y - 4, 12))
+      ctx.fillText(`#${id}`, x, Math.max(y - 4, 12))
     }
 
     const trackEvents = eventsByTrack.get(track.trackId) ?? []
