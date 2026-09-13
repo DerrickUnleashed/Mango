@@ -173,7 +173,11 @@ export function drawTrackOverlay(ctx: CanvasRenderingContext2D, state: TrackOver
       ctx.globalAlpha = 1
       ctx.font = '10px ui-sans-serif, system-ui'
       ctx.fillStyle = 'rgba(226, 232, 240, 0.9)'
-      ctx.fillText(`d${det.confidence.toFixed(2)}${det.isOccluded ? '·occ' : ''}`, x, Math.max(y + h + 11, 12))
+      ctx.fillText(
+        `d${det.confidence.toFixed(2)}${det.isOccluded ? '·occ' : ''}`,
+        x,
+        Math.max(y + h + 11, 12),
+      )
       if (det.isOccluded) {
         ctx.beginPath()
         ctx.rect(x - 2, y - 2, w + 4, h + 4)

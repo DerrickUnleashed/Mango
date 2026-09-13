@@ -344,9 +344,7 @@ def test_identity_observations_persisted(client: TestClient, sample_video_bytes:
     assert frame_ids == sorted(frame_ids)
 
 
-def test_tracks_carry_counted_mango_numbers(
-    client: TestClient, sample_video_bytes: bytes
-) -> None:
+def test_tracks_carry_counted_mango_numbers(client: TestClient, sample_video_bytes: bytes) -> None:
     """Tracks are numbered 1..N with distinct numbers for visible mangoes.
 
     The 30-frame sample exposes mangoes 0..5 (six distinct fruits), so exactly

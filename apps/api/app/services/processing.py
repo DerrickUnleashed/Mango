@@ -283,9 +283,7 @@ class ProcessingService:
             new_track_count += len(last.new_track_ids)
             lost_track_count += len(last.lost_track_ids)
             assigned = self._assign_track_ids(index, stable_detection, last.active_tracks)
-            assigned_detections.append(
-                self._decompensate_frame_detections(assigned, motion, index)
-            )
+            assigned_detections.append(self._decompensate_frame_detections(assigned, motion, index))
             lost_by_frame.append(list(last.lost_track_ids))
 
             if index % 20 == 0:
@@ -417,9 +415,7 @@ class ProcessingService:
             max_buffer=config.tracker_buffer_frames,
         )
 
-    def _persist_tracks(
-        self, job: ProcessingJob, video: Video, result, db, motion
-    ) -> list[Track]:
+    def _persist_tracks(self, job: ProcessingJob, video: Video, result, db, motion) -> list[Track]:
         """Write final active track trajectories into the database.
 
         Existing tracks for this video are deleted first so a re-run replaces

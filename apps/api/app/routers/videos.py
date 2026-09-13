@@ -146,9 +146,7 @@ def list_video_tracks(video_id: str, db: Annotated[Session, Depends(get_db)]) ->
         select(Track).where(Track.video_id == video_id).order_by(Track.track_id)
     ).all()
     identities = _track_to_identity_map(db, video_id)
-    tracks = [
-        {**r.to_dict(), "identityId": identities.get(r.track_id)} for r in rows
-    ]
+    tracks = [{**r.to_dict(), "identityId": identities.get(r.track_id)} for r in rows]
     return {"tracks": tracks, "total": len(tracks)}
 
 
