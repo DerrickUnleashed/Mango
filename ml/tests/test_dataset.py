@@ -135,6 +135,34 @@ def test_dataset_visibility_filtering() -> None:
     assert all(not p.anchor.is_occluded for p in dataset.build_pairs())
 
 
+def test_dataset_build_label_pairs_groups_by_pseudo_label() -> None:
+    from orchardvision_ml.identity.dataset import TrackletPartitioner
+
+    observations = [
+        _obs(1, frame_id=5, bbox=(100.0, 100.0, 30.0, 30.0)),
+        _obs(1, frame_id=6, bbox=(103.0, 100.0, 30.0, 30.0)),
+        _obs(2, frame_id=5, bbox=(600.0, 100.0, 30.0, 30.0)),
+        _obs(2, frame_id=6, bbox=(603.0, 100.0, 30.0, 30.0)),
+        _obs(3, frame_id=5, bbox=(900.0, 100.0, 30.0, 30.0)),
+        _obs(3, frame_id=6, bbox=(903.0, 100.0, 30.0, 30.0)),
+    ]
+    dataset = TrackletDataset(
+        observations,
+        pair_options=PairOptions(max_frames_apart=4, min_center_distance=60.0),
+        partitioner=TrackletPartitioner(min_sub_length=1),
+    )
+    # Sub-tracklet indices 0..2 (tracks 1, 2, 3). Merge tracks 1 and 3 into one
+    # pseudo identity (label 0), keep track 2 separate (label 1).
+    labels = {0: 0, 1: 1, 2: 0}
+    pairs = dataset.build_label_pairs(labels)
+
+    track1 = [p for p in pairs if p.anchor.track_id == 1]
+    # Cross-tracklet positive: track-1 anchors can pair with track-3 obs (same label).
+    assert all(p.positive.track_id != 1 for p in track1)
+    # Negatives come only from the differing label (track 2); one representative.
+    assert all(len(p.negatives) == 1 and p.negatives[0].track_id == 2 for p in track1)
+
+
 def test_dataset_hard_negative_mining_uses_vectors() -> None:
     from orchardvision_ml.identity.dataset import TrackletPartitioner
 
