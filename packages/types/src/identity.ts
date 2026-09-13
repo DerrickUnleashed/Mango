@@ -72,7 +72,23 @@ export interface IdentityProjectionPoint {
 
 export interface IdentityProjectionResponse {
   points: IdentityProjectionPoint[];
-  method: "tsne" | "pca";
+  method: "tsne" | "pca" | "umap";
+  total: number;
+}
+
+export interface ObservationProjectionPoint {
+  x: number;
+  y: number;
+  identityId: number;
+  frameId: number;
+  trackId: number | null;
+  confidence: number;
+  isOccluded: boolean;
+}
+
+export interface ObservationProjectionResponse {
+  points: ObservationProjectionPoint[];
+  method: "tsne" | "pca" | "umap";
   total: number;
 }
 

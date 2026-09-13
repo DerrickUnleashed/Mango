@@ -104,6 +104,12 @@ class MultiIdentityProjectionResponse(BaseModel):
     total: int
 
 
+class MultiObservationProjectionResponse(BaseModel):
+    points: list[dict]
+    method: str
+    total: int
+
+
 class MultiReidResponse(BaseModel):
     events: list[dict]
     total: int

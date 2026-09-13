@@ -10,12 +10,14 @@ import {
   getIdentityObservations,
   getIdentityProjection,
   getMotionEstimate,
+  getObservationProjection,
   getReidEvents,
   getTracks,
   getVideo,
   getVideos,
   processVideo,
   uploadVideo,
+  type ProjectionMethod,
 } from '../api/videos'
 
 export function useVideos() {
@@ -58,6 +60,18 @@ export function useIdentityProjection(videoId: string, enabled: boolean) {
   return useQuery({
     queryKey: ['videos', videoId, 'identities', 'projection'],
     queryFn: () => getIdentityProjection(videoId),
+    enabled: enabled && Boolean(videoId),
+  })
+}
+
+export function useObservationProjection(
+  videoId: string,
+  method: ProjectionMethod,
+  enabled: boolean,
+) {
+  return useQuery({
+    queryKey: ['videos', videoId, 'observations', 'projection', method],
+    queryFn: () => getObservationProjection(videoId, method),
     enabled: enabled && Boolean(videoId),
   })
 }

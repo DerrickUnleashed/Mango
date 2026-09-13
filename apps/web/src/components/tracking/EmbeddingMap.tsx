@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
-import type { IdentityProjectionPoint } from '@orchardvision/types'
-import { useIdentityProjection } from '../../hooks/useVideos'
+import type { ObservationProjectionPoint } from '@orchardvision/types'
+import type { ProjectionMethod } from '../../api/videos'
+import { useObservationProjection } from '../../hooks/useVideos'
 
 export const EMBEDDING_PALETTE = [
   '#f59e0b',
@@ -21,14 +22,11 @@ export function colorForIdentity(identityId: number): string {
 
 const VIEW = 200
 const PAD = 12
+const PROJECTION_METHODS: ProjectionMethod[] = ['tsne', 'pca', 'umap']
 
 function toViewport(value: number): number {
   const normalized = Math.max(-1, Math.min(1, value))
   return PAD + ((normalized + 1) / 2) * (VIEW - 2 * PAD)
-}
-
-function radiusFor(point: IdentityProjectionPoint): number {
-  return 4 + Math.min(9, Math.log10(point.observationCount + 1) * 5)
 }
 
 interface EmbeddingMapProps {
@@ -37,8 +35,9 @@ interface EmbeddingMapProps {
 }
 
 export function EmbeddingMap({ videoId, enabled }: EmbeddingMapProps) {
-  const [overlay, setOverlay] = useState<IdentityProjectionPoint | null>(null)
-  const { data, isLoading, isError } = useIdentityProjection(videoId, enabled)
+  const [method, setMethod] = useState<ProjectionMethod>('tsne')
+  const [overlay, setOverlay] = useState<ObservationProjectionPoint | null>(null)
+  const { data, isLoading, isError } = useObservationProjection(videoId, method, enabled)
 
   const points = useMemo(() => data?.points ?? [], [data])
 
@@ -63,7 +62,9 @@ export function EmbeddingMap({ videoId, enabled }: EmbeddingMapProps) {
   if (points.length === 0) {
     return (
       <div className="flex h-40 items-center justify-center rounded-xl border border-surface-800 bg-surface-950">
-        <p className="text-sm text-surface-500">Run processing to project identity embeddings.</p>
+        <p className="text-sm text-surface-500">
+          Run processing to project observation embeddings.
+        </p>
       </div>
     )
   }
@@ -74,15 +75,33 @@ export function EmbeddingMap({ videoId, enabled }: EmbeddingMapProps) {
         <div>
           <h3 className="font-medium text-surface-200">Embedding map</h3>
           <p className="text-xs text-surface-500">
-            {data?.method.toUpperCase()} projection · {points.length} identities
+            {data?.method.toUpperCase()} projection · {points.length} observations
           </p>
+        </div>
+        <div className="flex gap-1" role="tablist" aria-label="Projection method">
+          {PROJECTION_METHODS.map((candidate) => (
+            <button
+              key={candidate}
+              type="button"
+              role="tab"
+              aria-selected={method === candidate}
+              onClick={() => setMethod(candidate)}
+              className={`rounded-md border px-2.5 py-1 text-xs transition-colors ${
+                method === candidate
+                  ? 'border-surface-600 bg-surface-800 text-surface-100'
+                  : 'border-surface-700 text-surface-400 hover:bg-surface-800 hover:text-surface-200'
+              }`}
+            >
+              {candidate.toUpperCase()}
+            </button>
+          ))}
         </div>
       </div>
       <div className="p-3">
         <svg
           viewBox={`0 0 ${VIEW} ${VIEW}`}
           role="img"
-          aria-label="Identity embedding projection scatter plot"
+          aria-label="Embedding projection scatter plot"
           className="h-64 w-full rounded-lg bg-surface-900"
         >
           {Array.from({ length: 5 }, (_, i) => {
@@ -100,29 +119,28 @@ export function EmbeddingMap({ videoId, enabled }: EmbeddingMapProps) {
             const fill = colorForIdentity(point.identityId)
             return (
               <circle
-                key={point.identityId}
+                key={`${point.identityId}-${point.frameId}-${point.trackId ?? 'n'}`}
                 cx={cx}
                 cy={cy}
-                r={radiusFor(point)}
+                r={4}
                 fill={fill}
-                fillOpacity={point.isConfident ? 0.95 : 0.55}
+                fillOpacity={point.isOccluded ? 0.45 : 0.9}
                 stroke={fill}
                 strokeWidth={1.5}
                 strokeOpacity={0.4}
                 className="cursor-pointer"
-                data-testid={`embedding-point-${point.identityId}`}
+                data-testid={`embedding-point-${point.identityId}-${point.frameId}`}
                 onMouseEnter={() => setOverlay(point)}
                 onMouseLeave={() => setOverlay(null)}
               >
-                <title>{`Identity ${point.identityId} · ${point.observationCount} obs · q ${point.quality.toFixed(2)}`}</title>
+                <title>{`Identity ${point.identityId} · frame ${point.frameId} · conf ${point.confidence.toFixed(2)}`}</title>
               </circle>
             )
           })}
         </svg>
         {overlay && (
           <p className="mt-2 text-center font-mono text-xs text-surface-400" role="status">
-            id-{overlay.identityId} · {overlay.observationCount} obs · q{' '}
-            {overlay.quality.toFixed(2)}
+            id-{overlay.identityId} · frame {overlay.frameId} · conf {overlay.confidence.toFixed(2)}
           </p>
         )}
       </div>

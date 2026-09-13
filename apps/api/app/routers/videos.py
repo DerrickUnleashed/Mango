@@ -36,6 +36,7 @@ from app.schemas import (
     MultiIdentityProjectionResponse,
     MultiIdentityResponse,
     MultiMotionResponse,
+    MultiObservationProjectionResponse,
     MultiObservationResponse,
     MultiReidResponse,
     MultiTrackResponse,
@@ -54,6 +55,8 @@ from app.services.embedding_projection import project_prototypes
 from app.services.frames import FrameExtractionError, delete_video_frames, extract_frame
 
 router = APIRouter(prefix="/videos", tags=["videos"])
+
+_PROJECTION_METHODS = "^(tsne|pca|umap)$"
 
 
 @router.post("", status_code=201)
@@ -221,7 +224,7 @@ def list_video_identities(video_id: str, db: Annotated[Session, Depends(get_db)]
 @router.get("/{video_id}/identities/projection", response_model=MultiIdentityProjectionResponse)
 def get_video_identity_projection(
     video_id: str,
-    method: str = Query(default="tsne", pattern="^(tsne|pca)$"),
+    method: str = Query(default="tsne", pattern=_PROJECTION_METHODS),
     db: Annotated[Session, Depends(get_db)] = None,
 ) -> dict:
     """Return 2D coordinates per identity prototype for embedding visualization."""
@@ -246,6 +249,54 @@ def get_video_identity_projection(
             "isConfident": row.is_confident,
         }
         for i, row in enumerate(rows)
+    ]
+    return {"points": points, "method": method, "total": len(points)}
+
+
+@router.get(
+    "/{video_id}/observations/projection",
+    response_model=MultiObservationProjectionResponse,
+)
+def get_video_observation_projection(
+    video_id: str,
+    method: str = Query(default="tsne", pattern=_PROJECTION_METHODS),
+    max_points: int = Query(default=500, ge=1, le=10000),
+    db: Annotated[Session, Depends(get_db)] = None,
+) -> dict:
+    """Return 2D coordinates per persisted observation embedding."""
+    video = db.get(Video, video_id)
+    if not video:
+        raise NotFoundError("video_not_found", f"Video {video_id} not found")
+
+    rows = db.scalars(
+        select(IdentityObservation)
+        .where(
+            IdentityObservation.video_id == video_id,
+            IdentityObservation.vector.is_not(None),
+        )
+        .order_by(IdentityObservation.frame_id, IdentityObservation.id)
+    ).all()
+    if not rows:
+        return {"points": [], "method": method, "total": 0}
+
+    sampled = rows
+    if len(sampled) > max_points:
+        step = len(sampled) / max_points
+        sampled = [sampled[int(i * step)] for i in range(max_points)]
+
+    vectors = [r.vector for r in sampled]
+    coordinates = project_prototypes(vectors, method=method)
+    points = [
+        {
+            "x": coordinates[i][0],
+            "y": coordinates[i][1],
+            "identityId": row.identity_id,
+            "frameId": row.frame_id,
+            "trackId": row.track_id,
+            "confidence": row.confidence,
+            "isOccluded": row.is_occluded,
+        }
+        for i, row in enumerate(sampled)
     ]
     return {"points": points, "method": method, "total": len(points)}
 

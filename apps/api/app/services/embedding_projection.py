@@ -1,7 +1,9 @@
-"""Dimensionality reduction for identity prototype embeddings.
+"""Dimensionality reduction for embedding visualization.
 
-Uses sklearn t-SNE when available and falls back to PCA via numpy SVD so the
-stack has no hard dependency on sklearn. Outputs are always deterministic.
+Projects embedding vectors to 2D using t-SNE (sklearn) or UMAP
+(umap-learn) when available, and always falls back to PCA via numpy SVD so
+the stack has no hard dependency on either library. Outputs are always
+deterministic.
 """
 
 from __future__ import annotations
@@ -34,13 +36,56 @@ def _ring_layout(vectors: np.ndarray) -> np.ndarray:
     return np.column_stack([np.cos(angles), np.sin(angles)])
 
 
+def _normalized_coords(coords: np.ndarray) -> list[tuple[float, float]]:
+    """Scale coordinates to the [-1, 1] box so all methods share one range."""
+    scale = np.max(np.abs(coords)) if coords.size else 1.0
+    if scale == 0.0:
+        scale = 1.0
+    return [(float(x / scale), float(y / scale)) for x, y in coords]
+
+
+def _tsne_2d(data: np.ndarray) -> np.ndarray | None:
+    """Project via t-SNE (sklearn), or ``None`` when unavailable/failed."""
+    try:
+        from sklearn.manifold import TSNE  # type: ignore[import-not-found]
+
+        perplexity = min(30.0, max(2.0, len(data) - 1))
+        return TSNE(
+            n_components=2,
+            perplexity=perplexity,
+            init="pca",
+            random_state=0,
+        ).fit_transform(data)
+    except ImportError:
+        return None
+    except Exception:
+        logger.warning("t-SNE projection failed", exc_info=True)
+        return None
+
+
+def _umap_2d(data: np.ndarray) -> np.ndarray | None:
+    """Project via UMAP (umap-learn), or ``None`` when unavailable/failed."""
+    try:
+        import umap  # type: ignore[import-not-found]
+
+        return umap.UMAP(n_components=2, random_state=0).fit_transform(data)
+    except ImportError:
+        logger.warning("umap-learn not installed; falling back")
+        return None
+    except Exception:
+        logger.warning("UMAP projection failed", exc_info=True)
+        return None
+
+
 def project_prototypes(
     vectors: Sequence[Sequence[float]],
     method: str = "tsne",
 ) -> list[tuple[float, float]]:
-    """Project identity prototype embeddings to 2D coordinates.
+    """Project embedding vectors to 2D coordinates.
 
-    ``method`` may be ``"tsne"`` (sklearn, when importable) or ``"pca"``.
+    ``method`` may be ``"tsne"`` (sklearn, when importable), ``"umap"``
+    (umap-learn, when importable), or ``"pca"``. Unavailable non-linear
+    methods degrade to ``"pca"``.
     """
     if not vectors:
         return []
@@ -50,21 +95,13 @@ def project_prototypes(
         return [(float(x), float(y)) for x, y in coords]
 
     if method == "tsne":
-        try:
-            from sklearn.manifold import TSNE  # type: ignore[import-not-found]
-
-            perplexity = min(30.0, max(2.0, len(data) - 1))
-            coords = TSNE(
-                n_components=2,
-                perplexity=perplexity,
-                init="pca",
-                random_state=0,
-            ).fit_transform(data)
-            return [(float(x), float(y)) for x, y in coords]
-        except ImportError:
-            pass
-        except Exception:
-            logger.warning("t-SNE projection failed; falling back to PCA", exc_info=True)
+        coords = _tsne_2d(data)
+    elif method == "umap":
+        coords = _umap_2d(data)
+    else:
+        coords = None
+    if coords is not None:
+        return _normalized_coords(coords)
 
     coords = _pca_2d(data)
     return [(float(x), float(y)) for x, y in coords]

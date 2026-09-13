@@ -3,6 +3,7 @@ import type {
   CameraMotionEstimate,
   FrameTimingListResponse,
   IdentityProjectionResponse,
+  ObservationProjectionResponse,
   PersistedDetectionListResponse,
   PersistedIdentityListResponse,
   PersistedObservationListResponse,
@@ -17,6 +18,8 @@ import type {
 import { apiBaseUrl, apiRequest, apiUpload } from './client'
 
 export { apiBaseUrl }
+
+export type ProjectionMethod = 'tsne' | 'pca' | 'umap'
 
 export function getVideos(): Promise<VideoListResponse> {
   return apiRequest<VideoListResponse>('/videos')
@@ -36,10 +39,19 @@ export function getIdentities(id: string): Promise<PersistedIdentityListResponse
 
 export function getIdentityProjection(
   id: string,
-  method: 'tsne' | 'pca' = 'tsne',
+  method: ProjectionMethod = 'tsne',
 ): Promise<IdentityProjectionResponse> {
   return apiRequest<IdentityProjectionResponse>(
     `/videos/${id}/identities/projection?method=${method}`,
+  )
+}
+
+export function getObservationProjection(
+  id: string,
+  method: ProjectionMethod = 'tsne',
+): Promise<ObservationProjectionResponse> {
+  return apiRequest<ObservationProjectionResponse>(
+    `/videos/${id}/observations/projection?method=${method}`,
   )
 }
 

@@ -543,6 +543,7 @@ class ProcessingService:
                         "confidence": embedding.confidence,
                         "is_occluded": embedding.is_occluded,
                         "quality_after": identity.quality,
+                        "vector": embedding.vector.astype("float32"),
                     }
                 )
             if index % 20 == 0:
@@ -631,6 +632,7 @@ class ProcessingService:
                 confidence=obs["confidence"],
                 is_occluded=obs["is_occluded"],
                 quality_after=obs["quality_after"],
+                vector=[float(v) for v in obs["vector"]],
             )
             for obs in observations
         ]

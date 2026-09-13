@@ -16,7 +16,11 @@ def _utcnow() -> datetime:
 
 
 class IdentityObservation(Base):
-    """One embedding merged into a learned identity (a single observation)."""
+    """One embedding merged into a learned identity (a single observation).
+
+    ``vector`` stores the unit-norm embedding as a JSON list of floats, so
+    per-observation embedding visualization does not require recomputing.
+    """
 
     __tablename__ = "identity_observations"
 
@@ -29,6 +33,7 @@ class IdentityObservation(Base):
     confidence: Mapped[float] = mapped_column(Float)
     is_occluded: Mapped[bool] = mapped_column(Boolean, default=False)
     quality_after: Mapped[float | None] = mapped_column(Float, nullable=True)
+    vector: Mapped[list | None] = mapped_column(JSON, nullable=True, default=None)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     def to_dict(self) -> dict:
