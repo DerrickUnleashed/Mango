@@ -25,6 +25,9 @@ const IdentitiesPage = lazy(() =>
 const ReidentificationPage = lazy(() =>
   import('../pages/ReidentificationPage').then((m) => ({ default: m.ReidentificationPage })),
 )
+const EmbeddingExplorerPage = lazy(() =>
+  import('../pages/EmbeddingExplorerPage').then((m) => ({ default: m.EmbeddingExplorerPage })),
+)
 
 function SuspenseFallback({ children }: { children: ReactNode }) {
   return <Suspense fallback={<PageFallback />}>{children}</Suspense>
@@ -76,6 +79,14 @@ export function AppRouter() {
           element={
             <SuspenseFallback>
               <IdentitiesPage />
+            </SuspenseFallback>
+          }
+        />
+        <Route
+          path="/embedding-explorer"
+          element={
+            <SuspenseFallback>
+              <EmbeddingExplorerPage />
             </SuspenseFallback>
           }
         />

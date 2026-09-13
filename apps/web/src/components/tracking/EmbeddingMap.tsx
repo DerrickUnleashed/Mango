@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import type { ObservationProjectionPoint } from '@orchardvision/types'
 import type { ProjectionMethod } from '../../api/videos'
-import { useObservationProjection } from '../../hooks/useVideos'
+import { useObservationProjection, useVideo } from '../../hooks/useVideos'
+import { BboxThumbnail } from './BboxThumbnail'
 
 export const EMBEDDING_PALETTE = [
   '#f59e0b',
@@ -32,14 +33,25 @@ function toViewport(value: number): number {
 interface EmbeddingMapProps {
   videoId: string
   enabled: boolean
+  variant?: 'compact' | 'full'
+  onSeekFrame?: (frameId: number) => void
+  onOpenIdentity?: (identityId: number) => void
 }
 
-export function EmbeddingMap({ videoId, enabled }: EmbeddingMapProps) {
+export function EmbeddingMap({
+  videoId,
+  enabled,
+  variant = 'compact',
+  onSeekFrame,
+  onOpenIdentity,
+}: EmbeddingMapProps) {
   const [method, setMethod] = useState<ProjectionMethod>('tsne')
-  const [overlay, setOverlay] = useState<ObservationProjectionPoint | null>(null)
+  const [selected, setSelected] = useState<ObservationProjectionPoint | null>(null)
   const { data, isLoading, isError } = useObservationProjection(videoId, method, enabled)
+  const video = useVideo(videoId)
 
   const points = useMemo(() => data?.points ?? [], [data])
+  const full = variant === 'full'
 
   if (!enabled) return null
 
@@ -67,6 +79,12 @@ export function EmbeddingMap({ videoId, enabled }: EmbeddingMapProps) {
         </p>
       </div>
     )
+  }
+
+  function handlePointClick(point: ObservationProjectionPoint) {
+    setSelected(point)
+    onSeekFrame?.(point.frameId)
+    onOpenIdentity?.(point.identityId)
   }
 
   return (
@@ -102,7 +120,7 @@ export function EmbeddingMap({ videoId, enabled }: EmbeddingMapProps) {
           viewBox={`0 0 ${VIEW} ${VIEW}`}
           role="img"
           aria-label="Embedding projection scatter plot"
-          className="h-64 w-full rounded-lg bg-surface-900"
+          className={`w-full rounded-lg bg-surface-900 ${full ? 'h-96' : 'h-64'}`}
         >
           {Array.from({ length: 5 }, (_, i) => {
             const pos = PAD + (i * (VIEW - 2 * PAD)) / 4
@@ -117,12 +135,16 @@ export function EmbeddingMap({ videoId, enabled }: EmbeddingMapProps) {
             const cx = toViewport(point.x)
             const cy = toViewport(point.y)
             const fill = colorForIdentity(point.identityId)
+            const active =
+              selected !== null &&
+              selected.identityId === point.identityId &&
+              selected.frameId === point.frameId
             return (
               <circle
                 key={`${point.identityId}-${point.frameId}-${point.trackId ?? 'n'}`}
                 cx={cx}
                 cy={cy}
-                r={4}
+                r={active ? 6 : 4}
                 fill={fill}
                 fillOpacity={point.isOccluded ? 0.45 : 0.9}
                 stroke={fill}
@@ -130,18 +152,59 @@ export function EmbeddingMap({ videoId, enabled }: EmbeddingMapProps) {
                 strokeOpacity={0.4}
                 className="cursor-pointer"
                 data-testid={`embedding-point-${point.identityId}-${point.frameId}`}
-                onMouseEnter={() => setOverlay(point)}
-                onMouseLeave={() => setOverlay(null)}
+                onClick={() => handlePointClick(point)}
+                onMouseEnter={() => setSelected(point)}
+                onMouseLeave={() => setSelected(null)}
               >
                 <title>{`Identity ${point.identityId} · frame ${point.frameId} · conf ${point.confidence.toFixed(2)}`}</title>
               </circle>
             )
           })}
         </svg>
-        {overlay && (
-          <p className="mt-2 text-center font-mono text-xs text-surface-400" role="status">
-            id-{overlay.identityId} · frame {overlay.frameId} · conf {overlay.confidence.toFixed(2)}
-          </p>
+        {selected && (
+          <div
+            role="status"
+            className="mt-3 flex items-center gap-3 rounded-lg border border-surface-800 bg-surface-900/60 p-2"
+          >
+            <BboxThumbnail
+              videoId={videoId}
+              frameId={selected.frameId}
+              bbox={selected.bbox}
+              videoWidth={video.data?.width ?? null}
+              videoHeight={video.data?.height ?? null}
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <p className="font-mono text-xs text-surface-300">
+                id-{selected.identityId} · f{selected.frameId} · track {selected.trackId ?? '—'}
+              </p>
+              <p className="font-mono text-xs text-surface-400">
+                conf {selected.confidence.toFixed(2)}
+                {selected.isOccluded ? ' · occluded' : ''}
+              </p>
+              {(onSeekFrame || onOpenIdentity) && (
+                <div className="flex gap-2 pt-0.5">
+                  {onSeekFrame && (
+                    <button
+                      type="button"
+                      onClick={() => onSeekFrame(selected.frameId)}
+                      className="rounded-md border border-surface-700 px-2 py-1 text-xs text-surface-300 transition-colors hover:bg-surface-800 hover:text-surface-100"
+                    >
+                      Seek frame
+                    </button>
+                  )}
+                  {onOpenIdentity && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenIdentity(selected.identityId)}
+                      className="rounded-md border border-surface-700 px-2 py-1 text-xs text-surface-300 transition-colors hover:bg-surface-800 hover:text-surface-100"
+                    >
+                      View identity
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>

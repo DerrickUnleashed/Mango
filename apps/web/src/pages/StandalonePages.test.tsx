@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { Video } from '@orchardvision/types'
 import { ToastProvider } from '../components/ui/Toast'
 import { AnalyticsPage } from './AnalyticsPage'
+import { EmbeddingExplorerPage } from './EmbeddingExplorerPage'
 import { EvaluationPage } from './EvaluationPage'
 import { IdentitiesPage } from './IdentitiesPage'
 import { ReidentificationPage } from './ReidentificationPage'
@@ -51,6 +53,14 @@ vi.mock('../components/tracking/IdentitiesPanel', () => ({
   IdentitiesPanel: ({ videoId }: { videoId: string }) => (
     <div role="region" aria-label="identities panel">
       Identities panel for {videoId}
+    </div>
+  ),
+}))
+
+vi.mock('../components/tracking/EmbeddingMap', () => ({
+  EmbeddingMap: ({ videoId, variant }: { videoId: string; variant?: string }) => (
+    <div role="region" aria-label="embedding map">
+      Embedding map for {videoId} ({variant})
     </div>
   ),
 }))
@@ -103,17 +113,66 @@ describe('standalone pages', () => {
   })
 
   describe('IdentitiesPage', () => {
+    function renderIdentitiesPage(initialEntries = ['/identities']) {
+      return render(
+        <MemoryRouter initialEntries={initialEntries}>
+          <IdentitiesPage />
+        </MemoryRouter>,
+      )
+    }
+
     it('shows the empty state when no processed videos exist', () => {
       mocks.processed.length = 0
-      render(<IdentitiesPage />)
+      renderIdentitiesPage()
       expect(screen.getByText('No identities tracked yet')).toBeInTheDocument()
     })
 
     it('renders the identities panel for a processed video', () => {
       mocks.processed = [mocks.makeVideo('vid-1', 'Orchard A.mp4', 'processed')]
-      render(<IdentitiesPage />)
+      renderIdentitiesPage()
       expect(screen.getByRole('region', { name: 'identities panel' })).toHaveTextContent(
         'Identities panel for vid-1',
+      )
+    })
+
+    it('preselects the video from the query param', () => {
+      mocks.processed = [
+        mocks.makeVideo('vid-1', 'Orchard A.mp4', 'processed'),
+        mocks.makeVideo('vid-2', 'Orchard B.mp4', 'processed'),
+      ]
+      renderIdentitiesPage(['/identities?video=vid-2'])
+      expect(screen.getByRole('region', { name: 'identities panel' })).toHaveTextContent(
+        'Identities panel for vid-2',
+      )
+    })
+  })
+
+  describe('EmbeddingExplorerPage', () => {
+    it('shows the empty state when no processed videos exist', () => {
+      mocks.processed.length = 0
+      render(<EmbeddingExplorerPage />)
+      expect(screen.getByText('No embeddings to project')).toBeInTheDocument()
+    })
+
+    it('renders a full-size embedding map for the selected processed video', () => {
+      mocks.processed = [mocks.makeVideo('vid-1', 'Orchard A.mp4', 'processed')]
+      render(<EmbeddingExplorerPage />)
+      expect(screen.getByRole('region', { name: 'embedding map' })).toHaveTextContent(
+        'Embedding map for vid-1 (full)',
+      )
+    })
+
+    it('switches the embedding map to a newly selected video', () => {
+      mocks.processed = [
+        mocks.makeVideo('vid-1', 'Orchard A.mp4', 'processed'),
+        mocks.makeVideo('vid-2', 'Orchard B.mp4', 'processed'),
+      ]
+      render(<EmbeddingExplorerPage />)
+      fireEvent.change(screen.getByLabelText('Select processed video'), {
+        target: { value: 'vid-2' },
+      })
+      expect(screen.getByRole('region', { name: 'embedding map' })).toHaveTextContent(
+        'Embedding map for vid-2 (full)',
       )
     })
   })

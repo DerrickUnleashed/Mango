@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { PersistedIdentity, PersistedIdentityObservation } from '@orchardvision/types'
 import { useIdentities, useIdentityObservations } from '../../hooks/useVideos'
 import { videoFrameUrl } from '../../api/videos'
@@ -7,9 +8,17 @@ import { EmbeddingMap, colorForIdentity } from './EmbeddingMap'
 interface IdentitiesPanelProps {
   videoId: string
   enabled: boolean
+  seekToFrame?: (frameId: number) => void
+  initialIdentityId?: number | null
 }
 
-export function IdentitiesPanel({ videoId, enabled }: IdentitiesPanelProps) {
+export function IdentitiesPanel({
+  videoId,
+  enabled,
+  seekToFrame,
+  initialIdentityId = null,
+}: IdentitiesPanelProps) {
+  const navigate = useNavigate()
   const [showMap, setShowMap] = useState(false)
   const { data, isLoading, isError } = useIdentities(videoId, enabled)
   const identities = data?.identities ?? []
@@ -62,12 +71,24 @@ export function IdentitiesPanel({ videoId, enabled }: IdentitiesPanelProps) {
       </div>
       {showMap && (
         <div className="border-b border-surface-800 p-3">
-          <EmbeddingMap videoId={videoId} enabled={enabled} />
+          <EmbeddingMap
+            videoId={videoId}
+            enabled={enabled}
+            onSeekFrame={seekToFrame}
+            onOpenIdentity={(identityId) =>
+              navigate(`/identities?video=${videoId}&identity=${identityId}`)
+            }
+          />
         </div>
       )}
       <ul className="max-h-72 overflow-y-auto p-2">
         {identities.map((identity) => (
-          <IdentityRow key={identity.id} identity={identity} videoId={videoId} />
+          <IdentityRow
+            key={identity.id}
+            identity={identity}
+            videoId={videoId}
+            defaultOpen={identity.identityId === initialIdentityId}
+          />
         ))}
       </ul>
     </div>
@@ -118,8 +139,16 @@ function RepresentativeStrip({
   )
 }
 
-function IdentityRow({ identity, videoId }: { identity: PersistedIdentity; videoId: string }) {
-  const [open, setOpen] = useState(false)
+function IdentityRow({
+  identity,
+  videoId,
+  defaultOpen = false,
+}: {
+  identity: PersistedIdentity
+  videoId: string
+  defaultOpen?: boolean
+}) {
+  const [open, setOpen] = useState(defaultOpen)
   const observations = useIdentityObservations(videoId, open ? identity.identityId : null, open)
   const obs = observations.data?.observations ?? []
 
@@ -128,7 +157,9 @@ function IdentityRow({ identity, videoId }: { identity: PersistedIdentity; video
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-900"
+        className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left transition-colors ${
+          defaultOpen ? 'bg-surface-800/60' : 'hover:bg-surface-900'
+        }`}
       >
         <span className="flex items-center gap-2">
           <span

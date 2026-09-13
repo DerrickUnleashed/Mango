@@ -69,6 +69,12 @@ export function VideoDetailPage() {
   const v = video.data
   const prefs = settings.data?.values
 
+  function seekToFrame(frameId: number) {
+    const player = videoRef.current
+    if (!player || !v.fps) return
+    player.currentTime = frameId / v.fps
+  }
+
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>
@@ -98,7 +104,7 @@ export function VideoDetailPage() {
 
       {/* Learned identities — shown once the video has been processed */}
       {v.status === 'processed' && (prefs?.showIdentitiesPanel ?? true) && (
-        <IdentitiesPanel videoId={v.id} enabled />
+        <IdentitiesPanel videoId={v.id} enabled seekToFrame={seekToFrame} />
       )}
 
       {/* Re-identification recoveries — shown once the video has been processed */}

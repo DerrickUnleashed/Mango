@@ -6,18 +6,31 @@ import { EmbeddingMap } from './EmbeddingMap'
 
 const mocks = vi.hoisted(() => ({
   useObservationProjection: vi.fn(),
+  useVideo: vi.fn(),
 }))
 
 vi.mock('../../hooks/useVideos', () => ({
   useObservationProjection: (videoId: string, method: string, enabled: boolean) =>
     mocks.useObservationProjection(videoId, method, enabled),
+  useVideo: (videoId: string) => mocks.useVideo(videoId),
 }))
 
-function renderMap(enabled = true) {
+function renderMap(
+  props: {
+    enabled?: boolean
+    onSeekFrame?: (frameId: number) => void
+    onOpenIdentity?: (identityId: number) => void
+  } = {},
+) {
+  mocks.useVideo.mockReturnValue({
+    data: { id: 'vid-1', width: 640, height: 360, fps: 30 },
+    isLoading: false,
+    isError: false,
+  })
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={queryClient}>
-      <EmbeddingMap videoId="vid-1" enabled={enabled} />
+      <EmbeddingMap videoId="vid-1" enabled={props.enabled ?? true} {...props} />
     </QueryClientProvider>,
   )
 }
@@ -26,8 +39,26 @@ const projection: ObservationProjectionResponse = {
   method: 'pca',
   total: 2,
   points: [
-    { x: -0.4, y: 0.2, identityId: 0, frameId: 3, trackId: 7, confidence: 0.9, isOccluded: false },
-    { x: 0.5, y: -0.3, identityId: 1, frameId: 9, trackId: 8, confidence: 0.6, isOccluded: true },
+    {
+      x: -0.4,
+      y: 0.2,
+      identityId: 0,
+      frameId: 3,
+      trackId: 7,
+      bbox: [10, 20, 40, 40],
+      confidence: 0.9,
+      isOccluded: false,
+    },
+    {
+      x: 0.5,
+      y: -0.3,
+      identityId: 1,
+      frameId: 9,
+      trackId: 8,
+      bbox: null,
+      confidence: 0.6,
+      isOccluded: true,
+    },
   ],
 }
 
@@ -66,7 +97,7 @@ describe('EmbeddingMap', () => {
   })
 
   it('renders nothing when disabled', () => {
-    renderMap(false)
+    renderMap({ enabled: false })
     expect(screen.queryByText(/embedding/i)).not.toBeInTheDocument()
   })
 
@@ -80,5 +111,60 @@ describe('EmbeddingMap', () => {
     fireEvent.click(screen.getByRole('tab', { name: /UMAP/i }))
     expect(mocks.useObservationProjection).toHaveBeenLastCalledWith('vid-1', 'umap', true)
     expect(screen.getByText(/UMAP projection/)).toBeInTheDocument()
+  })
+
+  it('shows a bbox crop popup when hovering a point with a bbox', () => {
+    mocks.useObservationProjection.mockReturnValue({
+      data: projection,
+      isLoading: false,
+      isError: false,
+    })
+    renderMap()
+    fireEvent.mouseEnter(screen.getByTestId('embedding-point-0-3'))
+    expect(screen.getByRole('status')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Crop of frame 3' })).toBeInTheDocument()
+    expect(screen.getByText(/id-0 · f3 · track 7/)).toBeInTheDocument()
+  })
+
+  it('shows a placeholder crop when hovering a point without a bbox', () => {
+    mocks.useObservationProjection.mockReturnValue({
+      data: projection,
+      isLoading: false,
+      isError: false,
+    })
+    renderMap()
+    fireEvent.mouseEnter(screen.getByTestId('embedding-point-1-9'))
+    expect(screen.getByRole('status')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Crop of frame 9' })).toHaveTextContent('no bbox')
+  })
+
+  it('seeks the video and opens the identity when a point is clicked', () => {
+    const onSeekFrame = vi.fn()
+    const onOpenIdentity = vi.fn()
+    mocks.useObservationProjection.mockReturnValue({
+      data: projection,
+      isLoading: false,
+      isError: false,
+    })
+    renderMap({ onSeekFrame, onOpenIdentity })
+    fireEvent.click(screen.getByTestId('embedding-point-0-3'))
+    expect(onSeekFrame).toHaveBeenCalledWith(3)
+    expect(onOpenIdentity).toHaveBeenCalledWith(0)
+  })
+
+  it('exposes seek and identity actions from the popup', () => {
+    const onSeekFrame = vi.fn()
+    const onOpenIdentity = vi.fn()
+    mocks.useObservationProjection.mockReturnValue({
+      data: projection,
+      isLoading: false,
+      isError: false,
+    })
+    renderMap({ onSeekFrame, onOpenIdentity })
+    fireEvent.mouseEnter(screen.getByTestId('embedding-point-0-3'))
+    fireEvent.click(screen.getByRole('button', { name: /seek frame/i }))
+    expect(onSeekFrame).toHaveBeenCalledWith(3)
+    fireEvent.click(screen.getByRole('button', { name: /view identity/i }))
+    expect(onOpenIdentity).toHaveBeenCalledWith(0)
   })
 })

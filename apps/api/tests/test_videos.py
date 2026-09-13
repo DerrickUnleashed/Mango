@@ -158,6 +158,7 @@ def test_video_observation_projection(client: TestClient, sample_video_bytes: by
             assert "identityId" in point
             assert "frameId" in point
             assert "trackId" in point
+            assert "bbox" in point
             assert "confidence" in point
             assert "isOccluded" in point
 

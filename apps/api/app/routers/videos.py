@@ -293,6 +293,7 @@ def get_video_observation_projection(
             "identityId": row.identity_id,
             "frameId": row.frame_id,
             "trackId": row.track_id,
+            "bbox": row.bbox,
             "confidence": row.confidence,
             "isOccluded": row.is_occluded,
         }

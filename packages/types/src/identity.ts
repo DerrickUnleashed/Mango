@@ -82,6 +82,7 @@ export interface ObservationProjectionPoint {
   identityId: number;
   frameId: number;
   trackId: number | null;
+  bbox: [number, number, number, number] | null;
   confidence: number;
   isOccluded: boolean;
 }

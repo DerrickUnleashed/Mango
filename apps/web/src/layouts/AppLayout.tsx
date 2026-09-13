@@ -6,6 +6,7 @@ const navItems = [
   { to: '/', label: 'Dashboard', icon: 'grid', end: true },
   { to: '/videos', label: 'Videos', icon: 'film' },
   { to: '/identities', label: 'Identities', icon: 'user' },
+  { to: '/embedding-explorer', label: 'Embeddings', icon: 'scatter' },
   { to: '/reidentification', label: 'Re-ID', icon: 'refresh' },
   { to: '/analytics', label: 'Analytics', icon: 'chart', match: '/videos/' },
   { to: '/evaluation', label: 'Evaluation', icon: 'target' },
@@ -16,6 +17,7 @@ const navItems = [
 function Icon({ name }: { name: string }) {
   const paths: Record<string, string> = {
     grid: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',
+    scatter: 'M4 17h.01M8 10h.01M12 15h.01M16 7h.01M20 12h.01',
     film: 'M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zM3 8h18M3 16h18M8 8v13M16 8v13',
     user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0H4z',
     refresh: 'M4 12a8 8 0 1 1 2.34 5.66M4 12v-6M4 12h6',
