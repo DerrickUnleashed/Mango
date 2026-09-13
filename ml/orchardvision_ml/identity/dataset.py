@@ -15,7 +15,7 @@ trainer when it fetches crops via :func:`crop_observation`.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -38,6 +38,8 @@ __all__ = [
     "TrackletPartitioner",
     "crop_observation",
 ]
+
+_NO_LABEL = object()
 
 
 @dataclass(frozen=True, slots=True)
@@ -268,8 +270,33 @@ class TrackletDataset:
         Positives come from the anchor's own sub-tracklet within the temporal
         window; negatives are drawn from other sub-tracklets that satisfy the
         spatial separation gate, ranked by embedding similarity when available
-        (hard-negative mining).
+        (hard-negative mining). Identity is the raw tracker ``track_id``.
         """
+        return self._build_pairs(lambda obs: obs.track_id)
+
+    def build_label_pairs(self, labels: Mapping[int, int]) -> list[CropPair]:
+        """Build pairs keyed by pseudo-label assignments.
+
+        ``labels`` maps a sub-tracklet index (position in ``self.subtracklets``)
+        to a pseudo identity label. Observations from sub-tracklets absent from
+        ``labels`` are excluded as anchors (self-paced filtering) but still rank
+        as negatives when their label differs.
+
+        Args:
+            labels: Sub-tracklet index → pseudo-label mapping.
+
+        Returns:
+            One :class:`CropPair` per visible, labeled anchor observation.
+        """
+        label_of: dict[int, int] = {}
+        for index, sub in enumerate(self.subtracklets):
+            if index not in labels:
+                continue
+            for obs in sub.observations:
+                label_of[id(obs)] = labels[index]
+        return self._build_pairs(lambda obs: label_of.get(id(obs), _NO_LABEL))
+
+    def _build_pairs(self, key_of: Callable[[TrackObservation], object]) -> list[CropPair]:
         visible = self.visible_observations
         by_sub: dict[int, SubTracklet] = {}
         for index, sub in enumerate(self.subtracklets):
@@ -277,27 +304,26 @@ class TrackletDataset:
 
         pairs: list[CropPair] = []
         for anchor in visible:
-            sub = self._subtracklet_of(anchor)
-            if sub is None:
+            key = key_of(anchor)
+            if key is None or key == _NO_LABEL:
                 continue
-            positive = self._temporal_positive(anchor, sub)
-            negatives = self._hard_negatives(anchor, visible, by_sub)
+            positive = self._temporal_positive_by_key(anchor, visible, key_of, key)
+            negatives = self._hard_negatives(anchor, visible, by_sub, key_of, key)
             pairs.append(CropPair(anchor=anchor, positive=positive, negatives=negatives))
         return pairs
 
-    def _subtracklet_of(self, anchor: TrackObservation) -> SubTracklet | None:
-        for sub in self.subtracklets:
-            if any(obs is anchor for obs in sub.observations):
-                return sub
-        return None
-
-    def _temporal_positive(
-        self, anchor: TrackObservation, sub: SubTracklet
+    def _temporal_positive_by_key(
+        self,
+        anchor: TrackObservation,
+        visible: list[TrackObservation],
+        key_of: Callable[[TrackObservation], object],
+        key: object,
     ) -> TrackObservation | None:
         candidates = [
             obs
-            for obs in sub.observations
+            for obs in visible
             if obs is not anchor
+            and key_of(obs) == key
             and abs(obs.frame_id - anchor.frame_id) <= self.options.max_frames_apart
         ]
         if not candidates:
@@ -313,10 +339,12 @@ class TrackletDataset:
         anchor: TrackObservation,
         visible: list[TrackObservation],
         by_sub: dict[int, SubTracklet],
+        key_of: Callable[[TrackObservation], object],
+        key: object,
     ) -> list[TrackObservation]:
         pool: list[TrackObservation] = []
         for _sub_index, sub in by_sub.items():
-            if sub.track_id == anchor.track_id:
+            if key_of(sub.observations[0]) == key:
                 continue
             if any(
                 self._center_distance(anchor, obs) >= self.options.min_center_distance
@@ -325,7 +353,7 @@ class TrackletDataset:
                 pool.append(sub.observations[0])
 
         if not pool:
-            pool = [obs for obs in visible if obs is not anchor and obs.track_id != anchor.track_id]
+            pool = [obs for obs in visible if obs is not anchor and key_of(obs) != key]
 
         if all(obs.vector is None for obs in pool):
             rng = np.random.default_rng(seed=hash(anchor.frame_id) & 0xFFFF)
