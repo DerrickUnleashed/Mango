@@ -58,6 +58,9 @@ data/video_dataset/README.md
 data/Mango_Dataset
 data/Mango_Dataset2
 data/first.mp4
+data/train/
+data/test/
+data/val/
 # ML Models
 *.pt
 *.pth
@@ -91,3 +94,4 @@ temp/
 .tmp/
 .torch-cache/
 .uv-cache/
+runs/
