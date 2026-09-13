@@ -68,8 +68,6 @@ data/val/
 *.engine
 *.weights
 
-models/
-
 # The FastAPI "models" package must stay tracked despite the ML `models/` rule
 !apps/api/app/models/
 !apps/api/app/models/*.py
