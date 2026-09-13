@@ -19,9 +19,9 @@ from app.main import create_app
 
 def _resolve_port() -> int:
     try:
-        return int(os.environ.get("PORT", "8000"))
+        return int(os.environ.get("PORT", "8001"))
     except ValueError:
-        return 8000
+        return 8001
 
 
 def _resolve_workers() -> int:

@@ -111,7 +111,7 @@ export function VideosPage() {
           </p>
         ) : videos.isError ? (
           <p className="text-sm text-red-400" role="alert">
-            Failed to load videos. Is the API running on port 8000?
+            Failed to load videos. Is the API running on port 8001?
           </p>
         ) : (videos.data?.videos.length ?? 0) === 0 ? (
           <div className="rounded-xl border border-surface-800 bg-surface-900/40 p-10 text-center">

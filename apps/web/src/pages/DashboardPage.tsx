@@ -53,7 +53,7 @@ export function DashboardPage() {
           </p>
         ) : videos.isError ? (
           <p className="mt-4 text-sm text-red-400" role="alert">
-            Failed to load videos. Is the API running on port 8000?
+            Failed to load videos. Is the API running on port 8001?
           </p>
         ) : (videos.data?.videos.length ?? 0) === 0 ? (
           <div className="mt-6 text-center">

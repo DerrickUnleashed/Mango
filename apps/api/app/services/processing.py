@@ -9,7 +9,6 @@ changing this orchestration layer.
 
 from __future__ import annotations
 
-import os
 import time
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -27,6 +26,7 @@ from orchardvision_ml.reid import MockReIdentifier
 from orchardvision_ml.tracking import ByteTrackAdapter, MockTracker, Tracker
 from sqlalchemy import delete
 
+from app.core.config import settings
 from app.core.logging import job_logger
 from app.models import (
     CameraMotionRecord,
@@ -47,12 +47,7 @@ from app.services.storage import storage_service
 DEFAULT_MAX_FRAMES = 600
 MAX_TRACK_ASSIGN_DISTANCE_PX = 60.0
 
-DEFAULT_MODEL_PATH = Path(
-    os.environ.get(
-        "YOLO_WEIGHTS_PATH",
-        Path(__file__).resolve().parents[4] / "models" / "mango_yolov8n-4" / "weights" / "best.pt",
-    )
-)
+DEFAULT_MODEL_PATH = Path(settings.yolo_weights_path)
 
 
 @dataclass(frozen=True, slots=True)

@@ -10,8 +10,8 @@ export default defineConfig(({ mode }) => ({
       '/api': {
         target:
           mode === 'production'
-            ? process.env.VITE_API_URL || 'http://localhost:8000'
-            : 'http://localhost:8000',
+            ? process.env.VITE_API_URL || 'http://localhost:8001'
+            : 'http://localhost:8001',
         changeOrigin: true,
       },
     },

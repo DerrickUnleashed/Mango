@@ -25,12 +25,12 @@ docker        Container configuration
 
 ```bash
 cp .env.example .env            # adjust as needed
-uv run --project apps/api uvicorn app.main:app --port 8000 \
+uv run --project apps/api uvicorn app.main:app --port 8001 \
     --app-dir apps/api         # run from the repository root
 ```
 
-- Interactive docs: `http://localhost:8000/api/docs`
-- Health check: `http://localhost:8000/api/health`
+- Interactive docs: `http://localhost:8001/api/docs`
+- Health check: `http://localhost:8001/api/health`
 
 ### Frontend
 
@@ -154,7 +154,7 @@ Existing dev databases created with `create_all` can be aligned with
   `ENVIRONMENT`, `PORT`, `WEB_CONCURRENCY`, and `HOST`:
 
   ```bash
-  ENVIRONMENT=production PORT=8000 WEB_CONCURRENCY=2 uv run --project apps/api python -m app
+  ENVIRONMENT=production PORT=8001 WEB_CONCURRENCY=2 uv run --project apps/api python -m app
   ```
 
   or run `uvicorn app.main:app --workers N` directly. Place behind a reverse proxy
