@@ -62,7 +62,6 @@ data/train/
 data/test/
 data/val/
 # ML Models
-*.pt
 *.pth
 *.onnx
 *.engine
