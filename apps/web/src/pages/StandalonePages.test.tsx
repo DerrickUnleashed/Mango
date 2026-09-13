@@ -65,6 +65,14 @@ vi.mock('../components/tracking/EmbeddingMap', () => ({
   ),
 }))
 
+vi.mock('../components/tracking/CrossVideoMap', () => ({
+  CrossVideoMap: ({ videos }: { videos: unknown[] }) => (
+    <div role="region" aria-label="cross-video map">
+      Cross-video map for {videos.length} videos
+    </div>
+  ),
+}))
+
 vi.mock('../components/tracking/ReIdPanel', () => ({
   ReIdPanel: ({ videoId }: { videoId: string }) => (
     <div role="region" aria-label="reid panel">
@@ -173,6 +181,20 @@ describe('standalone pages', () => {
       })
       expect(screen.getByRole('region', { name: 'embedding map' })).toHaveTextContent(
         'Embedding map for vid-2 (full)',
+      )
+    })
+
+    it('renders the cross-video map when all videos are selected', () => {
+      mocks.processed = [
+        mocks.makeVideo('vid-1', 'Orchard A.mp4', 'processed'),
+        mocks.makeVideo('vid-2', 'Orchard B.mp4', 'processed'),
+      ]
+      render(<EmbeddingExplorerPage />)
+      fireEvent.change(screen.getByLabelText('Select processed video'), {
+        target: { value: '__all__' },
+      })
+      expect(screen.getByRole('region', { name: 'cross-video map' })).toHaveTextContent(
+        'Cross-video map for 2 videos',
       )
     })
   })

@@ -51,7 +51,10 @@ from app.services import (
 )
 from app.services.analytics import compute_video_analytics
 from app.services.celery_app import enqueue_video_processing, run_processing_sync
-from app.services.embedding_projection import project_prototypes
+from app.services.embedding_projection import (
+    cosine_similarity,
+    project_observations_with_prototypes,
+)
 from app.services.frames import FrameExtractionError, delete_video_frames, extract_frame
 
 router = APIRouter(prefix="/videos", tags=["videos"])
@@ -225,9 +228,15 @@ def list_video_identities(video_id: str, db: Annotated[Session, Depends(get_db)]
 def get_video_identity_projection(
     video_id: str,
     method: str = Query(default="tsne", pattern=_PROJECTION_METHODS),
+    max_points: int = Query(default=500, ge=1, le=10000),
     db: Annotated[Session, Depends(get_db)] = None,
 ) -> dict:
-    """Return 2D coordinates per identity prototype for embedding visualization."""
+    """Return 2D coordinates per identity prototype for embedding visualization.
+
+    Prototypes are projected in the same embedding space as the observation
+    projection endpoint (same stacked vectors, sampling, and fixed seed) so
+    the centroids overlay lands inside each identity's cluster.
+    """
     video = db.get(Video, video_id)
     if not video:
         raise NotFoundError("video_not_found", f"Video {video_id} not found")
@@ -237,12 +246,23 @@ def get_video_identity_projection(
         .where(IdentityRecord.video_id == video_id)
         .order_by(IdentityRecord.identity_id)
     ).all()
+    observation_rows = db.scalars(
+        select(IdentityObservation.vector)
+        .where(
+            IdentityObservation.video_id == video_id,
+            IdentityObservation.vector.is_not(None),
+        )
+        .order_by(IdentityObservation.frame_id, IdentityObservation.id)
+    ).all()
+
     vectors = [r.prototype for r in rows]
-    coordinates = project_prototypes(vectors, method=method)
+    prototypes, _observations, _count = project_observations_with_prototypes(
+        observation_rows, vectors, method=method, max_points=max_points
+    )
     points = [
         {
-            "x": coordinates[i][0],
-            "y": coordinates[i][1],
+            "x": prototypes[i][0],
+            "y": prototypes[i][1],
             "identityId": row.identity_id,
             "quality": row.quality,
             "observationCount": row.observation_count,
@@ -284,8 +304,19 @@ def get_video_observation_projection(
         step = len(sampled) / max_points
         sampled = [sampled[int(i * step)] for i in range(max_points)]
 
-    vectors = [r.vector for r in sampled]
-    coordinates = project_prototypes(vectors, method=method)
+    prototype_rows = db.scalars(
+        select(IdentityRecord)
+        .where(IdentityRecord.video_id == video_id)
+        .order_by(IdentityRecord.identity_id)
+    ).all()
+    prototypes = {row.identity_id: row.prototype for row in prototype_rows}
+    prototype_vectors = [row.prototype for row in prototype_rows]
+    _prototype_coords, coordinates, _count = project_observations_with_prototypes(
+        [r.vector for r in sampled],
+        prototype_vectors,
+        method=method,
+        max_points=max_points,
+    )
     points = [
         {
             "x": coordinates[i][0],
@@ -296,6 +327,9 @@ def get_video_observation_projection(
             "bbox": row.bbox,
             "confidence": row.confidence,
             "isOccluded": row.is_occluded,
+            "qualityScore": cosine_similarity(row.vector, prototypes[row.identity_id])
+            if row.identity_id in prototypes
+            else None,
         }
         for i, row in enumerate(sampled)
     ]

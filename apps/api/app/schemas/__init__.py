@@ -2,6 +2,7 @@
 
 from .video import (
     CreateExperimentRequest,
+    CrossVideoProjectionResponse,
     ExperimentDetailResponse,
     ExperimentListResponse,
     JobView,
@@ -25,6 +26,7 @@ from .video import (
 
 __all__ = [
     "CreateExperimentRequest",
+    "CrossVideoProjectionResponse",
     "ExperimentDetailResponse",
     "ExperimentListResponse",
     "JobView",

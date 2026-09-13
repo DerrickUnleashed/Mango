@@ -1,12 +1,20 @@
 import type { Video } from '@orchardvision/types'
 
+export const ALL_VIDEOS = '__all__'
+
 interface ProcessedVideoPickerProps {
   processed: Video[]
   value: string | null
   onChange: (videoId: string) => void
+  includeAll?: boolean
 }
 
-export function ProcessedVideoPicker({ processed, value, onChange }: ProcessedVideoPickerProps) {
+export function ProcessedVideoPicker({
+  processed,
+  value,
+  onChange,
+  includeAll = false,
+}: ProcessedVideoPickerProps) {
   if (processed.length === 0) return null
   return (
     <label className="flex flex-col gap-1 text-sm">
@@ -17,6 +25,7 @@ export function ProcessedVideoPicker({ processed, value, onChange }: ProcessedVi
         onChange={(e) => onChange(e.target.value)}
         className="rounded-lg border border-surface-700 bg-surface-900 px-3 py-2 text-surface-100"
       >
+        {includeAll && <option value={ALL_VIDEOS}>All videos</option>}
         {processed.map((video) => (
           <option key={video.id} value={video.id}>
             {video.originalName}

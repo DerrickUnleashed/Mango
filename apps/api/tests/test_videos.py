@@ -129,6 +129,66 @@ def test_video_identity_projection(client: TestClient, sample_video_bytes: bytes
     assert bad.status_code == 422
 
 
+def test_video_identity_centroids_share_observation_space(
+    client: TestClient, sample_video_bytes: bytes
+) -> None:
+    """Prototype centroids must be projected in the same run as observations.
+
+    Since both endpoints share one embedding space, each identity's centroid
+    should sit inside its own cluster: strictly closer to its own observations'
+    mean than to any other identity's mean, even though the prototype is a
+    unit-normalized running average rather than the exact arithmetic mean.
+    """
+    video_id = _upload(client, sample_video_bytes)["video"]["id"]
+    process_response = client.post(
+        f"/api/videos/{video_id}/process",
+        json={"inference_mode": "mock", "max_frames": 8},
+    )
+    assert process_response.status_code == 200
+    job_id = process_response.json()["id"]
+    for _ in range(20):
+        final = client.get(f"/api/jobs/{job_id}").json()
+        if final["status"] in {"completed", "failed"}:
+            break
+        time.sleep(0.2)
+    assert final["status"] == "completed", final
+
+    observations = client.get(
+        f"/api/videos/{video_id}/observations/projection?method=pca&max_points=10000"
+    ).json()["points"]
+    centroids = client.get(
+        f"/api/videos/{video_id}/identities/projection?method=pca&max_points=10000"
+    ).json()["points"]
+    assert observations and centroids
+    identity_ids = [c["identityId"] for c in centroids]
+    if len(identity_ids) < 2:
+        return
+
+    means = {
+        i: (
+            sum(p["x"] for p in observations if p["identityId"] == i) / sum(
+                1 for p in observations if p["identityId"] == i
+            ),
+            sum(p["y"] for p in observations if p["identityId"] == i) / sum(
+                1 for p in observations if p["identityId"] == i
+            ),
+        )
+        for i in identity_ids
+        if any(p["identityId"] == i for p in observations)
+    }
+    assert len(means) == len(identity_ids)
+
+    def dist(ax: float, ay: float, bx: float, by: float) -> float:
+        return ((ax - bx) ** 2 + (ay - by) ** 2) ** 0.5
+
+    for centroid in centroids:
+        own = means[centroid["identityId"]]
+        others = [means[i] for i in identity_ids if i != centroid["identityId"]]
+        assert dist(centroid["x"], centroid["y"], *own) < min(
+            dist(centroid["x"], centroid["y"], *other) for other in others
+        )
+
+
 def test_video_observation_projection(client: TestClient, sample_video_bytes: bytes) -> None:
     video_id = _upload(client, sample_video_bytes)["video"]["id"]
 
@@ -161,6 +221,7 @@ def test_video_observation_projection(client: TestClient, sample_video_bytes: by
             assert "bbox" in point
             assert "confidence" in point
             assert "isOccluded" in point
+            assert "qualityScore" in point
 
     bad = client.get(f"/api/videos/{video_id}/observations/projection?method=bogus")
     assert bad.status_code == 422
@@ -191,6 +252,43 @@ def test_video_observation_projection_subsamples(
     body = response.json()
     assert body["total"] == 1
     assert len(body["points"]) == 1
+
+
+def test_cross_video_projection(client: TestClient, sample_video_bytes: bytes) -> None:
+    video_ids = []
+    for _ in range(2):
+        video_id = _upload(client, sample_video_bytes)["video"]["id"]
+        process_response = client.post(
+            f"/api/videos/{video_id}/process",
+            json={"inference_mode": "mock", "max_frames": 8},
+        )
+        assert process_response.status_code == 200
+        job_id = process_response.json()["id"]
+        for _ in range(20):
+            final = client.get(f"/api/jobs/{job_id}").json()
+            if final["status"] in {"completed", "failed"}:
+                break
+            time.sleep(0.2)
+        assert final["status"] == "completed", final
+        video_ids.append(video_id)
+
+    response = client.get("/api/embeddings/projection?method=pca")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["videoCount"] >= 2
+    assert body["total"] >= 2
+    assert body["total"] == len(body["points"])
+    assert set(p["videoId"] for p in body["points"]) >= set(video_ids)
+    for point in body["points"]:
+        assert "identityId" in point
+        assert "frameId" in point
+        assert "bbox" in point
+        assert "confidence" in point
+        assert "isOccluded" in point
+        assert "qualityScore" in point
+
+    bad = client.get("/api/embeddings/projection?method=bogus")
+    assert bad.status_code == 422
 
 
 def test_video_per_frame_timings(client: TestClient, sample_video_bytes: bytes) -> None:

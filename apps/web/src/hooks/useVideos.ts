@@ -3,6 +3,7 @@ import type { ProcessVideoRequest, ProcessVideoResponse, Video } from '@orchardv
 import {
   deleteVideo,
   getAnalytics,
+  getCrossVideoProjection,
   getDetections,
   getFrameTimings,
   getHealth,
@@ -56,10 +57,10 @@ export function useIdentities(videoId: string, enabled: boolean) {
   })
 }
 
-export function useIdentityProjection(videoId: string, enabled: boolean) {
+export function useIdentityProjection(videoId: string, method: ProjectionMethod, enabled: boolean) {
   return useQuery({
-    queryKey: ['videos', videoId, 'identities', 'projection'],
-    queryFn: () => getIdentityProjection(videoId),
+    queryKey: ['videos', videoId, 'identities', 'projection', method],
+    queryFn: () => getIdentityProjection(videoId, method),
     enabled: enabled && Boolean(videoId),
   })
 }
@@ -73,6 +74,14 @@ export function useObservationProjection(
     queryKey: ['videos', videoId, 'observations', 'projection', method],
     queryFn: () => getObservationProjection(videoId, method),
     enabled: enabled && Boolean(videoId),
+  })
+}
+
+export function useCrossVideoProjection(method: ProjectionMethod, enabled: boolean) {
+  return useQuery({
+    queryKey: ['embeddings', 'projection', method],
+    queryFn: () => getCrossVideoProjection(method),
+    enabled,
   })
 }
 

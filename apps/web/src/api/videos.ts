@@ -1,6 +1,7 @@
 import type {
   AnalyticsSummary,
   CameraMotionEstimate,
+  CrossVideoProjectionResponse,
   FrameTimingListResponse,
   IdentityProjectionResponse,
   ObservationProjectionResponse,
@@ -53,6 +54,12 @@ export function getObservationProjection(
   return apiRequest<ObservationProjectionResponse>(
     `/videos/${id}/observations/projection?method=${method}`,
   )
+}
+
+export function getCrossVideoProjection(
+  method: ProjectionMethod = 'tsne',
+): Promise<CrossVideoProjectionResponse> {
+  return apiRequest<CrossVideoProjectionResponse>(`/embeddings/projection?method=${method}`)
 }
 
 export function getReidEvents(id: string): Promise<PersistedReidListResponse> {

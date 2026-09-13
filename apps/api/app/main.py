@@ -21,6 +21,7 @@ from app.core.errors import (
 )
 from app.core.logging import configure_logging, get_logger
 from app.routers import (
+    embeddings_router,
     experiments_router,
     health_router,
     jobs_router,
@@ -77,6 +78,7 @@ def create_app() -> FastAPI:
 
     app.include_router(health_router, prefix="/api")
     app.include_router(videos_router, prefix="/api")
+    app.include_router(embeddings_router, prefix="/api")
     app.include_router(jobs_router, prefix="/api")
     app.include_router(experiments_router, prefix="/api")
     app.include_router(settings_router, prefix="/api")

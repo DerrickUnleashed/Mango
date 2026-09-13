@@ -85,12 +85,33 @@ export interface ObservationProjectionPoint {
   bbox: [number, number, number, number] | null;
   confidence: number;
   isOccluded: boolean;
+  qualityScore: number | null;
 }
 
 export interface ObservationProjectionResponse {
   points: ObservationProjectionPoint[];
   method: "tsne" | "pca" | "umap";
   total: number;
+}
+
+export interface CrossVideoProjectionPoint {
+  x: number;
+  y: number;
+  videoId: string;
+  identityId: number;
+  frameId: number;
+  trackId: number | null;
+  bbox: [number, number, number, number] | null;
+  confidence: number;
+  isOccluded: boolean;
+  qualityScore: number | null;
+}
+
+export interface CrossVideoProjectionResponse {
+  points: CrossVideoProjectionPoint[];
+  method: "tsne" | "pca" | "umap";
+  total: number;
+  videoCount: number;
 }
 
 export interface PersistedIdentityObservation {
@@ -111,19 +132,19 @@ export interface PersistedObservationListResponse {
 }
 
 export interface PersistedReidEvent {
-  id: string
-  videoId: string
-  trackId: number
-  victimTrackId: number
-  identityId: number
-  lostFrameId: number
-  reappearanceFrameId: number
-  similarity: number
-  confidence: number
-  accepted: boolean
-  candidateIdentityIds?: number[]
-  candidateScores?: Record<string, number>
-  createdAt: string | null
+  id: string;
+  videoId: string;
+  trackId: number;
+  victimTrackId: number;
+  identityId: number;
+  lostFrameId: number;
+  reappearanceFrameId: number;
+  similarity: number;
+  confidence: number;
+  accepted: boolean;
+  candidateIdentityIds?: number[];
+  candidateScores?: Record<string, number>;
+  createdAt: string | null;
 }
 
 export interface PersistedReidListResponse {

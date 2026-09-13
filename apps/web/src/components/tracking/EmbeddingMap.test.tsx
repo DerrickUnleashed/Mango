@@ -7,12 +7,15 @@ import { EmbeddingMap } from './EmbeddingMap'
 const mocks = vi.hoisted(() => ({
   useObservationProjection: vi.fn(),
   useVideo: vi.fn(),
+  useIdentityProjection: vi.fn(),
 }))
 
 vi.mock('../../hooks/useVideos', () => ({
   useObservationProjection: (videoId: string, method: string, enabled: boolean) =>
     mocks.useObservationProjection(videoId, method, enabled),
   useVideo: (videoId: string) => mocks.useVideo(videoId),
+  useIdentityProjection: (videoId: string, method: string, enabled: boolean) =>
+    mocks.useIdentityProjection(videoId, method, enabled),
 }))
 
 function renderMap(
@@ -24,6 +27,11 @@ function renderMap(
 ) {
   mocks.useVideo.mockReturnValue({
     data: { id: 'vid-1', width: 640, height: 360, fps: 30 },
+    isLoading: false,
+    isError: false,
+  })
+  mocks.useIdentityProjection.mockReturnValue({
+    data: { method: 'pca', total: 0, points: [] },
     isLoading: false,
     isError: false,
   })
@@ -48,6 +56,7 @@ const projection: ObservationProjectionResponse = {
       bbox: [10, 20, 40, 40],
       confidence: 0.9,
       isOccluded: false,
+      qualityScore: 0.987,
     },
     {
       x: 0.5,
@@ -58,6 +67,22 @@ const projection: ObservationProjectionResponse = {
       bbox: null,
       confidence: 0.6,
       isOccluded: true,
+      qualityScore: null,
+    },
+  ],
+}
+
+const prototypes = {
+  method: 'pca',
+  total: 1,
+  points: [
+    {
+      x: 0.1,
+      y: 0.1,
+      identityId: 0,
+      quality: 0.92,
+      observationCount: 12,
+      isConfident: true,
     },
   ],
 }
@@ -166,5 +191,58 @@ describe('EmbeddingMap', () => {
     expect(onSeekFrame).toHaveBeenCalledWith(3)
     fireEvent.click(screen.getByRole('button', { name: /view identity/i }))
     expect(onOpenIdentity).toHaveBeenCalledWith(0)
+  })
+
+  it('shows the prototype simulation score in the observation popup', () => {
+    mocks.useObservationProjection.mockReturnValue({
+      data: projection,
+      isLoading: false,
+      isError: false,
+    })
+    renderMap()
+    fireEvent.mouseEnter(screen.getByTestId('embedding-point-0-3'))
+    expect(screen.getByText(/proto sim 0.987/)).toBeInTheDocument()
+  })
+
+  it('shows identity centroids when the toggle is enabled', () => {
+    mocks.useObservationProjection.mockReturnValue({
+      data: projection,
+      isLoading: false,
+      isError: false,
+    })
+    renderMap()
+    mocks.useIdentityProjection.mockReturnValue({
+      data: prototypes,
+      isLoading: false,
+      isError: false,
+    })
+    expect(screen.queryByTestId('embedding-prototype-0')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('checkbox', { name: /identity centroids/i }))
+    expect(mocks.useIdentityProjection).toHaveBeenLastCalledWith('vid-1', 'tsne', true)
+    expect(screen.getByTestId('embedding-prototype-0')).toBeInTheDocument()
+    fireEvent.mouseEnter(screen.getByTestId('embedding-prototype-0'))
+    expect(screen.getByText(/prototype centroid/)).toBeInTheDocument()
+    expect(screen.getByText(/q 0.92 · 12 obs · confident/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('checkbox', { name: /identity centroids/i }))
+    expect(screen.queryByTestId('embedding-prototype-0')).not.toBeInTheDocument()
+  })
+
+  it('hides centroids even when the projection query still holds cached data', () => {
+    mocks.useObservationProjection.mockReturnValue({
+      data: projection,
+      isLoading: false,
+      isError: false,
+    })
+    renderMap()
+    mocks.useIdentityProjection.mockReturnValue({
+      data: prototypes,
+      isLoading: false,
+      isError: false,
+    })
+    fireEvent.click(screen.getByRole('checkbox', { name: /identity centroids/i }))
+    expect(screen.getByTestId('embedding-prototype-0')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('checkbox', { name: /identity centroids/i }))
+    expect(screen.queryByTestId('embedding-prototype-0')).not.toBeInTheDocument()
+    expect(screen.queryByText(/prototype centroid/)).not.toBeInTheDocument()
   })
 })

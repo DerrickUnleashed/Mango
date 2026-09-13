@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import type { ObservationProjectionPoint } from '@orchardvision/types'
+import type { IdentityProjectionPoint, ObservationProjectionPoint } from '@orchardvision/types'
 import type { ProjectionMethod } from '../../api/videos'
-import { useObservationProjection, useVideo } from '../../hooks/useVideos'
+import { useIdentityProjection, useObservationProjection, useVideo } from '../../hooks/useVideos'
 import { BboxThumbnail } from './BboxThumbnail'
 
 export const EMBEDDING_PALETTE = [
@@ -47,10 +47,17 @@ export function EmbeddingMap({
 }: EmbeddingMapProps) {
   const [method, setMethod] = useState<ProjectionMethod>('tsne')
   const [selected, setSelected] = useState<ObservationProjectionPoint | null>(null)
+  const [hoveredPrototype, setHoveredPrototype] = useState<IdentityProjectionPoint | null>(null)
+  const [showPrototypes, setShowPrototypes] = useState(false)
   const { data, isLoading, isError } = useObservationProjection(videoId, method, enabled)
+  const { data: prototypeData } = useIdentityProjection(videoId, method, enabled && showPrototypes)
   const video = useVideo(videoId)
 
   const points = useMemo(() => data?.points ?? [], [data])
+  const prototypes = useMemo(
+    () => (showPrototypes ? (prototypeData?.points ?? []) : []),
+    [showPrototypes, prototypeData],
+  )
   const full = variant === 'full'
 
   if (!enabled) return null
@@ -96,23 +103,37 @@ export function EmbeddingMap({
             {data?.method.toUpperCase()} projection · {points.length} observations
           </p>
         </div>
-        <div className="flex gap-1" role="tablist" aria-label="Projection method">
-          {PROJECTION_METHODS.map((candidate) => (
-            <button
-              key={candidate}
-              type="button"
-              role="tab"
-              aria-selected={method === candidate}
-              onClick={() => setMethod(candidate)}
-              className={`rounded-md border px-2.5 py-1 text-xs transition-colors ${
-                method === candidate
-                  ? 'border-surface-600 bg-surface-800 text-surface-100'
-                  : 'border-surface-700 text-surface-400 hover:bg-surface-800 hover:text-surface-200'
-              }`}
-            >
-              {candidate.toUpperCase()}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex cursor-pointer items-center gap-1.5 text-xs text-surface-400">
+            <input
+              type="checkbox"
+              checked={showPrototypes}
+              onChange={(e) => {
+                setShowPrototypes(e.target.checked)
+                setHoveredPrototype(null)
+              }}
+              className="h-3.5 w-3.5 accent-orchard-500"
+            />
+            Identity centroids
+          </label>
+          <div className="flex gap-1" role="tablist" aria-label="Projection method">
+            {PROJECTION_METHODS.map((candidate) => (
+              <button
+                key={candidate}
+                type="button"
+                role="tab"
+                aria-selected={method === candidate}
+                onClick={() => setMethod(candidate)}
+                className={`rounded-md border px-2.5 py-1 text-xs transition-colors ${
+                  method === candidate
+                    ? 'border-surface-600 bg-surface-800 text-surface-100'
+                    : 'border-surface-700 text-surface-400 hover:bg-surface-800 hover:text-surface-200'
+                }`}
+              >
+                {candidate.toUpperCase()}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       <div className="p-3">
@@ -160,52 +181,105 @@ export function EmbeddingMap({
               </circle>
             )
           })}
+          {prototypes.map((prototype) => {
+            const cx = toViewport(prototype.x)
+            const cy = toViewport(prototype.y)
+            return (
+              <circle
+                key={`prototype-${prototype.identityId}`}
+                cx={cx}
+                cy={cy}
+                r={7}
+                fill="none"
+                stroke="#f1f5f9"
+                strokeWidth={2}
+                className="cursor-help"
+                data-testid={`embedding-prototype-${prototype.identityId}`}
+                onMouseEnter={() => setHoveredPrototype(prototype)}
+                onMouseLeave={() => setHoveredPrototype(null)}
+              >
+                <title>{`Identity ${prototype.identityId} prototype · q ${prototype.quality.toFixed(2)}`}</title>
+              </circle>
+            )
+          })}
         </svg>
-        {selected && (
-          <div
-            role="status"
-            className="mt-3 flex items-center gap-3 rounded-lg border border-surface-800 bg-surface-900/60 p-2"
-          >
-            <BboxThumbnail
-              videoId={videoId}
-              frameId={selected.frameId}
-              bbox={selected.bbox}
-              videoWidth={video.data?.width ?? null}
-              videoHeight={video.data?.height ?? null}
-            />
-            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-              <p className="font-mono text-xs text-surface-300">
-                id-{selected.identityId} · f{selected.frameId} · track {selected.trackId ?? '—'}
-              </p>
-              <p className="font-mono text-xs text-surface-400">
-                conf {selected.confidence.toFixed(2)}
-                {selected.isOccluded ? ' · occluded' : ''}
-              </p>
-              {(onSeekFrame || onOpenIdentity) && (
-                <div className="flex gap-2 pt-0.5">
-                  {onSeekFrame && (
-                    <button
-                      type="button"
-                      onClick={() => onSeekFrame(selected.frameId)}
-                      className="rounded-md border border-surface-700 px-2 py-1 text-xs text-surface-300 transition-colors hover:bg-surface-800 hover:text-surface-100"
-                    >
-                      Seek frame
-                    </button>
-                  )}
-                  {onOpenIdentity && (
-                    <button
-                      type="button"
-                      onClick={() => onOpenIdentity(selected.identityId)}
-                      className="rounded-md border border-surface-700 px-2 py-1 text-xs text-surface-300 transition-colors hover:bg-surface-800 hover:text-surface-100"
-                    >
-                      View identity
-                    </button>
-                  )}
-                </div>
-              )}
+        <div className="mt-3 flex h-32 items-center">
+          {hoveredPrototype && (
+            <div
+              role="status"
+              className="flex w-full items-center gap-3 rounded-lg border border-surface-800 bg-surface-900/60 p-2"
+            >
+              <span
+                className="flex h-28 w-28 flex-col items-center justify-center rounded-md border border-surface-700 bg-surface-800 text-center"
+                aria-label={`Identity ${hoveredPrototype.identityId} centroid`}
+                role="img"
+              >
+                <span className="text-xl" aria-hidden="true">
+                  ◯
+                </span>
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <p className="font-mono text-xs text-surface-300">
+                  id-{hoveredPrototype.identityId} · prototype centroid
+                </p>
+                <p className="font-mono text-xs text-surface-400">
+                  q {hoveredPrototype.quality.toFixed(2)} · {hoveredPrototype.observationCount} obs
+                  {hoveredPrototype.isConfident ? ' · confident' : ''}
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+          {!hoveredPrototype && selected && (
+            <div
+              role="status"
+              className="flex w-full items-center gap-3 rounded-lg border border-surface-800 bg-surface-900/60 p-2"
+            >
+              <BboxThumbnail
+                videoId={videoId}
+                frameId={selected.frameId}
+                bbox={selected.bbox}
+                videoWidth={video.data?.width ?? null}
+                videoHeight={video.data?.height ?? null}
+              />
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <p className="font-mono text-xs text-surface-300">
+                  id-{selected.identityId} · f{selected.frameId} · track {selected.trackId ?? '—'}
+                </p>
+                <p className="font-mono text-xs text-surface-400">
+                  conf {selected.confidence.toFixed(2)}
+                  {selected.isOccluded ? ' · occluded' : ''}
+                </p>
+                {selected.qualityScore !== null && (
+                  <p className="font-mono text-xs text-surface-400">
+                    proto sim {selected.qualityScore.toFixed(3)}
+                  </p>
+                )}
+                {(onSeekFrame || onOpenIdentity) && (
+                  <div className="flex gap-2 pt-0.5">
+                    {onSeekFrame && (
+                      <button
+                        type="button"
+                        onClick={() => onSeekFrame(selected.frameId)}
+                        className="rounded-md border border-surface-700 px-2 py-1 text-xs text-surface-300 transition-colors hover:bg-surface-800 hover:text-surface-100"
+                      >
+                        Seek frame
+                      </button>
+                    )}
+                    {onOpenIdentity && (
+                      <button
+                        type="button"
+                        onClick={() => onOpenIdentity(selected.identityId)}
+                        className="rounded-md border border-surface-700 px-2 py-1 text-xs text-surface-300 transition-colors hover:bg-surface-800 hover:text-surface-100"
+                      >
+                        View identity
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

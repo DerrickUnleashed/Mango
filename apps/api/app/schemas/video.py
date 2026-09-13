@@ -110,6 +110,13 @@ class MultiObservationProjectionResponse(BaseModel):
     total: int
 
 
+class CrossVideoProjectionResponse(BaseModel):
+    points: list[dict]
+    method: str
+    total: int
+    videoCount: int
+
+
 class MultiReidResponse(BaseModel):
     events: list[dict]
     total: int
