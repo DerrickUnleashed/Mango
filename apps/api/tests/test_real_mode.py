@@ -23,6 +23,25 @@ from app.services.processing import (
 )
 
 
+def _weights_usable(path: Path) -> bool:
+    """True only for a real checkpoint file.
+
+    In CI, ""models/**/*.pt"" weights are checked out as git-lfs pointers (a
+    tiny text stub) rather than the actual .pt archive, so existence alone is
+    not enough — a pointer would fail to load with pickle errors.
+    """
+    if not path.exists():
+        return False
+    try:
+        with open(path, "rb") as handle:
+            head = handle.read(8)
+    except OSError:
+        return False
+    if head.startswith(b"version"):
+        return False
+    return path.stat().st_size > 1_000
+
+
 def test_config_defaults_are_mock() -> None:
     config = PipelineConfig()
     assert config.inference_mode == "mock"
@@ -42,7 +61,7 @@ def test_mock_mode_builds_mock_detector() -> None:
 
 
 @pytest.mark.skipif(
-    not Path(DEFAULT_MODEL_PATH).exists(),
+    not _weights_usable(DEFAULT_MODEL_PATH),
     reason="trained YOLO weights not available",
 )
 def test_real_mode_builds_yolo_detector() -> None:
@@ -52,6 +71,10 @@ def test_real_mode_builds_yolo_detector() -> None:
     assert detector._conf == 0.5
 
 
+@pytest.mark.skipif(
+    not _weights_usable(DEFAULT_MODEL_PATH),
+    reason="trained YOLO weights not available",
+)
 def test_real_mode_passes_sliced_grid_to_yolo_detector() -> None:
     config = PipelineConfig(inference_mode="real", sliced=3)
     detector = processing_service._build_detector(config)
