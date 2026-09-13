@@ -40,11 +40,11 @@ services:
       ALLOWED_ORIGINS: '${ALLOWED_ORIGINS:-["http://localhost:5173","http://127.0.0.1:5173"]}'
       SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
     ports:
-      - "${API_PORT:-8001}:8000"
+      - "${API_PORT:-8001}:8001"
     volumes:
       - api-data:/data
       - ../models:/orchardvision/models:ro
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--app-dir", "apps/api"]
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--app-dir", "apps/api"]
 
   worker:
     build:

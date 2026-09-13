@@ -21,6 +21,6 @@ ENV PATH="/orchardvision/.venv/bin:$PATH" \
     ENVIRONMENT="production" \
     AUTO_CREATE_TABLES="true"
 
-EXPOSE 8000
+EXPOSE 8001
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--app-dir", "apps/api"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--app-dir", "apps/api"]
