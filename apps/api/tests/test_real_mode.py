@@ -88,6 +88,34 @@ def test_mock_mode_builds_mock_embedder() -> None:
     assert isinstance(embedder, MockEmbeddingExtractor)
 
 
+def test_real_mode_with_missing_checkpoint_falls_back_to_torch(tmp_path) -> None:
+    config = PipelineConfig(
+        inference_mode="real",
+        embedding_model_path=str(tmp_path / "does-not-exist.pt"),
+    )
+    embedder = processing_service._build_embedder(config)
+    assert isinstance(embedder, TorchEmbeddingExtractor)
+
+
+def test_real_mode_prefers_trained_embedder_when_checkpoint_exists(tmp_path, monkeypatch) -> None:
+    import orchardvision_ml.identity as identity
+
+    created: dict[str, Path] = {}
+
+    class StubEmbedder:
+        def __init__(self, path: Path) -> None:
+            created["path"] = Path(path)
+
+    monkeypatch.setattr(identity, "Embedder", StubEmbedder)
+
+    checkpoint = tmp_path / "embedder.pt"
+    checkpoint.write_bytes(b"\x00" * 1024)
+    config = PipelineConfig(inference_mode="real", embedding_model_path=str(checkpoint))
+    embedder = processing_service._build_embedder(config)
+    assert isinstance(embedder, StubEmbedder)
+    assert created["path"] == checkpoint
+
+
 @pytest.mark.skipif(
     not Path(DEFAULT_MODEL_PATH).exists(),
     reason="trained model absent; embedder would download weights",
