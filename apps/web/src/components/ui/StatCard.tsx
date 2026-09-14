@@ -25,7 +25,9 @@ export function StatCard({ label, value, hint, accent = 'default' }: StatCardPro
         aria-hidden="true"
       />
       <p className="text-xs font-medium tracking-wide text-surface-400 uppercase">{label}</p>
-      <p className={`font-display mt-2 text-3xl font-semibold tabular-nums ${accentClasses[accent]}`}>
+      <p
+        className={`font-display mt-2 text-3xl font-semibold tabular-nums ${accentClasses[accent]}`}
+      >
         {value}
       </p>
       {hint && <p className="mt-1 text-xs text-surface-500">{hint}</p>}
