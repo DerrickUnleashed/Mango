@@ -15,8 +15,7 @@ function Icon({ name, className = 'h-5 w-5' }: { name: string; className?: strin
       'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM12 2v3M12 19v3M17.5 4.8l-2 2.2M8.5 17l-2 2.2M22 12h-3M5 12H2',
     fingerprint:
       'M12 11c0 2 .5 3.5 1.5 5M8 12c0-2.2 1.8-4 4-4s4 1.8 4 4c0 3-.8 5.5-2.2 7.4M5 14c-.6 1.9-.8 3.7-.5 5.5M12 15v3.5M7 16.5c0 2 .3 3.5 1 5M17 7.5A5.6 5.6 0 0 0 6 11c0 3 .6 5.8 1.8 8.2M15 8.4A4 4 0 0 0 8 12M15 17c-1 1.8-1.7 3.5-2 5',
-    refresh:
-      'M4 12a8 8 0 1 1 2.34 5.66M4 12v-6M4 12h6',
+    refresh: 'M4 12a8 8 0 1 1 2.34 5.66M4 12v-6M4 12h6',
     chart: 'M4 20h16M6 16v-5M10 16V8M14 16v-7M18 16v-4',
     flask:
       'M9 3h6M10 3v6l-5.5 8a2.5 2.5 0 0 0 2.1 3.8h10.8a2.5 2.5 0 0 0 2.1-3.8L14 9V3M7.2 14h9.6',
@@ -47,15 +46,12 @@ function Icon({ name, className = 'h-5 w-5' }: { name: string; className?: strin
 
 function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
+  const supportsIO = typeof IntersectionObserver !== 'undefined'
+  const [visible, setVisible] = useState(!supportsIO)
 
   useEffect(() => {
     const node = ref.current
-    if (!node) return
-    if (!('IntersectionObserver' in window)) {
-      setVisible(true)
-      return
-    }
+    if (!node || !supportsIO) return
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -69,7 +65,7 @@ function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }
     )
     observer.observe(node)
     return () => observer.disconnect()
-  }, [])
+  }, [supportsIO])
 
   return (
     <div
@@ -121,23 +117,38 @@ function HeroMock() {
             </span>
           </div>
           <div className="relative aspect-video overflow-hidden rounded-xl bg-gradient-to-br from-surface-900 via-surface-800 to-surface-900">
-            <div className="blob blob-emerald" style={{ width: '18rem', height: '18rem', left: '20%', top: '-30%', opacity: 0.35 }} />
-            <div className="blob blob-sky" style={{ width: '16rem', height: '16rem', right: '8%', bottom: '-40%', opacity: 0.3 }} />
+            <div
+              className="blob blob-emerald"
+              style={{ width: '18rem', height: '18rem', left: '20%', top: '-30%', opacity: 0.35 }}
+            />
+            <div
+              className="blob blob-sky"
+              style={{ width: '16rem', height: '16rem', right: '8%', bottom: '-40%', opacity: 0.3 }}
+            />
             {FRUITS.map((f, i) => (
               <div
                 key={i}
                 className="absolute"
-                style={{ left: f.left, top: f.top, animation: `sway ${f.sway} ease-in-out ${f.delay} infinite` }}
+                style={{
+                  left: f.left,
+                  top: f.top,
+                  animation: `sway ${f.sway} ease-in-out ${f.delay} infinite`,
+                }}
               >
                 <span
                   className="absolute inset-0 -m-2 rounded-3xl border"
-                  style={{ borderColor: 'rgba(251,191,36,0.75)', animation: 'pulse-ring 2.4s ease-in-out infinite' }}
+                  style={{
+                    borderColor: 'rgba(251,191,36,0.75)',
+                    animation: 'pulse-ring 2.4s ease-in-out infinite',
+                  }}
                 />
                 <div className="h-3 w-3 rounded-full bg-orchard-300 shadow-[0_0_12px_rgba(251,191,36,0.9)]" />
               </div>
             ))}
             <div className="absolute bottom-3 left-3 rounded-lg bg-black/55 px-2 py-1 backdrop-blur">
-              <p className="text-[10px] text-surface-200">17 fruits · 0 occluded · tracking stable</p>
+              <p className="text-[10px] text-surface-200">
+                17 fruits · 0 occluded · tracking stable
+              </p>
             </div>
           </div>
           <div className="mt-3 grid grid-cols-4 gap-2">
@@ -147,7 +158,10 @@ function HeroMock() {
               ['Count MAE', '1.3', 'text-orchard-300'],
               ['ID Switches', 3, 'text-surface-200'],
             ].map(([label, value, cls]) => (
-              <div key={label as string} className="rounded-lg border border-surface-800 bg-surface-900/60 px-2.5 py-2">
+              <div
+                key={label as string}
+                className="rounded-lg border border-surface-800 bg-surface-900/60 px-2.5 py-2"
+              >
                 <p className="text-[10px] text-surface-500">{label}</p>
                 <p className={`mt-0.5 font-mono text-sm font-semibold ${cls}`}>{value}</p>
               </div>
@@ -197,11 +211,27 @@ const FEATURES = [
 /* --------------------------------- Pipeline -------------------------------- */
 
 const STEPS = [
-  { n: '01', title: 'Detect', body: 'Fruit bounding boxes per frame over the whole orchard video.' },
-  { n: '02', title: 'Compensate', body: 'Estimate pan/tilt drift and shift boxes before tracking.' },
-  { n: '03', title: 'Track', body: 'Associate boxes into stable fruit trajectories across frames.' },
+  {
+    n: '01',
+    title: 'Detect',
+    body: 'Fruit bounding boxes per frame over the whole orchard video.',
+  },
+  {
+    n: '02',
+    title: 'Compensate',
+    body: 'Estimate pan/tilt drift and shift boxes before tracking.',
+  },
+  {
+    n: '03',
+    title: 'Track',
+    body: 'Associate boxes into stable fruit trajectories across frames.',
+  },
   { n: '04', title: 'Remember', body: 'Build quality-aware identity prototypes for every fruit.' },
-  { n: '05', title: 'Re-identify', body: 'Query identity memory to recover fruit after occlusions.' },
+  {
+    n: '05',
+    title: 'Re-identify',
+    body: 'Query identity memory to recover fruit after occlusions.',
+  },
   { n: '06', title: 'Evaluate', body: 'Score IDF1, HOTA, count MAE/MAPE and identity recovery.' },
 ]
 
@@ -483,33 +513,47 @@ function Footer() {
             <div>
               <Logo />
               <p className="mt-2 max-w-xs text-xs text-surface-500">
-                Visibility-aware, self-supervised identity learning for long-term fruit tracking
-                and counting in mango orchards.
+                Visibility-aware, self-supervised identity learning for long-term fruit tracking and
+                counting in mango orchards.
               </p>
             </div>
             <div className="flex gap-10 text-sm">
               <div className="space-y-2">
-                <p className="text-xs font-medium tracking-widest text-surface-500 uppercase">Explore</p>
+                <p className="text-xs font-medium tracking-widest text-surface-500 uppercase">
+                  Explore
+                </p>
                 <ul className="space-y-1.5 text-surface-400">
                   <li>
-                    <a href="#features" className="transition-colors hover:text-surface-100">Features</a>
+                    <a href="#features" className="transition-colors hover:text-surface-100">
+                      Features
+                    </a>
                   </li>
                   <li>
-                    <a href="#pipeline" className="transition-colors hover:text-surface-100">Pipeline</a>
+                    <a href="#pipeline" className="transition-colors hover:text-surface-100">
+                      Pipeline
+                    </a>
                   </li>
                   <li>
-                    <a href="#stack" className="transition-colors hover:text-surface-100">Stack</a>
+                    <a href="#stack" className="transition-colors hover:text-surface-100">
+                      Stack
+                    </a>
                   </li>
                 </ul>
               </div>
               <div className="space-y-2">
-                <p className="text-xs font-medium tracking-widest text-surface-500 uppercase">Product</p>
+                <p className="text-xs font-medium tracking-widest text-surface-500 uppercase">
+                  Product
+                </p>
                 <ul className="space-y-1.5 text-surface-400">
                   <li>
-                    <Link to="/dashboard" className="transition-colors hover:text-surface-100">Console</Link>
+                    <Link to="/dashboard" className="transition-colors hover:text-surface-100">
+                      Console
+                    </Link>
                   </li>
                   <li>
-                    <Link to="/dashboard" className="transition-colors hover:text-surface-100">Dashboard</Link>
+                    <Link to="/dashboard" className="transition-colors hover:text-surface-100">
+                      Dashboard
+                    </Link>
                   </li>
                 </ul>
               </div>
