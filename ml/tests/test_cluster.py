@@ -28,8 +28,7 @@ def _sub(track_id: int, vectors: list[np.ndarray]) -> SubTracklet:
         track_id=track_id,
         sub_index=0,
         observations=[
-            _obs(track_id, frame_id=index, vector=vector)
-            for index, vector in enumerate(vectors)
+            _obs(track_id, frame_id=index, vector=vector) for index, vector in enumerate(vectors)
         ],
     )
 
