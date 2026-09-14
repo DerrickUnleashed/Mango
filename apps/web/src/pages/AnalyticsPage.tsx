@@ -9,7 +9,7 @@ export function AnalyticsPage() {
     <div className="mx-auto max-w-7xl">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-surface-50">Analytics</h1>
+          <h1 className="font-display text-2xl font-semibold text-surface-50">Analytics</h1>
           <p className="mt-1 text-sm text-surface-400">
             Frame-wise fruit counts, track statistics, and occlusion patterns for a processed video.
           </p>
