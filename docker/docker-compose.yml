@@ -1,13 +1,24 @@
-# OrchardVision production stack: API + Celery worker + Redis broker.
+# OrchardVision production stack: Web (nginx) + API + Celery worker + Redis broker.
 # The API and worker share the same image so ML + app code versions stay in sync.
 #
 #   docker compose -f docker/docker-compose.yml up --build
 #
-# API          -> http://localhost:8001
+# Web          -> http://localhost:8080 (SPA + /api reverse proxy)
+# API          -> http://localhost:8001 (internal, proxied via the web service)
 # Worker       -> consumes the CELERY_BROKER_URL queue
 # Redis        -> broker + result backend (internal only)
 
 services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/web.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped

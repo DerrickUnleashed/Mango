@@ -1,6 +1,14 @@
 # syntax=docker/dockerfile:1
 FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS base
 
+# System libraries required by opencv-python-headless at import time.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libgl1 \
+        libglib2.0-0 \
+        libxcb1 \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /orchardvision
 
 # Copy workspace manifests for dependency installation

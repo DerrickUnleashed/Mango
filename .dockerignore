@@ -1,0 +1,33 @@
+# VCS
+.git
+.gitignore
+
+# Runtime data (heavy, gitignored, mounted as volumes / scp'd separately)
+data/
+runs/
+models/
+
+# Node / Python
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Build output
+apps/web/dist/
+**/dist/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Editor/OS cruft
+.DS_Store
+.idea/
+.vscode/
+
+# Docker
+docker/*.tar
