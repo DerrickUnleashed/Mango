@@ -32,7 +32,7 @@ export function ExperimentsPage() {
     <div className="mx-auto max-w-7xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-surface-50">Experiments</h1>
+          <h1 className="font-display text-2xl font-semibold text-surface-50">Experiments</h1>
           <p className="mt-1 text-sm text-surface-400">
             Run the orchard scenario with different trackers to study identity recovery under
             occlusion and camera motion.
@@ -99,14 +99,14 @@ export function ExperimentsView() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-surface-800 bg-surface-950 p-5">
+      <div className="glass card-glow rounded-2xl p-5">
         <div className="flex flex-wrap items-end gap-4">
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-surface-400">Tracker</span>
             <select
               value={tracker}
               onChange={(e) => setTracker(e.target.value as 'mock' | 'bytetrack')}
-              className="rounded-lg border border-surface-700 bg-surface-900 px-3 py-2 text-surface-100"
+              className="glass-soft cursor-pointer rounded-lg px-3 py-2 text-surface-100"
             >
               <option value="mock">Mock (identity primitives)</option>
               <option value="bytetrack">ByteTrack baseline</option>
@@ -120,13 +120,13 @@ export function ExperimentsView() {
               max={1000}
               value={frames}
               onChange={(e) => setFrames(Number(e.target.value))}
-              className="w-32 rounded-lg border border-surface-700 bg-surface-900 px-3 py-2 text-surface-100"
+              className="w-32 glass-soft cursor-pointer rounded-lg px-3 py-2 text-surface-100"
             />
           </label>
           <button
             onClick={handleRun}
             disabled={createMutation.isPending || isRunning}
-            className="rounded-lg bg-orchard-500 px-4 py-2 text-sm font-medium text-surface-950 hover:bg-orchard-400 disabled:opacity-50"
+            className="bg-mango cursor-pointer rounded-full px-5 py-2 text-sm font-semibold text-surface-950 shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)] transition-transform hover:scale-[1.03] disabled:opacity-50 active:scale-[0.98]"
           >
             {createMutation.isPending ? 'Running…' : 'Run experiment'}
           </button>
@@ -140,8 +140,8 @@ export function ExperimentsView() {
       </div>
 
       {baseline.length > 1 && (
-        <div className="rounded-xl border border-surface-800 bg-surface-950 p-5">
-          <h2 className="font-medium text-surface-200">Tracker baseline comparison</h2>
+        <div className="glass card-glow rounded-2xl p-5">
+          <h2 className="font-display font-medium text-surface-200">Tracker baseline comparison</h2>
           <p className="mt-1 text-sm text-surface-400">
             Medians across completed runs per tracker.
           </p>
@@ -182,8 +182,8 @@ export function ExperimentsView() {
       )}
 
       {trends.length > 0 && (
-        <div className="rounded-xl border border-surface-800 bg-surface-950 p-5">
-          <h2 className="font-medium text-surface-200">Metric trends over runs</h2>
+        <div className="glass card-glow rounded-2xl p-5">
+          <h2 className="font-display font-medium text-surface-200">Metric trends over runs</h2>
           <p className="mt-1 text-sm text-surface-400">
             Completed runs in creation order; cyan = mock tracker, amber = bytetrack.
           </p>
@@ -202,7 +202,7 @@ export function ExperimentsView() {
 
       <div className="space-y-3">
         {experiments.length === 0 && !isLoading && (
-          <p className="rounded-lg border border-dashed border-surface-800 px-4 py-8 text-center text-sm text-surface-500">
+          <p className="glass-soft rounded-lg border border-dashed border-surface-700 px-4 py-8 text-center text-sm text-surface-500">
             No experiments yet — pick a tracker above and run one.
           </p>
         )}
@@ -238,11 +238,11 @@ function ExperimentRow({
   onDelete: () => void
 }) {
   return (
-    <div className="rounded-xl border border-surface-800 bg-surface-950 p-5">
+    <div className="glass card-glow rounded-2xl p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="font-medium text-surface-200">{experiment.name}</h3>
+            <h3 className="font-display font-medium text-surface-200">{experiment.name}</h3>
             <StatusBadge status={experiment.status} />
           </div>
           <p className="mt-1 text-xs text-surface-500">
@@ -299,10 +299,7 @@ function ExperimentRow({
       {experiment.status === 'completed' && experiment.metrics && (
         <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {METRIC_ROWS.map((row) => (
-            <div
-              key={row.key}
-              className="rounded-lg border border-surface-800 bg-surface-900/60 px-3 py-2"
-            >
+            <div key={row.key} className="glass-soft rounded-lg px-3 py-2">
               <dt className="text-xs text-surface-500">{row.label}</dt>
               <dd className="mt-0.5 font-mono text-sm text-surface-200">
                 {experiment.metrics![row.key].toFixed(row.digits)}
@@ -383,7 +380,7 @@ function TrendChart({
     .filter((p): p is typeof p & { value: number } => typeof p.value === 'number')
   if (points.length === 0) {
     return (
-      <div className="rounded-lg border border-surface-800 bg-surface-900/60 p-4">
+      <div className="glass-soft rounded-lg p-4">
         <h3 className="text-sm font-medium text-surface-300">{metric.label}</h3>
         <p className="mt-3 text-xs text-surface-500">No completed runs yet.</p>
       </div>
@@ -402,7 +399,7 @@ function TrendChart({
       .map((p) => `${x(p.index)},${y(p.value)}`)
       .join(' ')
   return (
-    <div className="rounded-lg border border-surface-800 bg-surface-900/60 p-4">
+    <div className="glass-soft rounded-lg p-4">
       <h3 className="text-sm font-medium text-surface-300">{metric.label}</h3>
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}

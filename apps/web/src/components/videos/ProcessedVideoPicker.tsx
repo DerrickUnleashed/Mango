@@ -23,7 +23,7 @@ export function ProcessedVideoPicker({
         aria-label="Select processed video"
         value={value ?? processed[0]!.id}
         onChange={(e) => onChange(e.target.value)}
-        className="rounded-lg border border-surface-700 bg-surface-900 px-3 py-2 text-surface-100"
+        className="glass-soft cursor-pointer rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
       >
         {includeAll && <option value={ALL_VIDEOS}>All videos</option>}
         {processed.map((video) => (

@@ -9,6 +9,7 @@ changing this orchestration layer.
 
 from __future__ import annotations
 
+import os
 import time
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -63,6 +64,7 @@ class PipelineConfig:
     max_frames: int | None = None
     model_path: str | None = None
     sliced: int = 0
+    embedding_model_path: str | None = os.environ.get("EMBEDDING_MODEL_PATH")
 
     def effective_max_frames(self, total_frames: int) -> int:
         cap = self.max_frames or DEFAULT_MAX_FRAMES
@@ -197,12 +199,18 @@ class ProcessingService:
     def _build_embedder(self, config: PipelineConfig):
         """Pick an appearance embedder from the pipeline config.
 
-        Real mode uses a pretrained torchvision backbone; mock mode uses the
-        deterministic crop-feature embedder.
+        Real mode prefers a self-supervised identity checkpoint (via
+        :class:`orchardvision_ml.identity.Embedder`) when the embedding model
+        path is set and exists, falling back to the pretrained torchvision
+        backbone. Mock mode uses the deterministic crop-feature embedder.
         """
         if config.inference_mode == "real":
-            from orchardvision_ml.identity import TorchEmbeddingExtractor
+            from orchardvision_ml.identity import Embedder, TorchEmbeddingExtractor
 
+            if config.embedding_model_path:
+                checkpoint = Path(config.embedding_model_path)
+                if checkpoint.is_file():
+                    return Embedder(checkpoint)
             return TorchEmbeddingExtractor()
         return MockEmbeddingExtractor()
 

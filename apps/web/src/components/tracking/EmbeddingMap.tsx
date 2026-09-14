@@ -64,7 +64,7 @@ export function EmbeddingMap({
 
   if (isLoading) {
     return (
-      <div className="flex h-40 items-center justify-center rounded-xl border border-surface-800 bg-surface-950">
+      <div className="flex h-40 items-center justify-center glass card-glow rounded-2xl">
         <span className="text-sm text-surface-500">Projecting embeddings…</span>
       </div>
     )
@@ -72,7 +72,7 @@ export function EmbeddingMap({
 
   if (isError) {
     return (
-      <div className="rounded-xl border border-surface-800 bg-surface-950 p-5 text-sm text-red-400">
+      <div className="glass card-glow rounded-2xl p-5 text-sm text-red-400">
         Failed to load embedding projection.
       </div>
     )
@@ -80,10 +80,8 @@ export function EmbeddingMap({
 
   if (points.length === 0) {
     return (
-      <div className="flex h-40 items-center justify-center rounded-xl border border-surface-800 bg-surface-950">
-        <p className="text-sm text-surface-500">
-          Run processing to project observation embeddings.
-        </p>
+      <div className="flex h-40 items-center justify-center glass card-glow rounded-2xl">
+        <p className="text-sm text-surface-500">Run processing to project identity embeddings.</p>
       </div>
     )
   }
@@ -95,7 +93,7 @@ export function EmbeddingMap({
   }
 
   return (
-    <div className="rounded-xl border border-surface-800 bg-surface-950">
+    <div className="glass card-glow rounded-2xl">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-surface-800 px-4 py-3">
         <div>
           <h3 className="font-medium text-surface-200">Embedding map</h3>

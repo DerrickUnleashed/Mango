@@ -25,7 +25,8 @@
   --color-orchard-900: var(--orchard-900);
   --color-orchard-950: var(--orchard-950);
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 }
 
@@ -97,10 +98,16 @@
     @apply antialiased;
   }
   body {
-    @apply bg-surface-950 text-surface-50;
+    @apply bg-surface-950 text-surface-50 font-sans;
     transition:
       background-color 0.35s ease,
       color 0.35s ease;
+  }
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
   }
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-orchard-400;
@@ -112,8 +119,154 @@
 }
 
 @layer utilities {
+  /* ----- Glassmorphism ----- */
+  .glass {
+    background: color-mix(in srgb, var(--surface-900) 55%, transparent);
+    border: 1px solid color-mix(in srgb, var(--surface-700) 60%, transparent);
+    box-shadow:
+      0 1px 1px rgb(255 255 255 / 0.04) inset,
+      0 8px 32px -12px rgb(0 0 0 / 0.45);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  }
+
+  .glass-soft {
+    background: color-mix(in srgb, var(--surface-900) 40%, transparent);
+    border: 1px solid color-mix(in srgb, var(--surface-700) 45%, transparent);
+    backdrop-filter: blur(10px) saturate(1.25);
+    -webkit-backdrop-filter: blur(10px) saturate(1.25);
+  }
+
   .glass-panel {
     @apply bg-surface-900/70 border border-surface-800 backdrop-blur;
+  }
+
+  /* ----- Blastmorphism — floating gradient blobs ----- */
+  .blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(72px);
+    opacity: 0.5;
+    pointer-events: none;
+    will-change: transform;
+    animation: blob-drift 18s ease-in-out infinite;
+  }
+
+  .blob-orange {
+    background: radial-gradient(circle at 30% 30%, #f59e0b, #ef4444 70%);
+  }
+
+  .blob-amber {
+    background: radial-gradient(circle at 30% 30%, #fbbf24, #f97316 75%);
+  }
+
+  .blob-pink {
+    background: radial-gradient(circle at 30% 30%, #fb7185, #ec4899 75%);
+  }
+
+  .blob-emerald {
+    background: radial-gradient(circle at 30% 30%, #34d399, #10b981 75%);
+  }
+
+  .blob-sky {
+    background: radial-gradient(circle at 30% 30%, #38bdf8, #3b82f6 75%);
+  }
+
+  .blob-slow {
+    animation-duration: 26s;
+  }
+
+  .blob-fast {
+    animation-duration: 12s;
+  }
+
+  /* ----- Gradient text & surfaces ----- */
+  .text-gradient {
+    background: linear-gradient(120deg, #fbbf24 0%, #f97316 45%, #fb7185 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .bg-mango {
+    background-image: linear-gradient(120deg, #facc15 0%, #f97316 50%, #fb7185 100%);
+  }
+
+  .bg-mango-soft {
+    background-image: linear-gradient(
+      120deg,
+      color-mix(in srgb, #facc15 22%, transparent),
+      color-mix(in srgb, #fb7185 18%, transparent)
+    );
+  }
+
+  .ring-glow {
+    box-shadow:
+      0 0 0 1px rgb(249 115 22 / 0.18),
+      0 8px 40px -8px rgb(249 115 22 / 0.28);
+  }
+
+  .card-glow {
+    transition:
+      transform 0.28s ease,
+      border-color 0.28s ease,
+      box-shadow 0.28s ease;
+  }
+
+  .card-glow:hover {
+    border-color: color-mix(in srgb, var(--orchard-400) 55%, transparent);
+    box-shadow: 0 12px 48px -16px rgb(249 115 22 / 0.35);
+  }
+
+  .noise {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes blob-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(40px, -30px, 0) scale(1.12);
+  }
+  66% {
+    transform: translate3d(-30px, 25px, 0) scale(0.94);
+  }
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(7px, -6px, 0);
+  }
+  75% {
+    transform: translate3d(-8px, 4px, 0);
+  }
+}
+
+@keyframes pulse-ring {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(1.35);
   }
 }
 
