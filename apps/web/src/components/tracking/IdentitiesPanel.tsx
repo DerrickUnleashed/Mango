@@ -18,7 +18,7 @@ export function IdentitiesPanel({ videoId, enabled }: IdentitiesPanelProps) {
 
   if (isLoading) {
     return (
-      <div className="flex h-40 items-center justify-center rounded-xl border border-surface-800 bg-surface-950">
+      <div className="flex h-40 items-center justify-center glass card-glow rounded-2xl">
         <span className="text-sm text-surface-500">Loading identities…</span>
       </div>
     )
@@ -26,7 +26,7 @@ export function IdentitiesPanel({ videoId, enabled }: IdentitiesPanelProps) {
 
   if (isError) {
     return (
-      <div className="rounded-xl border border-surface-800 bg-surface-950 p-5 text-sm text-red-400">
+      <div className="glass card-glow rounded-2xl p-5 text-sm text-red-400">
         Failed to load identity data.
       </div>
     )
@@ -34,7 +34,7 @@ export function IdentitiesPanel({ videoId, enabled }: IdentitiesPanelProps) {
 
   if (!identities.length) {
     return (
-      <div className="flex h-40 items-center justify-center rounded-xl border border-surface-800 bg-surface-950">
+      <div className="flex h-40 items-center justify-center glass card-glow rounded-2xl">
         <p className="text-sm text-surface-500">Run processing to generate identities.</p>
       </div>
     )
@@ -43,7 +43,7 @@ export function IdentitiesPanel({ videoId, enabled }: IdentitiesPanelProps) {
   const confident = identities.filter((i) => i.isConfident).length
 
   return (
-    <div className="rounded-xl border border-surface-800 bg-surface-950">
+    <div className="glass card-glow rounded-2xl">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-surface-800 px-4 py-3">
         <div>
           <h2 className="font-medium text-surface-200">Identities</h2>
@@ -149,7 +149,7 @@ function IdentityRow({ identity, videoId }: { identity: PersistedIdentity; video
       </button>
 
       {open && (
-        <div className="mb-2 ml-6 rounded-lg border border-surface-800 bg-surface-900/60 px-3 py-2">
+        <div className="mb-2 ml-6 glass-soft rounded-lg px-3 py-2">
           {observations.isLoading && (
             <p className="text-xs text-surface-500">Loading observations…</p>
           )}
