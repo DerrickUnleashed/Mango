@@ -89,7 +89,6 @@ function Header() {
         </Link>
         <div
           className="no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
-          role="tablist"
           aria-label="Pages"
         >
           {navItems.map((item) => (
