@@ -12,12 +12,7 @@ export function LogoMark({ className, gradientId }: LogoMarkProps) {
   const leafId = `mango-leaf-${id}`
 
   return (
-    <svg
-      viewBox="0 0 32 32"
-      aria-hidden="true"
-      className={className}
-      focusable="false"
-    >
+    <svg viewBox="0 0 32 32" aria-hidden="true" className={className} focusable="false">
       <defs>
         <linearGradient id={bodyId} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#FDE047" />
@@ -49,11 +44,7 @@ export function LogoMark({ className, gradientId }: LogoMarkProps) {
         strokeWidth="1.4"
         strokeLinecap="round"
       />
-      <path
-        d="M14.6 4.6c2.4-2 6-1.2 7.8.9-2.3 1.6-5.6 1.6-8 .4z"
-        fill="#059669"
-        opacity="0.55"
-      />
+      <path d="M14.6 4.6c2.4-2 6-1.2 7.8.9-2.3 1.6-5.6 1.6-8 .4z" fill="#059669" opacity="0.55" />
       <path
         d="M10.5 25.4c-1.6-1.4-2.5-4.4-2.1-8.6.4-4 1.6-6.9 3.3-8.2"
         fill="none"
