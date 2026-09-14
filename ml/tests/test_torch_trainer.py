@@ -86,9 +86,7 @@ def test_contrastive_trainer_separates_positives() -> None:
     observations, provider = _build_synthetic_frames()
     dataset = TrackletDataset(
         observations,
-        pair_options=PairOptions(
-            max_frames_apart=2, min_center_distance=200.0, temperature=0.2
-        ),
+        pair_options=PairOptions(max_frames_apart=2, min_center_distance=200.0, temperature=0.2),
         partitioner=TrackletPartitioner(min_sub_length=1),
     )
     pairs = dataset.build_pairs()

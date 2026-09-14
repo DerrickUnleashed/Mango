@@ -279,8 +279,7 @@ def test_mock_scenario_counts_each_fruit_once_with_stable_numbering() -> None:
                 if bbox is None:
                     continue
                 distance = (
-                    (cx - (bbox[0] + bbox[2] / 2.0)) ** 2
-                    + (cy - (bbox[1] + bbox[3] / 2.0)) ** 2
+                    (cx - (bbox[0] + bbox[2] / 2.0)) ** 2 + (cy - (bbox[1] + bbox[3] / 2.0)) ** 2
                 ) ** 0.5
                 if best_distance is None or distance < best_distance:
                     best_distance = distance
@@ -292,7 +291,11 @@ def test_mock_scenario_counts_each_fruit_once_with_stable_numbering() -> None:
             )
             assigned.append(replace(det, track_id=track_id))
 
-        reid.step(frame_id, result.lost_track_ids, extractor.extract(frame, replace(frame_detections, detections=assigned)))
+        reid.step(
+            frame_id,
+            result.lost_track_ids,
+            extractor.extract(frame, replace(frame_detections, detections=assigned)),
+        )
 
         per_frame[frame_id] = []
         for det in assigned:

@@ -120,9 +120,7 @@ class IdentityEmbeddingNet:
     def _build(self) -> nn.Module:
         import torchvision
 
-        backbone = torchvision.models.get_model(
-            self.backbone_name, weights="IMAGENET1K_V1"
-        )
+        backbone = torchvision.models.get_model(self.backbone_name, weights="IMAGENET1K_V1")
         feature = backbone.fc if hasattr(backbone, "fc") else None
         in_features = feature.in_features if feature is not None else 512
 
@@ -358,9 +356,7 @@ class TorchContrastiveTrainer:
             float(np.mean(negatives)) if negatives else 0.0,
         )
 
-    def _embed(
-        self, frames: FrameProvider, observation: TrackObservation
-    ) -> torch.Tensor:
+    def _embed(self, frames: FrameProvider, observation: TrackObservation) -> torch.Tensor:
         crop = crop_observation(
             frames(observation.source_id, observation.frame_id),
             observation,
