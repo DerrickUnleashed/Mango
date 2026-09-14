@@ -13,6 +13,40 @@ const ACCEPTED_TYPES = [
 ]
 const MAX_SIZE_BYTES = 2 * 1024 * 1024 * 1024
 
+function FilmIcon({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zM3 8h18M3 16h18M8 8v13M16 8v13" />
+    </svg>
+  )
+}
+
+function UploadIcon({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+    </svg>
+  )
+}
+
 export function VideosPage() {
   const navigate = useNavigate()
   const { push } = useToast()
@@ -44,17 +78,17 @@ export function VideosPage() {
     <div className="mx-auto max-w-7xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-surface-50">Videos</h1>
+          <h1 className="font-display text-2xl font-semibold text-surface-50">Videos</h1>
           <p className="mt-1 text-sm text-surface-400">Upload orchard footage for analysis</p>
         </div>
       </div>
 
       {/* Upload dropzone */}
       <label
-        className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-10 text-center transition-colors ${
+        className={`glass-soft flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-10 text-center transition-colors ${
           upload.isPending
-            ? 'border-orchard-700 bg-orchard-950/40'
-            : 'border-surface-800 bg-surface-900/40 hover:border-surface-700 hover:bg-surface-900'
+            ? 'border-orchard-500/70 bg-orchard-500/10'
+            : 'border-surface-700/60 hover:border-orchard-500/50 hover:bg-orchard-500/5'
         }`}
         role="button"
         aria-label="Upload orchard video"
@@ -68,10 +102,10 @@ export function VideosPage() {
         />
         {upload.isPending ? (
           <>
-            <span className="text-2xl" aria-hidden="true">
-              Uploading…
+            <span className="bg-mango flex h-12 w-12 items-center justify-center rounded-2xl">
+              <FilmIcon className="h-6 w-6 text-surface-950" />
             </span>
-            <span className="text-sm text-surface-400">
+            <span className="text-sm font-medium text-surface-200">
               {upload.variables?.file.name} — {uploadProgress ?? 0}%
             </span>
             <div
@@ -82,14 +116,17 @@ export function VideosPage() {
               aria-valuemax={100}
             >
               <div
-                className="h-full rounded-full bg-orchard-500 transition-all"
+                className="bg-mango h-full rounded-full transition-all"
                 style={{ width: `${uploadProgress ?? 0}%` }}
               />
             </div>
           </>
         ) : (
           <>
-            <span className="text-sm font-medium text-surface-300">
+            <span className="bg-mango-soft flex h-12 w-12 items-center justify-center rounded-2xl text-orchard-300">
+              <UploadIcon className="h-6 w-6" />
+            </span>
+            <span className="text-sm font-medium text-surface-200">
               Drop a video here, or click to browse
             </span>
             <span className="text-xs text-surface-500">MP4, MOV, AVI, WebM, MPEG · up to 2 GB</span>
@@ -114,22 +151,28 @@ export function VideosPage() {
             Failed to load videos. Is the API running on port 8001?
           </p>
         ) : (videos.data?.videos.length ?? 0) === 0 ? (
-          <div className="rounded-xl border border-surface-800 bg-surface-900/40 p-10 text-center">
+          <div className="glass card-glow rounded-2xl p-10 text-center">
             <p className="text-surface-400">No videos yet.</p>
-            <p className="mt-1 text-xs text-surface-600">Upload footage above to begin.</p>
+            <p className="mt-1 text-xs text-surface-500">Upload footage above to begin.</p>
           </div>
         ) : (
-          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {(videos.data?.videos ?? []).map((video) => (
               <li key={video.id}>
-                <article className="group rounded-xl border border-surface-800 bg-surface-900/60 transition-colors hover:border-surface-700">
-                  <div className="flex aspect-video items-center justify-center bg-surface-950">
-                    <span className="text-surface-600" aria-hidden="true">
-                      🎬
-                    </span>
-                    <span className="sr-only">Video thumbnail placeholder</span>
-                  </div>
-                  <div className="p-4">
+                <article className="glass card-glow group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl">
+                  <button
+                    type="button"
+                    className="flex items-start text-left"
+                    onClick={() => navigate(`/videos/${video.id}`)}
+                  >
+                    <div className="relative flex aspect-video w-full items-center justify-center bg-surface-950/60">
+                      <span className="text-surface-500 transition-colors group-hover:text-orchard-300">
+                        <FilmIcon className="h-10 w-10" />
+                      </span>
+                      <span className="sr-only">Video thumbnail placeholder</span>
+                    </div>
+                  </button>
+                  <div className="flex flex-1 flex-col p-4">
                     <h2
                       className="truncate font-medium text-surface-200"
                       title={video.originalName}
@@ -140,15 +183,15 @@ export function VideosPage() {
                       {video.width && video.height ? `${video.width}×${video.height} · ` : ''}
                       {video.fps ? `${video.fps.toFixed(1)} fps` : ''}
                     </p>
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="rounded-full border border-surface-700 px-2 py-0.5 text-xs text-surface-400">
+                    <div className="mt-3 flex items-center justify-between pt-1">
+                      <span className="rounded-full border border-orchard-700/50 bg-orchard-500/10 px-2.5 py-0.5 text-xs text-orchard-300">
                         {video.status}
                       </span>
                       <div className="flex gap-2">
                         <button
                           type="button"
                           onClick={() => navigate(`/videos/${video.id}`)}
-                          className="rounded-md border border-surface-700 px-3 py-1 text-xs font-medium text-surface-300 transition-colors hover:border-surface-500 hover:text-surface-100"
+                          className="cursor-pointer rounded-lg border border-orchard-700/50 bg-orchard-500/10 px-3 py-1 text-xs font-medium text-orchard-300 transition-colors hover:bg-orchard-500/20"
                         >
                           Analyze
                         </button>
@@ -164,7 +207,7 @@ export function VideosPage() {
                               }
                             }
                           }}
-                          className="rounded-md border border-surface-800 px-3 py-1 text-xs font-medium text-surface-500 transition-colors hover:border-red-900 hover:text-red-400"
+                          className="cursor-pointer rounded-lg border border-surface-700/60 px-3 py-1 text-xs font-medium text-surface-400 transition-colors hover:border-red-900 hover:text-red-400"
                         >
                           Delete
                         </button>
