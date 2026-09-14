@@ -33,15 +33,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 }
 
 const variantStyles: Record<ToastVariant, string> = {
-  info: 'border-surface-700 bg-surface-800 text-surface-100',
-  success: 'border-orchard-700 bg-orchard-900 text-orchard-100',
-  error: 'border-red-800 bg-red-950 text-red-100',
-  warning: 'border-yellow-800 bg-yellow-950 text-yellow-100',
+  info: 'from-surface-400/70',
+  success: 'from-emerald-400/70',
+  error: 'from-red-400/70',
+  warning: 'from-yellow-400/70',
 }
 
 const variantDot: Record<ToastVariant, string> = {
   info: 'bg-surface-400',
-  success: 'bg-orchard-400',
+  success: 'bg-emerald-400',
   error: 'bg-red-400',
   warning: 'bg-yellow-400',
 }
@@ -57,20 +57,34 @@ export function Toaster() {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`pointer-events-auto flex items-start gap-3 rounded-lg border px-4 py-3 shadow-lg ${variantStyles[toast.variant]}`}
+          className={`glass pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-xl px-4 py-3 shadow-[0_16px_48px_-16px_rgba(0,0,0,0.5)]`}
         >
+          <div
+            className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${variantStyles[toast.variant]} to-transparent`}
+            aria-hidden="true"
+          />
           <span
             className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${variantDot[toast.variant]}`}
             aria-hidden="true"
           />
-          <p className="flex-1 text-sm">{toast.message}</p>
+          <p className="flex-1 text-sm text-surface-100">{toast.message}</p>
           <button
             type="button"
-            className="text-surface-400 hover:text-surface-200"
+            className="cursor-pointer rounded-md p-0.5 text-surface-400 transition-colors hover:bg-surface-800 hover:text-surface-200"
             onClick={() => dismiss(toast.id)}
             aria-label="Dismiss notification"
           >
-            ✕
+            <svg
+              className="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
           </button>
         </div>
       ))}
