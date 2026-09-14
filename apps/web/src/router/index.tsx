@@ -38,7 +38,13 @@ function PageFallback() {
       role="status"
       aria-label="Loading page"
     >
-      <span className="text-surface-500">Loading…</span>
+      <span className="flex items-center gap-2 text-surface-500">
+        <span
+          className="h-4 w-4 animate-spin rounded-full border-2 border-surface-700 border-t-orchard-400"
+          aria-hidden="true"
+        />
+        Loading…
+      </span>
     </div>
   )
 }
