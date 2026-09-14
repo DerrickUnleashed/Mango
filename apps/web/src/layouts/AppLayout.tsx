@@ -1,13 +1,13 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { ThemeToggle } from '../components/ui/ThemeToggle'
+import { LogoMark } from '../components/ui/Logo'
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: 'grid', end: true },
+  { to: '/dashboard', label: 'Dashboard', icon: 'grid', end: true },
   { to: '/videos', label: 'Videos', icon: 'film' },
   { to: '/identities', label: 'Identities', icon: 'user' },
   { to: '/reidentification', label: 'Re-ID', icon: 'refresh' },
-  { to: '/analytics', label: 'Analytics', icon: 'chart', match: '/videos/' },
   { to: '/evaluation', label: 'Evaluation', icon: 'target' },
   { to: '/experiments', label: 'Experiments', icon: 'flask' },
   { to: '/settings', label: 'Settings', icon: 'gear' },
@@ -15,11 +15,10 @@ const navItems = [
 
 function Icon({ name }: { name: string }) {
   const paths: Record<string, string> = {
-    grid: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',
+    grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
     film: 'M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zM3 8h18M3 16h18M8 8v13M16 8v13',
     user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0H4z',
     refresh: 'M4 12a8 8 0 1 1 2.34 5.66M4 12v-6M4 12h6',
-    chart: 'M4 20h16M6 16v-5M10 16V8M14 16v-7M18 16v-4',
     target: 'M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z',
     flask:
       'M9 3h6M10 3v6l-5.5 8a2.5 2.5 0 0 0 2.1 3.8h10.8a2.5 2.5 0 0 0 2.1-3.8L14 9V3M7.2 14h9.6',
@@ -57,10 +56,10 @@ function SidebarLink({
       to={to}
       end={end}
       className={({ isActive }) =>
-        `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+        `flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
           isActive
-            ? 'bg-orchard-800/60 text-orchard-200'
-            : 'text-surface-400 hover:bg-surface-800 hover:text-surface-100'
+            ? 'bg-mango text-surface-950 shadow-[0_6px_20px_-8px_rgba(249,115,22,0.55)]'
+            : 'text-surface-400 hover:bg-surface-800/70 hover:text-surface-100'
         }`
       }
     >
@@ -88,28 +87,20 @@ function Breadcrumbs() {
 
 function Sidebar({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-surface-950">
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-surface-800 bg-surface-900/60 md:flex">
-        <div className="flex items-center gap-2 px-4 py-5">
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-orchard-600 text-white"
-            aria-hidden="true"
-          >
-            <svg
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <path
-                d="M4 20V10M4 8V4M10 20v-6M10 12V4M16 20V14M16 12V4M22 20v-4M22 14V4"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
+    <div className="relative flex min-h-screen">
+      <div
+        className="blob blob-orange blob-slow"
+        style={{ width: '34rem', height: '34rem', left: '-14rem', bottom: '-14rem', opacity: 0.14 }}
+      />
+      <div
+        className="blob blob-sky blob-fast"
+        style={{ width: '26rem', height: '26rem', right: '-12rem', top: '-12rem', opacity: 0.12 }}
+      />
+      <aside className="glass-soft relative hidden w-60 shrink-0 flex-col border-r border-surface-800/60 md:flex">
+        <div className="flex items-center gap-2.5 px-4 py-5">
+          <LogoMark className="h-8 w-8" />
           <div>
-            <p className="text-sm font-semibold text-surface-50">OrchardVision</p>
+            <p className="font-display text-sm font-semibold text-surface-50">OrchardVision</p>
             <p className="text-xs text-surface-500">Fruit Tracking Research</p>
           </div>
         </div>
@@ -118,16 +109,18 @@ function Sidebar({ children }: { children: ReactNode }) {
             <SidebarLink key={item.to} {...item} />
           ))}
         </nav>
-        <div className="border-t border-surface-800 px-4 py-4">
+        <div className="border-t border-surface-800/60 px-4 py-4">
           <p className="text-xs text-surface-500">Inference: Mock / Demo</p>
-          <p className="text-xs text-surface-600">v0.1.0</p>
+          <p className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-orchard-500/10 px-2 py-0.5 text-xs text-orchard-300">
+            v0.1.0
+          </p>
         </div>
       </aside>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-surface-800 bg-surface-900/40 px-4">
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        <header className="glass-soft sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between border-b border-surface-800/60 bg-surface-950/40 px-4">
           <Breadcrumbs />
           <div className="flex items-center gap-3">
-            <span className="rounded-full border border-orchard-800 bg-orchard-900 px-2.5 py-1 text-xs font-medium text-orchard-300">
+            <span className="rounded-full border border-orchard-800/70 bg-orchard-900/50 px-2.5 py-1 text-xs font-medium text-orchard-300">
               Mock Mode
             </span>
             <ThemeToggle />
