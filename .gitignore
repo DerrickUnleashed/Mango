@@ -92,3 +92,4 @@ temp/
 .torch-cache/
 .uv-cache/
 runs/
+.opencode/
