@@ -96,9 +96,6 @@ function Header() {
           ))}
         </div>
         <div className="flex shrink-0 items-center gap-3">
-          <span className="hidden rounded-full border border-orchard-800/70 bg-orchard-500/10 px-2.5 py-1 text-xs font-medium text-orchard-300 lg:block">
-            Mock Mode
-          </span>
           <span
             className="rounded-full border border-emerald-700/60 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300"
             title="Inference status"
