@@ -236,6 +236,31 @@
   }
 }
 
+@keyframes sway {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(7px, -6px, 0);
+  }
+  75% {
+    transform: translate3d(-8px, 4px, 0);
+  }
+}
+
+@keyframes pulse-ring {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(1.35);
+  }
+}
+
 @layer components {
   .theme-toggle {
     border: none;
