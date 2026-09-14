@@ -1,6 +1,7 @@
 import { lazy, Suspense, type ReactNode } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { AppLayout } from '../layouts/AppLayout'
+import { LandingPage } from '../pages/LandingPage'
 import { DashboardPage } from '../pages/DashboardPage'
 import { SettingsPage } from '../pages/SettingsPage'
 
@@ -45,8 +46,9 @@ function PageFallback() {
 export function AppRouter() {
   return (
     <Routes>
+      <Route index element={<LandingPage />} />
       <Route element={<AppLayout />}>
-        <Route index element={<DashboardPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route
           path="/videos"
           element={
