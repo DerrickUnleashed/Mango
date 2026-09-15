@@ -100,6 +100,7 @@ system runs without heavy model weights.
 | `POST /api/videos` | Upload video (MIME/extension/size validated) |
 | `GET /api/videos` · `GET /api/videos/{id}` · `DELETE /api/videos/{id}` | Video CRUD |
 | `POST /api/videos/{id}/process` | Start processing (mock/real, tracker, camera motion) |
+| `GET /api/jobs/{job_id}` | Job status, stage, and progress |
 | `GET /api/videos/{id}/tracks` | Track trajectories |
 | `GET /api/videos/{id}/identities(/observations)` | Identity prototypes + observation history |
 | `GET /api/videos/{id}/reid-events` | Re-identification events |
@@ -172,3 +173,11 @@ Existing dev databases created with `create_all` can be aligned with
   the detection/embedding interfaces.
 
 See `TODO.md` for the full phase map and known technical debt.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, development workflow, and
+commit/PR conventions. Report security issues per [SECURITY.md](SECURITY.md).
+Repo-wide editor and lint defaults live in `.editorconfig`,
+`.pre-commit-config.yaml`, and `.github/dependabot.yml`; code ownership is
+enforced via `.github/CODEOWNERS`.
