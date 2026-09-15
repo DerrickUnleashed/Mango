@@ -42,3 +42,42 @@ cp apps/api/.env.example apps/api/.env
 ```
 
 Never commit `.env` or any real secret.
+
+## Daily development workflow
+
+### Python (API + ML)
+
+```bash
+# Run the API tests
+uv run --project apps/api pytest apps/api/tests -q
+uv run --project ml pytest ml/tests -q
+
+# Lint and format
+uv run --project apps/api ruff check apps/api/app apps/api/tests
+uv run --project apps/api ruff format --check apps/api/app apps/api/tests
+```
+
+Ruff is configured in `apps/api/pyproject.toml` (line length 100, target
+`py312`, `E/F/W/I/B/UP/S` rule set). Keep `ruff check` and
+`ruff format --check` clean before pushing.
+
+### TypeScript (web + packages)
+
+```bash
+# Typecheck
+npm run typecheck --workspace=apps/web
+
+# Lint, format, tests
+npx --yes oxlint@1.82.0      # from apps/web
+npm run format:check --workspace=apps/web
+npm run test --workspace=apps/web
+```
+
+### Running the dev stack
+
+```bash
+docker compose -f docker/docker-compose.dev.yml up --build
+```
+
+The API is served on `localhost:8001`; the Vite dev server proxies `/api`
+requests to it. Watch the logs for the worker to confirm processing jobs run.
