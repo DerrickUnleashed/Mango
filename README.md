@@ -1,5 +1,22 @@
 # OrchardVision
 
+<div align="center">
+
+<!-- Banner -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:FFC94D,100:FF8F00&height=300&section=header&text=OrchardVision&fontSize=80&animation=fadeIn&fontAlignY=38&desc=Visibility-aware%20self-supervised%20identity%20learning%20for%20long-term%20fruit%20tracking%20and%20counting&descAlignY=55&descAlign=50" width="100%" />
+
+<!-- Typing Animation -->
+<p align="center">
+  <a href="https://git.io/typing-svg">
+    <img
+      src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=20&pause=100&color=FFB300&center=true&vCenter=true&multiline=true&height=110&width=900&lines=Track+through+occlusion.;Recover+identities+after+reappearance.;Keep+counts+correct+over+long+videos."
+      alt="Typing SVG"
+    />
+  </a>
+</p>
+
+</div>
+
 Visibility-aware, self-supervised identity learning for long-term fruit tracking
 and counting in mango orchards.
 
