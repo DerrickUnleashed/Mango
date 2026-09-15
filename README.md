@@ -15,6 +15,16 @@
   </a>
 </p>
 
+<!-- Badges -->
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.12+-FFB300?style=flat&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/TypeScript-24-FFB300?style=flat&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/FastAPI-0.115+-FFB300?style=flat&logo=fastapi&logoColor=white" />
+  <img src="https://img.shields.io/badge/React-19-FFB300?style=flat&logo=react&logoColor=white" />
+  <img src="https://img.shields.io/badge/uv-well%20managed-FF8F00?style=flat" />
+  <img src="https://img.shields.io/badge/status-in%20development-FF8F00?style=flat" />
+</p>
+
 </div>
 
 Visibility-aware, self-supervised identity learning for long-term fruit tracking
