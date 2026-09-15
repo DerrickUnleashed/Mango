@@ -17,7 +17,6 @@ from pathlib import Path
 from uuid import uuid4
 
 import cv2
-from numpy.typing import NDArray
 from orchardvision_ml.detection import MockDetector
 from orchardvision_ml.detection.mock import SCENARIO_ORCHARD
 from orchardvision_ml.identity import MockEmbeddingExtractor
@@ -106,8 +105,7 @@ class ProcessingService:
         state.inference_mode = config.inference_mode
 
         try:
-            frames = self.extract_frames(video, state, config)
-            detections = self.detect_frames(video, job, state, config, frames)
+            detections = self.detect_frames(video, job, state, config)
             track_summary = self.track_frames(
                 video, job, state, config, detections["frame_detections"], db
             )
@@ -119,7 +117,7 @@ class ProcessingService:
                 job,
                 state,
                 config,
-                frames,
+                detections["processed_frames"],
                 track_summary["assigned_detections"],
                 track_summary["lost_by_frame"],
                 db,
@@ -137,10 +135,22 @@ class ProcessingService:
             state.update(ProcessingStage.FAILED, 100.0, "Processing failed")
             raise
 
-    def extract_frames(
-        self, video: Video, state: ProgressState, config: PipelineConfig
-    ) -> list[NDArray]:
-        """Decode up to ``max_frames`` frames from the stored video."""
+    def detect_frames(
+        self,
+        video: Video,
+        job: ProcessingJob,
+        state: ProgressState,
+        config: PipelineConfig,
+    ) -> dict:
+        """Extract and detect frames in a single streaming pass.
+
+        Frames are decoded one at a time, passed to the detector, and released
+        before the next is read, so peak memory stays flat regardless of video
+        length (a previous design held every decoded frame in RAM for the whole
+        pipeline and was OOM-killed on long videos).
+        """
+        del job
+        detector = self._build_detector(config)
         max_frames = config.effective_max_frames(video.frame_count or 0)
         source = storage_service.resolve(video.filename)
 
@@ -150,7 +160,10 @@ class ProcessingService:
         if not cap.isOpened():
             raise ValueError("Could not open video file for frame extraction")
 
-        frames: list[NDArray] = []
+        total_detections = 0
+        confidences: list[float] = []
+        frame_detections: list = []
+        frame_timings: list[dict] = []
         try:
             index = 0
             while index < max_frames:
@@ -159,24 +172,47 @@ class ProcessingService:
                 ok, frame = cap.read()
                 if not ok:
                     break
-                frames.append(frame)
-                index += 1
-                if index % 50 == 0:
+                if index % 50 == 0 and index > 0:
                     state.update(
                         ProcessingStage.EXTRACTING_FRAMES,
-                        10.0 + 20.0 * (index / max(max_frames, 1)),
+                        10.0 + 50.0 * (index / max(max_frames, 1)),
                         f"Extracting frame {index}/{max_frames}",
                     )
+                start = time.perf_counter()
+                result = detector.detect(frame, index)
+                elapsed_ms = (time.perf_counter() - start) * 1000.0
+                total_detections += len(result)
+                confidences.extend(d.confidence for d in result.detections)
+                frame_detections.append(result)
+                frame_timings.append({"frame_id": index, "elapsed_ms": elapsed_ms})
+                index += 1
+                if index % 20 == 0:
+                    progress = 60.0 + 15.0 * (index / max(max_frames, 1))
+                    msg = f"Frame {index}/{max_frames}"
+                    state.update(ProcessingStage.DETECTING, progress, msg)
         finally:
             cap.release()
 
-        if not frames:
+        frame_count = len(frame_detections)
+        if frame_count == 0:
             raise ValueError("No frames could be extracted from the video")
 
+        avg_conf = float(sum(confidences)) / len(confidences) if confidences else 0.0
         log = job_logger("processing", job_id=state.job_id, video_id=video.id)
-        log.info("Extracted %d frames for processing", len(frames))
-        state.update(ProcessingStage.DETECTING, 30.0, f"Detecting across {len(frames)} frames")
-        return frames
+        log.info(
+            "Detection step complete: %d detections across %d frames (avg conf %.2f)",
+            total_detections,
+            frame_count,
+            avg_conf,
+        )
+
+        return {
+            "processed_frames": frame_count,
+            "total_detections": total_detections,
+            "average_confidence": avg_conf,
+            "frame_detections": frame_detections,
+            "frame_timings": frame_timings,
+        }
 
     def _build_detector(self, config: PipelineConfig):
         """Pick a detector from the pipeline config.
@@ -213,55 +249,6 @@ class ProcessingService:
                     return Embedder(checkpoint)
             return TorchEmbeddingExtractor()
         return MockEmbeddingExtractor()
-
-    def detect_frames(
-        self,
-        video: Video,
-        job: ProcessingJob,
-        state: ProgressState,
-        config: PipelineConfig,
-        frames: list[NDArray],
-    ) -> dict:
-        del job
-        detector = self._build_detector(config)
-        total_detections = 0
-        confidences: list[float] = []
-        frame_count = len(frames)
-        frame_detections: list = []
-        frame_timings: list[dict] = []
-
-        for index, frame in enumerate(frames):
-            if state.cancelled:
-                raise InterruptedError("Processing cancelled")
-            start = time.perf_counter()
-            result = detector.detect(frame, index)
-            elapsed_ms = (time.perf_counter() - start) * 1000.0
-            total_detections += len(result)
-            confidences.extend(d.confidence for d in result.detections)
-            frame_detections.append(result)
-            frame_timings.append({"frame_id": index, "elapsed_ms": elapsed_ms})
-
-            if index % 20 == 0:
-                progress = 30.0 + 25.0 * (index + 1) / max(frame_count, 1)
-                msg = f"Frame {index + 1}/{frame_count}"
-                state.update(ProcessingStage.DETECTING, progress, msg)
-
-        avg_conf = float(sum(confidences)) / len(confidences) if confidences else 0.0
-        log = job_logger("processing", job_id=state.job_id, video_id=video.id)
-        log.info(
-            "Detection step complete: %d detections across %d frames (avg conf %.2f)",
-            total_detections,
-            frame_count,
-            avg_conf,
-        )
-
-        return {
-            "processed_frames": frame_count,
-            "total_detections": total_detections,
-            "average_confidence": avg_conf,
-            "frame_detections": frame_detections,
-            "frame_timings": frame_timings,
-        }
 
     def track_frames(
         self,
@@ -485,7 +472,7 @@ class ProcessingService:
         job: ProcessingJob,
         state: ProgressState,
         config: PipelineConfig,
-        frames: list[NDArray],
+        frames: int,
         assigned_detections: list,
         lost_by_frame: list,
         db,
@@ -496,67 +483,82 @@ class ProcessingService:
         get a new mango number, reappearances of a lost track keep the original
         number (via the re-identifier). Appearance embeddings are accumulated
         against those numbers for the prototype record — never used to cluster
-        simultaneously-visible boxes together.
+        simultaneously-visible boxes together. Frames are re-read one at a time
+        so only a single decoded frame is resident during embedding.
         """
         del job
         state.update(ProcessingStage.EMBEDDING, 80.0, "Extracting appearance embeddings")
         embedder = self._build_embedder(config)
         reid = MockReIdentifier(match_threshold=config.reid_threshold)
 
-        frame_count = len(frames)
+        source = storage_service.resolve(video.filename)
+        cap = cv2.VideoCapture(str(source))
+        if not cap.isOpened():
+            raise ValueError("Could not open video file for embedding extraction")
+
+        frame_count = frames
         total_embeddings = 0
         suppressed = 0
         observations: list = []
         identities: dict[int, Identity] = {}
-        for index, assigned in enumerate(assigned_detections):
-            if state.cancelled:
-                raise InterruptedError("Processing cancelled")
-            embeddings = embedder.extract(frames[index], assigned)
-            total_embeddings += len(embeddings)
-            reid.step(index, lost_by_frame[index], embeddings)
-            for embedding, det in zip(embeddings, assigned.detections, strict=True):
-                identity_id = reid.identity_for_track(embedding.track_id)
-                if identity_id is None:
-                    suppressed += 1
-                    continue
-                identity = identities.get(identity_id)
-                if identity is None:
-                    identity = Identity(
-                        identity_id=identity_id,
-                        prototype=embedding.vector.astype("float32"),
-                        quality=0.0,
-                        observation_count=0,
-                        first_frame_id=embedding.frame_id,
-                        last_frame_id=embedding.frame_id,
-                        last_track_id=embedding.track_id,
+        try:
+            index = 0
+            while index < frame_count:
+                if state.cancelled:
+                    raise InterruptedError("Processing cancelled")
+                ok, frame = cap.read()
+                if not ok:
+                    break
+                assigned = assigned_detections[index]
+                embeddings = embedder.extract(frame, assigned)
+                total_embeddings += len(embeddings)
+                reid.step(index, lost_by_frame[index], embeddings)
+                for embedding, det in zip(embeddings, assigned.detections, strict=True):
+                    identity_id = reid.identity_for_track(embedding.track_id)
+                    if identity_id is None:
+                        suppressed += 1
+                        continue
+                    identity = identities.get(identity_id)
+                    if identity is None:
+                        identity = Identity(
+                            identity_id=identity_id,
+                            prototype=embedding.vector.astype("float32"),
+                            quality=0.0,
+                            observation_count=0,
+                            first_frame_id=embedding.frame_id,
+                            last_frame_id=embedding.frame_id,
+                            last_track_id=embedding.track_id,
+                        )
+                        identities[identity_id] = identity
+                    quality = quality_score(embedding.confidence, embedding.is_occluded)
+                    if quality < DEFAULT_MIN_QUALITY:
+                        suppressed += 1
+                        continue
+                    identity.prototype = moving_average(
+                        identity.prototype, embedding.vector, config.memory_update_rate
                     )
-                    identities[identity_id] = identity
-                quality = quality_score(embedding.confidence, embedding.is_occluded)
-                if quality < DEFAULT_MIN_QUALITY:
-                    suppressed += 1
-                    continue
-                identity.prototype = moving_average(
-                    identity.prototype, embedding.vector, config.memory_update_rate
-                )
-                identity.quality = 0.9 * identity.quality + 0.1 * quality
-                identity.observation_count += 1
-                identity.last_frame_id = embedding.frame_id
-                identity.last_track_id = embedding.track_id
-                observations.append(
-                    {
-                        "identity_id": identity.identity_id,
-                        "frame_id": embedding.frame_id,
-                        "track_id": det.track_id,
-                        "bbox": list(det.bbox),
-                        "confidence": embedding.confidence,
-                        "is_occluded": embedding.is_occluded,
-                        "quality_after": identity.quality,
-                    }
-                )
-            if index % 20 == 0:
-                progress = 80.0 + 5.0 * (index + 1) / max(frame_count, 1)
-                msg = f"Embedding frame {index + 1}/{frame_count}"
-                state.update(ProcessingStage.EMBEDDING, progress, msg)
+                    identity.quality = 0.9 * identity.quality + 0.1 * quality
+                    identity.observation_count += 1
+                    identity.last_frame_id = embedding.frame_id
+                    identity.last_track_id = embedding.track_id
+                    observations.append(
+                        {
+                            "identity_id": identity.identity_id,
+                            "frame_id": embedding.frame_id,
+                            "track_id": det.track_id,
+                            "bbox": list(det.bbox),
+                            "confidence": embedding.confidence,
+                            "is_occluded": embedding.is_occluded,
+                            "quality_after": identity.quality,
+                        }
+                    )
+                index += 1
+                if index % 20 == 0:
+                    progress = 80.0 + 5.0 * (index + 1) / max(frame_count, 1)
+                    msg = f"Embedding frame {index + 1}/{frame_count}"
+                    state.update(ProcessingStage.EMBEDDING, progress, msg)
+        finally:
+            cap.release()
 
         records = self._persist_identities(video, identities, db)
         self._persist_identity_observations(video, observations, db)
