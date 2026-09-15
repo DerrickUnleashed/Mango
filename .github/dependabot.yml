@@ -17,7 +17,8 @@ updates:
       interval: "weekly"
     groups:
       typescript:
-        patterns: ["*", "!react", "!react-dom"]
+        patterns: ["*"]
+        exclude-patterns: ["react", "react-dom"]
       react-core:
         patterns: ["react", "react-dom"]
 
@@ -28,7 +29,8 @@ updates:
       interval: "weekly"
     groups:
       api-python:
-        patterns: ["*", "!fastapi", "!pydantic", "!pydantic-settings", "!sqlalchemy"]
+        patterns: ["*"]
+        exclude-patterns: ["fastapi", "pydantic", "pydantic-settings", "sqlalchemy"]
       api-core:
         patterns: ["fastapi", "pydantic", "pydantic-settings", "sqlalchemy"]
 
@@ -39,6 +41,7 @@ updates:
       interval: "weekly"
     groups:
       ml-python:
-        patterns: ["*", "!torch", "!ultralytics"]
+        patterns: ["*"]
+        exclude-patterns: ["torch", "ultralytics"]
       ml-core:
         patterns: ["torch", "ultralytics"]
