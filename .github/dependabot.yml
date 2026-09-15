@@ -20,3 +20,25 @@ updates:
         patterns: ["*", "!react", "!react-dom"]
       react-core:
         patterns: ["react", "react-dom"]
+
+  # Python API — uv-managed workspace app apps/api
+  - package-ecosystem: "pip"
+    directory: "/apps/api"
+    schedule:
+      interval: "weekly"
+    groups:
+      api-python:
+        patterns: ["*", "!fastapi", "!pydantic", "!pydantic-settings", "!sqlalchemy"]
+      api-core:
+        patterns: ["fastapi", "pydantic", "pydantic-settings", "sqlalchemy"]
+
+  # Python ML — uv-managed workspace package ml
+  - package-ecosystem: "pip"
+    directory: "/ml"
+    schedule:
+      interval: "weekly"
+    groups:
+      ml-python:
+        patterns: ["*", "!torch", "!ultralytics"]
+      ml-core:
+        patterns: ["torch", "ultralytics"]
