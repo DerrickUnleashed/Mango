@@ -35,6 +35,9 @@ def get_celery_app() -> Celery:
             result_serializer="json",
             accept_content=["json"],
             broker_connection_retry_on_startup=True,
+            worker_prefetch_multiplier=1,
+            worker_max_tasks_per_child=1000,
+            task_acks_late=True,
         )
     return _celery
 
