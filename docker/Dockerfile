@@ -22,6 +22,13 @@ COPY ml ml
 
 RUN uv sync --project apps/api --no-dev
 
+RUN groupadd -r orchard && useradd -r -g orchard -d /orchardvision -s /sbin/nologin orchard \
+    && mkdir -p /data/uploads /data/processed \
+    && chown -R orchard:orchard /orchardvision /data
+
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 ENV PATH="/orchardvision/.venv/bin:$PATH" \
     DATABASE_URL="sqlite:////data/orchardvision.db" \
     UPLOAD_DIR="/data/uploads" \
@@ -31,4 +38,5 @@ ENV PATH="/orchardvision/.venv/bin:$PATH" \
 
 EXPOSE 8001
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--app-dir", "apps/api"]
