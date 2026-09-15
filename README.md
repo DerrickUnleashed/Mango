@@ -1,5 +1,3 @@
-# OrchardVision
-
 <div align="center">
 
 <!-- Banner -->
