@@ -14,6 +14,12 @@ COPY ml ml
 
 RUN uv sync --project apps/api --no-dev
 
+RUN groupadd -r orchard && useradd -r -g orchard -d /orchardvision -s /sbin/nologin orchard \
+    && mkdir -p /data/uploads /data/processed \
+    && chown -R orchard:orchard /orchardvision /data
+
+USER orchard
+
 ENV PATH="/orchardvision/.venv/bin:$PATH" \
     DATABASE_URL="sqlite:////data/orchardvision.db" \
     UPLOAD_DIR="/data/uploads" \
