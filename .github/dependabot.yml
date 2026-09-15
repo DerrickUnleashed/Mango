@@ -1,0 +1,22 @@
+version: 2
+
+updates:
+  # GitHub Actions — independent workflows under .github/workflows/
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # TypeScript — root npm workspace (apps/web + packages/*)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      typescript:
+        patterns: ["*", "!react", "!react-dom"]
+      react-core:
+        patterns: ["react", "react-dom"]
