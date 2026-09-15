@@ -13,7 +13,7 @@ export function AnalyticsPanel({ videoId, enabled }: AnalyticsPanelProps) {
   if (!enabled) return null
 
   return (
-    <div className="rounded-xl border border-surface-800 bg-surface-950 p-5">
+    <div className="glass card-glow rounded-2xl p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-medium text-surface-200">Analytics</h2>
@@ -100,7 +100,7 @@ export function AnalyticsPanel({ videoId, enabled }: AnalyticsPanelProps) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-surface-800 bg-surface-900/60 px-3 py-2">
+    <div className="glass-soft rounded-lg px-3 py-2">
       <dt className="text-xs text-surface-500">{label}</dt>
       <dd className="mt-0.5 font-mono text-sm text-surface-200">{value}</dd>
     </div>
@@ -124,7 +124,7 @@ function SeriesChart({
   const max = Math.max(1, ...data.map((d) => d.count))
   const points = data.length > 240 ? downsample(data, 240) : data
   return (
-    <div className="rounded-lg border border-surface-800 bg-surface-900/60 p-4">
+    <div className="glass-soft rounded-lg p-4">
       <h3 className="text-sm font-medium text-surface-300">{title}</h3>
       <div className="mt-3 flex h-24 items-end gap-px">
         {points.map((point) => (
@@ -160,7 +160,7 @@ function DistributionChart({
 }) {
   const max = Math.max(1, ...data.map((d) => d.count))
   return (
-    <div className="rounded-lg border border-surface-800 bg-surface-900/60 p-4">
+    <div className="glass-soft rounded-lg p-4">
       <h3 className="text-sm font-medium text-surface-300">{title}</h3>
       <div className="mt-3 space-y-1.5">
         {data.map((bin) => (
