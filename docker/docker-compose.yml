@@ -50,6 +50,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+    user: "orchard:orchard"
     restart: unless-stopped
     depends_on:
       redis:
