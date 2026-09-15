@@ -81,3 +81,20 @@ docker compose -f docker/docker-compose.dev.yml up --build
 
 The API is served on `localhost:8001`; the Vite dev server proxies `/api`
 requests to it. Watch the logs for the worker to confirm processing jobs run.
+
+## Branching and commit conventions
+
+- Cut feature and fix branches from `main` (never from long-lived feature
+  branches).
+- Use one branch per concern; keep branches small and focused.
+- Commits use [conventional commits](https://www.conventionalcommits.org) —
+  e.g. `feat(web): ...`, `fix(api): ...`, `docs: ...`, `chore: ...`.
+- Write a subject line of a few words; the message describes what and why.
+
+## Pull requests
+
+- Open a PR when the branch is ready for review; reference the issue.
+- Keep the diff focused. Reviewers expect checks (backend and frontend CI) to
+  pass before merging.
+- Do not merge changes that regress `ruff check`, typecheck, or the test
+  suites.
