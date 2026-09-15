@@ -1,0 +1,23 @@
+# Repository-wide default owners
+* @prnvvv @DerrickUnleashed @pri-23-k
+
+# Backend API (FastAPI + Celery)
+/apps/api/ @prnvvv @DerrickUnleashed @pri-23-k
+
+# Frontend (React + Vite)
+/apps/web/ @prnvvv @DerrickUnleashed @pri-23-k
+
+# Shared TypeScript contracts
+/packages/ @prnvvv @DerrickUnleashed @pri-23-k
+
+# ML pipeline (detection, tracking, re-id)
+/ml/ @prnvvv @DerrickUnleashed @pri-23-k
+
+# Containerization / deployment
+/docker/ @prnvvv @DerrickUnleashed @pri-23-k
+
+# Dev/ops helpers and tooling scripts
+/scripts/ @prnvvv @DerrickUnleashed @pri-23-k
+
+# CI workflow
+/.github/ @prnvvv @DerrickUnleashed @pri-23-k
