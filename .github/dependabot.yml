@@ -1,0 +1,47 @@
+version: 2
+
+updates:
+  # GitHub Actions — independent workflows under .github/workflows/
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # TypeScript — root npm workspace (apps/web + packages/*)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      typescript:
+        patterns: ["*"]
+        exclude-patterns: ["react", "react-dom"]
+      react-core:
+        patterns: ["react", "react-dom"]
+
+  # Python API — uv-managed workspace app apps/api
+  - package-ecosystem: "pip"
+    directory: "/apps/api"
+    schedule:
+      interval: "weekly"
+    groups:
+      api-python:
+        patterns: ["*"]
+        exclude-patterns: ["fastapi", "pydantic", "pydantic-settings", "sqlalchemy"]
+      api-core:
+        patterns: ["fastapi", "pydantic", "pydantic-settings", "sqlalchemy"]
+
+  # Python ML — uv-managed workspace package ml
+  - package-ecosystem: "pip"
+    directory: "/ml"
+    schedule:
+      interval: "weekly"
+    groups:
+      ml-python:
+        patterns: ["*"]
+        exclude-patterns: ["torch", "ultralytics"]
+      ml-core:
+        patterns: ["torch", "ultralytics"]
