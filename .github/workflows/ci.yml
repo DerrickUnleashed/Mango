@@ -162,21 +162,29 @@ jobs:
         with:
           enable-cache: true
 
-      # The export is fully pinned and fully hashed, so pip-audit can install
-      # it and resolve the real dependency graph. --no-deps is deliberately
-      # not used: it made pip-audit trust the exported list instead of
-      # resolving, and warned that hashed pins are preferred. --no-emit-workspace
-      # is what makes this work, by dropping the editable local ./ml member
-      # that pip-audit cannot install under hash checking.
+      # --no-deps is correct here, despite pip-audit warning about it. The
+      # warning is aimed at requirements files that list only direct
+      # dependencies, where skipping resolution would miss transitives.
+      # `uv export` emits the fully resolved graph instead - every
+      # transitive included, each pinned and hashed - so the list handed to
+      # pip-audit is already the resolved set and nothing is missed.
+      #
+      # Dropping the flag was measured rather than assumed: it made this job
+      # go from 2m13s to 5m12s, because pip-audit then installs the tree in a
+      # throwaway venv and the ML export pulls ~800MB of torch. It found
+      # nothing extra, reporting "No known vulnerabilities found" either way.
+      #
+      # --no-emit-workspace is what makes the export installable at all, by
+      # dropping the editable local ./ml member that cannot be hash-checked.
       - name: Audit the API dependency tree
         run: |
           uv export --project apps/api --frozen --no-emit-workspace --no-dev -q > /tmp/api-reqs.txt
-          uvx pip-audit -r /tmp/api-reqs.txt
+          uvx pip-audit -r /tmp/api-reqs.txt --no-deps
 
       - name: Audit the ML dependency tree
         run: |
           uv export --project ml --frozen --no-emit-workspace --no-dev -q > /tmp/ml-reqs.txt
-          uvx pip-audit -r /tmp/ml-reqs.txt
+          uvx pip-audit -r /tmp/ml-reqs.txt --no-deps
 
   npm-audit:
     name: "Security: Node vulnerabilities"
