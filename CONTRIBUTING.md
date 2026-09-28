@@ -55,11 +55,14 @@ uv run --project ml pytest ml/tests -q
 # Lint and format
 uv run --project apps/api ruff check apps/api/app apps/api/tests
 uv run --project apps/api ruff format --check apps/api/app apps/api/tests
+uv run --project ml ruff check ml/orchardvision_ml ml/tests
+uv run --project ml ruff format --check ml/orchardvision_ml ml/tests
 ```
 
-Ruff is configured in `apps/api/pyproject.toml` (line length 100, target
-`py312`, `E/F/W/I/B/UP/S` rule set). Keep `ruff check` and
-`ruff format --check` clean before pushing.
+Ruff is configured identically in `apps/api/pyproject.toml` and
+`ml/pyproject.toml` (line length 100, target `py312`, `E/F/W/I/B/UP/S` rule
+set). Both packages are linted in CI, so keep `ruff check` and
+`ruff format --check` clean for `ml/` as well as the API.
 
 ### TypeScript (web + packages)
 
@@ -68,14 +71,17 @@ Ruff is configured in `apps/api/pyproject.toml` (line length 100, target
 npm run typecheck
 
 # Lint, format, tests
-npx --yes oxlint@1.82.0      # from apps/web
+npm run lint --workspace=apps/web
 npm run format:check
 npm test
 ```
 
 `npm run typecheck`, `npm run format:check`, and `npm test` each fan out across
 all workspaces (`--workspaces --if-present`), so they cover both `apps/web` and
-`packages/types` without naming a workspace. Prettier config is shared from the
+`packages/types` without naming a workspace. Linting is the one exception:
+`npm run lint --workspace=apps/web` is named explicitly because oxlint is
+configured per app via `apps/web/.oxlintrc.json` and runs from the lockfile
+rather than a hardcoded `npx` version. Prettier config is shared from the
 repo-root `.prettierrc.json`; add new packages inside that tree rather than
 introducing a second config.
 

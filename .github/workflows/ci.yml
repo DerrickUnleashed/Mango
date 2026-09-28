@@ -34,6 +34,11 @@ jobs:
           uv run --project apps/api ruff check apps/api/app apps/api/tests
           uv run --project apps/api ruff format --check apps/api/app apps/api/tests
 
+      - name: Lint (ML)
+        run: |
+          uv run --project ml ruff check ml/orchardvision_ml ml/tests
+          uv run --project ml ruff format --check ml/orchardvision_ml ml/tests
+
       - name: Test API
         run: uv run --project apps/api pytest apps/api/tests -q
 
@@ -61,8 +66,7 @@ jobs:
         run: npm run typecheck
 
       - name: Lint
-        run: npx --yes oxlint@1.82.0
-        working-directory: apps/web
+        run: npm run lint --workspace=apps/web
 
       - name: Test
         run: npm test
