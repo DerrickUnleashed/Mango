@@ -8,9 +8,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT_DIR = Path(__file__).resolve().parents[4]
+
+# Placeholder values for `secret_key`, refused in production so a deploy can
+# never silently run on a public, guessable secret. The first is the code
+# default; the second is the fallback docker-compose.yml supplies when
+# SECRET_KEY is unset.
+DEFAULT_DEV_SECRET_KEY = "dev-secret-key-change-me"  # noqa: S105
+DEV_SECRET_KEYS = frozenset({DEFAULT_DEV_SECRET_KEY, "change-me-in-production"})
 
 
 class Settings(BaseSettings):
@@ -29,7 +37,7 @@ class Settings(BaseSettings):
     debug: bool = False
 
     # Security
-    secret_key: str = "dev-secret-key-change-me"  # noqa: S105
+    secret_key: str = DEFAULT_DEV_SECRET_KEY  # noqa: S105
     allowed_origins: list[str] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
@@ -69,6 +77,21 @@ class Settings(BaseSettings):
 
     # CORS
     cors_allow_credentials: bool = True
+
+    @model_validator(mode="after")
+    def _reject_dev_secret_in_production(self) -> Settings:
+        """Fail fast rather than boot on a known-public secret.
+
+        The compose file falls back to `change-me-in-production` when
+        SECRET_KEY is unset, so a deploy that forgets the variable would
+        otherwise start happily with a secret that is in this repository.
+        """
+        if self.environment == "production" and self.secret_key in DEV_SECRET_KEYS:
+            raise ValueError(
+                "SECRET_KEY must be set to a unique value when ENVIRONMENT=production. "
+                "The default is a known placeholder and must not be used in production."
+            )
+        return self
 
 
 settings = Settings()
