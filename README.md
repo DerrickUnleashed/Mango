@@ -203,6 +203,7 @@ See `TODO.md` for the full phase map and known technical debt.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, development workflow, and
 commit/PR conventions. Report security issues per [SECURITY.md](SECURITY.md).
+Participation is governed by [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 Repo-wide editor and lint defaults live in `.editorconfig`,
 `.pre-commit-config.yaml`, and `.github/dependabot.yml`; code ownership is
 enforced via `.github/CODEOWNERS`.
