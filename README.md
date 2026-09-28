@@ -57,6 +57,16 @@ uv run --project apps/api uvicorn app.main:app --port 8001 \
 - Interactive docs: `http://localhost:8001/api/docs`
 - Health check: `http://localhost:8001/api/health`
 
+Real (non-mock) model training additionally needs torch. It is an optional
+extra rather than a hard dependency, so install it only when training:
+
+```bash
+uv sync --project ml --extra torch
+```
+
+Mock mode, evaluation, and the API/Celery runtime do not require torch; the
+torch-gated tests skip cleanly when it is absent.
+
 ### Frontend
 
 ```bash

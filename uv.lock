@@ -1357,6 +1357,12 @@ dependencies = [
     { name = "ultralytics" },
 ]
 
+[package.optional-dependencies]
+torch = [
+    { name = "torch" },
+    { name = "torchvision" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "pytest" },
@@ -1368,6 +1374,8 @@ dev = [
 requires-dist = [
     { name = "numpy", specifier = ">=1.26" },
     { name = "opencv-python-headless", specifier = ">=4.10" },
+    { name = "torch", marker = "extra == 'torch'", specifier = ">=2.14.0" },
+    { name = "torchvision", marker = "extra == 'torch'", specifier = ">=0.29.0" },
     { name = "ultralytics", specifier = ">=8.0.0" },
 ]
 

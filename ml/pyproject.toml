@@ -9,6 +9,18 @@ dependencies = [
     "ultralytics>=8.0.0",
 ]
 
+# Real (non-mock) training and inference. torch/torchvision were previously
+# only present transitively via ultralytics, so `ml` imported them in
+# identity/torch_{extractor,trainer}.py without declaring them and the
+# imports broke if a future ultralytics release stopped pulling torch in.
+# These stay optional: mock mode, evaluation, and the Celery/API runtime all
+# work without them, and the torch-gated tests skip cleanly when absent.
+[project.optional-dependencies]
+torch = [
+    "torch>=2.14.0",
+    "torchvision>=0.29.0",
+]
+
 [dependency-groups]
 dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "ruff>=0.5"]
 
