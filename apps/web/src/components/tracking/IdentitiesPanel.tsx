@@ -2,7 +2,8 @@ import { useState } from 'react'
 import type { PersistedIdentity, PersistedIdentityObservation } from '@orchardvision/types'
 import { useIdentities, useIdentityObservations } from '../../hooks/useVideos'
 import { videoFrameUrl } from '../../api/videos'
-import { EmbeddingMap, colorForIdentity } from './EmbeddingMap'
+import { EmbeddingMap } from './EmbeddingMap'
+import { colorForIdentity } from './identityColors'
 
 interface IdentitiesPanelProps {
   videoId: string
