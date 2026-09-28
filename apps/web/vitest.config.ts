@@ -20,5 +20,24 @@ export default defineConfig({
     // not a risk worth a second of CI time, and this is verified with
     // repeated --sequence.shuffle runs rather than assumed.
     pool: 'vmThreads',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'lcov'],
+      // Measure every source file, not only those a test happened to import.
+      // Without this, adding an untested file looks like no change and the
+      // number silently drifts upward on paper only.
+      all: true,
+      include: ['src/**/*.{ts,tsx}'],
+      // Ratchets set just below the current measured values, so ordinary
+      // work cannot lower them. Raise as tests are added — the components
+      // that are tested are already in the 85–90% range, and the untested
+      // api/hooks/layouts layers are what hold the average down.
+      thresholds: {
+        statements: 30,
+        branches: 30,
+        functions: 28,
+        lines: 30,
+      },
+    },
   },
 })

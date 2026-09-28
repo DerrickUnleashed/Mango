@@ -43,6 +43,8 @@ pytest.log
 # Testing
 coverage/
 htmlcov/
+coverage.xml
+lcov.info
 .pytest_cache/
 .coverage
 

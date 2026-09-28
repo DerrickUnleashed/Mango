@@ -48,6 +48,16 @@ jobs:
       - name: Test API
         run: uv run --project apps/api pytest apps/api/tests -q
 
+      # Coverage is produced by pytest addopts in apps/api/pyproject.toml, so
+      # the coverage gate and the test gate cannot drift apart.
+      - name: Upload API coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-api
+          path: apps/api/coverage.xml
+          if-no-files-found: ignore
+
       - name: Test ML
         run: uv run --project ml pytest ml/tests -q
 
@@ -75,7 +85,15 @@ jobs:
         run: npm run lint --workspace=apps/web
 
       - name: Test
-        run: npm test
+        run: npm run test:coverage
+
+      - name: Upload web coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-web
+          path: apps/web/coverage/lcov.info
+          if-no-files-found: ignore
 
       - name: Format check
         run: npm run format:check
