@@ -25,6 +25,23 @@
   --color-orchard-900: var(--orchard-900);
   --color-orchard-950: var(--orchard-950);
 
+  /* Claymorphism: chunky 16-24px radii on cards, soft-scaled on small controls */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+
+  /* Double shadows (outer + opposing inner) lit from the top-left */
+  --shadow-clay-sm: 4px 4px 10px var(--clay-shadow), -4px -4px 10px var(--clay-light);
+  --shadow-clay: 9px 9px 22px var(--clay-shadow), -9px -9px 22px var(--clay-light);
+  --shadow-clay-lg: 16px 16px 38px var(--clay-shadow), -16px -16px 38px var(--clay-light);
+  --shadow-clay-inset-sm:
+    inset 3px 3px 8px var(--clay-shadow), inset -3px -3px 8px var(--clay-light);
+  --shadow-clay-inset:
+    inset 6px 6px 14px var(--clay-shadow), inset -6px -6px 14px var(--clay-light);
+
   --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
@@ -36,6 +53,10 @@
 /* ThemeProvider. Surface weights encode roles (dark-first): 50 = main */
 /* text, 950 = page background. Light mode re-maps them so the same    */
 /* component classes read correctly.                                   */
+/*                                                                    */
+/* Clay ramp drives every raised/inset surface. `light` and `shadow`   */
+/* are the two halves of the double shadow; swapping them flips an     */
+/* element between raised (extruded) and sunken (debossed).            */
 /* ------------------------------------------------------------------ */
 
 :root,
@@ -46,12 +67,12 @@
   --surface-200: #e4e4e7;
   --surface-300: #d4d4d8;
   --surface-400: #a1a1aa;
-  --surface-500: #71717a;
-  --surface-600: #52525b;
-  --surface-700: #3f3f46;
-  --surface-800: #27272a;
-  --surface-900: #18181b;
-  --surface-950: #09090b;
+  --surface-500: #94949e;
+  --surface-600: #7c7c86;
+  --surface-700: #52525b;
+  --surface-800: #3f3f46;
+  --surface-900: #27272a;
+  --surface-950: #13161c;
 
   --orchard-50: #fffbeb;
   --orchard-100: #fef3c7;
@@ -64,6 +85,15 @@
   --orchard-800: #78350f;
   --orchard-900: #451a03;
   --orchard-950: #2a1203;
+
+  --clay-canvas: #10131a;
+  --clay-base: #1a1f28;
+  --clay-high: #212734;
+  --clay-low: #14181f;
+  --clay-light: rgb(255 255 255 / 0.055);
+  --clay-shadow: rgb(0 0 0 / 0.62);
+  --clay-edge: rgb(255 255 255 / 0.07);
+  --clay-well: #10141a;
 }
 
 :root[data-theme='light'] {
@@ -72,17 +102,17 @@
   --surface-100: #27272a;
   --surface-200: #3f3f46;
   --surface-300: #52525b;
-  --surface-400: #71717a;
-  --surface-500: #8b8b94;
-  --surface-600: #a1a1aa;
-  --surface-700: #d4d4d8;
-  --surface-800: #e4e4e7;
-  --surface-900: #f1f1f3;
-  --surface-950: #fafafa;
+  --surface-400: #556070;
+  --surface-500: #475569;
+  --surface-600: #4b5563;
+  --surface-700: #cbd5e1;
+  --surface-800: #e2e8f0;
+  --surface-900: #eef2f7;
+  --surface-950: #e4eaf2;
 
   --orchard-50: #fffbeb;
   --orchard-100: #78350f;
-  --orchard-200: #78350f;
+  --orchard-200: #92400e;
   --orchard-300: #b45309;
   --orchard-400: #d97706;
   --orchard-500: #b45309;
@@ -91,6 +121,15 @@
   --orchard-800: #fde68a;
   --orchard-900: #fef3c7;
   --orchard-950: #fffbeb;
+
+  --clay-canvas: #e4eaf2;
+  --clay-base: #eef2f8;
+  --clay-high: #f8fafc;
+  --clay-low: #e6ecf4;
+  --clay-light: rgb(255 255 255 / 0.9);
+  --clay-shadow: rgb(148 163 184 / 0.55);
+  --clay-edge: rgb(255 255 255 / 0.85);
+  --clay-well: #e2e8f0;
 }
 
 @layer base {
@@ -98,7 +137,19 @@
     @apply antialiased;
   }
   body {
-    @apply bg-surface-950 text-surface-50 font-sans;
+    @apply font-sans text-surface-50;
+    background-color: var(--clay-canvas);
+    background-image:
+      radial-gradient(
+        90rem 48rem at 6% -12%,
+        color-mix(in srgb, var(--clay-light) 70%, transparent),
+        transparent 62%
+      ),
+      radial-gradient(
+        72rem 42rem at 104% -4%,
+        color-mix(in srgb, var(--orchard-400) 14%, transparent),
+        transparent 58%
+      );
     transition:
       background-color 0.35s ease,
       color 0.35s ease;
@@ -110,7 +161,7 @@
     font-family: var(--font-display);
   }
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-orchard-400;
+    @apply outline-orchard-400 outline-3 outline-offset-3;
   }
   ::selection {
     background-color: var(--orchard-400);
@@ -119,57 +170,157 @@
 }
 
 @layer utilities {
-  /* ----- Glassmorphism ----- */
-  .glass {
-    background: color-mix(in srgb, var(--surface-900) 55%, transparent);
-    border: 1px solid color-mix(in srgb, var(--surface-700) 60%, transparent);
+  /* ----- Claymorphism — extruded (raised) surfaces ----- */
+  /* The 2-3px clay edge is drawn as an inset ring rather than a `border`
+     so per-element `border-*` utilities (dashed dropzones, table rules) keep
+     working. Radius comes from the Tailwind `rounded-*` scale, which is
+     widened to 16-32px for the chunky clay look. */
+  .clay {
+    background-image: linear-gradient(145deg, var(--clay-high) 0%, var(--clay-base) 100%);
     box-shadow:
-      0 1px 1px rgb(255 255 255 / 0.04) inset,
-      0 8px 32px -12px rgb(0 0 0 / 0.45);
-    backdrop-filter: blur(16px) saturate(1.4);
-    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+      var(--shadow-clay),
+      inset 0 0 0 2px var(--clay-edge);
   }
 
-  .glass-soft {
-    background: color-mix(in srgb, var(--surface-900) 40%, transparent);
-    border: 1px solid color-mix(in srgb, var(--surface-700) 45%, transparent);
-    backdrop-filter: blur(10px) saturate(1.25);
-    -webkit-backdrop-filter: blur(10px) saturate(1.25);
+  .clay-sm {
+    background-image: linear-gradient(145deg, var(--clay-high) 0%, var(--clay-base) 100%);
+    box-shadow:
+      var(--shadow-clay-sm),
+      inset 0 0 0 2px var(--clay-edge);
   }
 
-  .glass-panel {
-    @apply bg-surface-900/70 border border-surface-800 backdrop-blur;
+  .clay-lg {
+    background-image: linear-gradient(145deg, var(--clay-high) 0%, var(--clay-base) 100%);
+    box-shadow:
+      var(--shadow-clay-lg),
+      inset 0 0 0 3px var(--clay-edge);
   }
 
-  /* ----- Blastmorphism — floating gradient blobs ----- */
+  /* Debossed wells — inputs, video frames, chart troughs */
+  .clay-inset {
+    background-color: var(--clay-well);
+    box-shadow:
+      var(--shadow-clay-inset),
+      inset 0 0 0 2px var(--clay-edge);
+  }
+
+  .clay-inset-sm {
+    background-color: var(--clay-well);
+    box-shadow:
+      var(--shadow-clay-inset-sm),
+      inset 0 0 0 2px var(--clay-edge);
+  }
+
+  /* Raised pill / chip — pair with `rounded-full` */
+  .clay-chip {
+    background-image: linear-gradient(145deg, var(--clay-high) 0%, var(--clay-base) 100%);
+    box-shadow:
+      var(--shadow-clay-sm),
+      inset 0 0 0 2px var(--clay-edge);
+  }
+
+  /* Press-to-deboss: the tactile half of claymorphism */
+  .clay-press {
+    transition:
+      transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+  }
+
+  .clay-press:hover {
+    box-shadow:
+      var(--shadow-clay-sm),
+      inset 0 0 0 2px color-mix(in srgb, var(--orchard-400) 45%, var(--clay-edge));
+  }
+
+  .clay-press:active {
+    transform: translateY(2px) scale(0.994);
+    box-shadow:
+      var(--shadow-clay-inset-sm),
+      inset 0 0 0 2px color-mix(in srgb, var(--orchard-400) 35%, var(--clay-edge));
+  }
+
+  /* Same deboss, but keeps the brand glow at rest — for mango-gradient CTAs */
+  .clay-press-glow {
+    transition:
+      transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+
+  .clay-press-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 34px -10px rgb(249 115 22 / 0.7);
+  }
+
+  .clay-press-glow:active {
+    transform: translateY(2px) scale(0.994);
+    box-shadow:
+      var(--shadow-clay-inset-sm),
+      inset 0 0 0 2px color-mix(in srgb, var(--orchard-400) 40%, transparent),
+      0 2px 8px -2px rgb(249 115 22 / 0.55);
+  }
+
+  /* Soft bounce for playful accents — never layout-affecting */
+  .clay-bounce {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .clay-bounce:hover {
+    transform: translateY(-3px);
+  }
+
+  /* Lift on hover without scale, so grids never reflow */
+  .clay-lift {
+    transition:
+      box-shadow 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+      transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .clay-lift:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      var(--shadow-clay-lg),
+      inset 0 0 0 2px color-mix(in srgb, var(--orchard-400) 40%, var(--clay-edge));
+  }
+
+  .ring-glow {
+    box-shadow:
+      var(--shadow-clay-lg),
+      inset 0 0 0 2px color-mix(in srgb, var(--orchard-400) 55%, var(--clay-edge)),
+      0 0 0 1px color-mix(in srgb, var(--orchard-400) 0.22, transparent),
+      0 10px 44px -10px rgb(249 115 22 / 0.32);
+  }
+
+  /* ----- Ambient light blobs ----- */
   .blob {
     position: absolute;
     border-radius: 9999px;
-    filter: blur(72px);
-    opacity: 0.5;
+    filter: blur(80px);
+    opacity: 0.45;
     pointer-events: none;
     will-change: transform;
     animation: blob-drift 18s ease-in-out infinite;
   }
 
   .blob-orange {
-    background: radial-gradient(circle at 30% 30%, #f59e0b, #ef4444 70%);
+    background: radial-gradient(circle at 30% 30%, #fbbf24, #fb923c 70%);
   }
 
   .blob-amber {
-    background: radial-gradient(circle at 30% 30%, #fbbf24, #f97316 75%);
+    background: radial-gradient(circle at 30% 30%, #fcd34d, #fb923c 75%);
   }
 
   .blob-pink {
-    background: radial-gradient(circle at 30% 30%, #fb7185, #ec4899 75%);
+    background: radial-gradient(circle at 30% 30%, #fdba74, #f472b6 75%);
   }
 
   .blob-emerald {
-    background: radial-gradient(circle at 30% 30%, #34d399, #10b981 75%);
+    background: radial-gradient(circle at 30% 30%, #6ee7b7, #34d399 75%);
   }
 
   .blob-sky {
-    background: radial-gradient(circle at 30% 30%, #38bdf8, #3b82f6 75%);
+    background: radial-gradient(circle at 30% 30%, #7dd3fc, #60a5fa 75%);
   }
 
   .blob-slow {
@@ -194,28 +345,10 @@
 
   .bg-mango-soft {
     background-image: linear-gradient(
-      120deg,
-      color-mix(in srgb, #facc15 22%, transparent),
-      color-mix(in srgb, #fb7185 18%, transparent)
+      145deg,
+      color-mix(in srgb, #fbbf24 26%, var(--clay-high)),
+      color-mix(in srgb, #fb923c 16%, var(--clay-high))
     );
-  }
-
-  .ring-glow {
-    box-shadow:
-      0 0 0 1px rgb(249 115 22 / 0.18),
-      0 8px 40px -8px rgb(249 115 22 / 0.28);
-  }
-
-  .card-glow {
-    transition:
-      transform 0.28s ease,
-      border-color 0.28s ease,
-      box-shadow 0.28s ease;
-  }
-
-  .card-glow:hover {
-    border-color: color-mix(in srgb, var(--orchard-400) 55%, transparent);
-    box-shadow: 0 12px 48px -16px rgb(249 115 22 / 0.35);
   }
 
   .noise {
@@ -284,12 +417,13 @@
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
-    width: 58px;
-    height: 30px;
+    width: 60px;
+    height: 32px;
     padding: 0 5px;
     border-radius: 999px;
-    background: var(--surface-800);
-    border: 1px solid var(--surface-700);
+    background: var(--clay-well);
+    border: 2px solid var(--clay-edge);
+    box-shadow: var(--shadow-clay-inset-sm);
     transition: background-color 0.3s ease;
   }
 
@@ -333,9 +467,12 @@
     display: grid;
     place-items: center;
     color: #09090b;
-    background: linear-gradient(135deg, #facc15 0%, #fb923c 100%);
-    box-shadow: 0 4px 12px -2px rgba(249, 115, 22, 0.55);
-    transition: transform 0.35s cubic-bezier(0.3, 0.9, 0.3, 1.2);
+    background: linear-gradient(145deg, #fde68a 0%, #fb923c 100%);
+    border: 2px solid rgb(255 255 255 / 0.45);
+    box-shadow:
+      3px 3px 8px var(--clay-shadow),
+      -3px -3px 8px var(--clay-light);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     z-index: 1;
   }
 
@@ -345,7 +482,7 @@
   }
 
   .theme-toggle.is-light .theme-toggle-thumb {
-    transform: translate(26px, -50%);
+    transform: translate(30px, -50%);
   }
 }
 
