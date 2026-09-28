@@ -14,10 +14,15 @@ on:
 permissions:
   contents: read
 
+# Runner image is pinned to ubuntu-24.04 rather than ubuntu-latest on
+# purpose. The `latest` label migrates to Ubuntu 26 from 2026-10-19, which
+# would move the image under the project without a commit, and glibc, OpenCV
+# and the Chromium dependencies the E2E job installs are all sensitive to
+# that. Bump this deliberately, on its own, with the test suite run.
 jobs:
   backend:
     name: Backend (API + ML)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -25,6 +30,12 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
+          # Sole writer of the uv cache. The two uv jobs further down restore
+          # it but do not save. When all three saved, they raced for the same
+          # key ("Unable to reserve cache ... another job may be creating
+          # this cache") and the surviving entries were 0 bytes, so the cache
+          # was producing a warning and no benefit at all. This job runs the
+          # real workspace sync, so it is the right one to own the write.
           enable-cache: true
 
       - name: Set up Python
@@ -60,7 +71,7 @@ jobs:
       # the coverage gate and the test gate cannot drift apart.
       - name: Upload API coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-api
           path: apps/api/coverage.xml
@@ -71,7 +82,7 @@ jobs:
 
   frontend:
     name: Frontend (Web)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -97,7 +108,7 @@ jobs:
 
       - name: Upload web coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-web
           path: apps/web/coverage/lcov.info
@@ -120,14 +131,17 @@ jobs:
   # it required once it has a track record of stability.
   e2e:
     name: End-to-end (Playwright)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
-          enable-cache: true
+          # Restore only. See the note on the backend job: exactly one job
+          # writes this cache, and it is not this one.
+          restore-cache: true
+          save-cache: false
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -158,7 +172,7 @@ jobs:
 
       - name: Upload the Playwright report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: apps/web/playwright-report
@@ -184,7 +198,7 @@ jobs:
   secret-scan:
     name: "Security: Secret scan"
     needs: [backend, frontend]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -216,14 +230,17 @@ jobs:
   python-audit:
     name: "Security: Python vulnerabilities"
     needs: [backend, frontend]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
-          enable-cache: true
+          # Restore only. See the note on the backend job: exactly one job
+          # writes this cache, and it is not this one.
+          restore-cache: true
+          save-cache: false
 
       # --no-deps is correct here, despite pip-audit warning about it. The
       # warning is aimed at requirements files that list only direct
@@ -252,7 +269,7 @@ jobs:
   npm-audit:
     name: "Security: Node vulnerabilities"
     needs: [backend, frontend]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 

@@ -18,10 +18,13 @@ on:
 permissions:
   contents: read
 
+# Pinned for the same reason as ci.yml: the ubuntu-latest label migrates to
+# Ubuntu 26 from 2026-10-19, and the image a release is built on should not
+# change without a commit.
 jobs:
   verify:
     name: Verify tag matches source
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.check.outputs.version }}
     steps:
@@ -58,7 +61,7 @@ jobs:
   image:
     name: Build and publish image
     needs: verify
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
@@ -90,7 +93,7 @@ jobs:
   release:
     name: Create the GitHub release
     needs: [verify, image]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
@@ -123,7 +126,7 @@ jobs:
           cat release-notes.md
 
       - name: Publish release notes from the changelog
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
