@@ -27,9 +27,15 @@ class ProgressState(Protocol):
     progress: float
     message: str | None
     inference_mode: str
-    cancelled: bool
 
     def update(self, stage: str, progress: float, message: str | None = None) -> None: ...
+
+    # Declared read-only because that is how the pipeline uses it: it is
+    # checked, never assigned. As a plain attribute this Protocol demanded a
+    # settable one, which DbJobState's property did not satisfy, even though
+    # the implementations are correct.
+    @property
+    def cancelled(self) -> bool: ...
 
 
 class DbJobState:

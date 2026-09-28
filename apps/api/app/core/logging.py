@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Mapping, MutableMapping
 from typing import Any
 
 from .config import settings
@@ -55,9 +56,19 @@ def get_logger(name: str) -> logging.Logger:
 class JobLoggerAdapter(logging.LoggerAdapter):
     """Logger that injects job/video context into every emitted record."""
 
-    def process(self, msg: str, kwargs: dict) -> tuple[str, dict]:  # noqa: D102
-        extra = dict(kwargs.get("extra") or {})
-        extra["extra_fields"] = {**self.extra, **extra.get("extra_fields", {})}
+    def process(
+        self, msg: str, kwargs: MutableMapping[str, Any]
+    ) -> tuple[str, MutableMapping[str, Any]]:
+        # kwargs is typed as the stdlib declares it (a MutableMapping), and
+        # "extra" is typed as object because that is all the logging API
+        # promises, so both are narrowed explicitly rather than assumed.
+        existing = kwargs.get("extra")
+        extra: dict[str, Any] = dict(existing) if isinstance(existing, Mapping) else {}
+        prior_fields = extra.get("extra_fields")
+        extra["extra_fields"] = {
+            **(self.extra or {}),
+            **(prior_fields if isinstance(prior_fields, Mapping) else {}),
+        }
         kwargs["extra"] = extra
         return msg, kwargs
 
