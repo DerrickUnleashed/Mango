@@ -1,0 +1,8 @@
+# Prettier reads .prettierignore from the directory it is invoked in, not
+# from the repo root, so the workspace-level scripts started from apps/web
+# never picked up the root .prettierignore. Generated output that prettier
+# must not check is listed here as well as at the root.
+node_modules
+dist
+build
+coverage
