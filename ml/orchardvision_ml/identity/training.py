@@ -243,8 +243,16 @@ class ContrastiveTrainer:
         2 * sym(dL/dM) @ W``. This avoids all normalization headaches and makes
         the surrogate trainer provably correct.
         """
+        # The only caller (_epoch) skips pairs without a positive or without
+        # negatives, so this holds; asserted at the boundary so the requirement
+        # is stated rather than assumed, and so a future caller that forgets the
+        # guard fails loudly instead of with an AttributeError.
+        positive = pair.positive
+        if positive is None or not pair.negatives:
+            raise ValueError("_pair_gradient requires a positive and at least one negative")
+
         xa = pair.anchor.vector.astype(np.float64).reshape(-1)
-        xp = pair.positive.vector.astype(np.float64).reshape(-1)
+        xp = positive.vector.astype(np.float64).reshape(-1)
         xn = np.stack([n.vector.astype(np.float64) for n in pair.negatives])
         tau = self.temperature
 

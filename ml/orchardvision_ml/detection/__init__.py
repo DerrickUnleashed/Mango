@@ -6,7 +6,7 @@ YOLO-compatible adapter in ``yolo_adapter.py``.
 """
 
 from .base import Detection, Detector, FrameDetections
-from .mock import MockDetector
+from .mock import MockDetector, MockFruit
 from .nms import iou, nms
 from .yolo_adapter import YoloDetector
 
@@ -15,6 +15,7 @@ __all__ = [
     "Detector",
     "FrameDetections",
     "MockDetector",
+    "MockFruit",
     "YoloDetector",
     "iou",
     "nms",

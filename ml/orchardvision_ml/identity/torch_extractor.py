@@ -129,8 +129,11 @@ class TorchEmbeddingExtractor(EmbeddingExtractor):
                 crop, (self.input_size, self.input_size), interpolation=cv2.INTER_LINEAR
             )
             rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
-            rgb = (rgb - np.asarray(IMAGENET_MEAN, np.float32)) / np.asarray(
+            # Normalized into a new binding rather than reassigning rgb:
+            # reassigning made mypy infer the numpy expression's type as
+            # complex128, which it is not.
+            normalized = (rgb - np.asarray(IMAGENET_MEAN, np.float32)) / np.asarray(
                 IMAGENET_STD, np.float32
             )
-            crops.append(rgb)
+            crops.append(normalized)
         return crops

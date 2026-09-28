@@ -105,10 +105,14 @@ class MockReIdentifier(ReIdentifier):
                 continue
 
             ranked = self._query(embedding, self.top_k)
-            victim, identity_id, similarity = self._select_victim(ranked, embedding, frame_id)
-            if victim is None:
+            selection = self._select_victim(ranked, embedding, frame_id)
+            if selection is None:
+                # No recoverable victim, so this observation is a new identity.
+                victim = None
                 identity_id = self._next_identity
                 self._next_identity += 1
+            else:
+                victim, identity_id, similarity = selection
 
             self._identity_of_track[track_id] = identity_id
             self._last_bbox_of_track[track_id] = embedding.bbox
@@ -154,8 +158,13 @@ class MockReIdentifier(ReIdentifier):
         ranked: list[tuple[int, float]],
         embedding: Embedding,
         frame_id: int,
-    ) -> tuple[LostTrackInfo | None, int | None, float]:
-        """Pick the first candidate whose identity is recoverable and motion-plausible."""
+    ) -> tuple[LostTrackInfo, int, float] | None:
+        """Pick the first candidate whose identity is recoverable and motion-plausible.
+
+        Returns ``None`` when there is no match, rather than a tuple of
+        ``None`` values, so the caller cannot accidentally use an
+        unpopulated identity number.
+        """
         for identity_id, similarity in ranked:
             if similarity < self.match_threshold:
                 break
@@ -165,7 +174,7 @@ class MockReIdentifier(ReIdentifier):
             if not self._motion_allowed(pending, embedding.bbox, frame_id):
                 continue
             return pending, identity_id, similarity
-        return None, None, 0.0
+        return None
 
     def _motion_allowed(
         self,
