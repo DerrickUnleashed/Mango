@@ -3,6 +3,9 @@
 Thank you for contributing! This guide covers how to set up the project and
 land changes cleanly.
 
+Participation in this project is governed by
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
 ## Repository structure
 
 OrchardVision is a multi-package monorepo:
