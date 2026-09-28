@@ -40,7 +40,7 @@ export function TechLogos() {
       {LOGOS.map((logo) => (
         <li
           key={logo.name}
-          className="glass card-glow flex cursor-pointer flex-col items-center gap-3 rounded-2xl px-4 py-6"
+          className="clay clay-lift flex cursor-pointer flex-col items-center gap-3 rounded-2xl px-4 py-6"
         >
           <svg
             viewBox="0 0 24 24"
