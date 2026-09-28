@@ -62,6 +62,7 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
       CELERY_TASK_ALWAYS_EAGER: "false"
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
     volumes:
       - api-data:/data
       - ../models:/orchardvision/models:ro
