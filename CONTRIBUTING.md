@@ -102,9 +102,32 @@ requests to it. Watch the logs for the worker to confirm processing jobs run.
 - Cut feature and fix branches from `main` (never from long-lived feature
   branches).
 - Use one branch per concern; keep branches small and focused.
-- Commits use [conventional commits](https://www.conventionalcommits.org) —
+- Commits use [conventional commits](https://www.conventionalcomm.org) —
   e.g. `feat(web): ...`, `fix(api): ...`, `docs: ...`, `chore: ...`.
 - Write a subject line of a few words; the message describes what and why.
+- Name branches `type/short-description` (`fix/api-null-check`,
+  `docs/readme-setup`), matching the commit prefix.
+
+### Branch lifecycle
+
+Merged branches are deleted; only `main` and branches with an open pull
+request are kept. A branch whose PR is merged carries no unique work once
+its changes land in `main`, so keeping it only makes the branch list harder
+to read and hides the ones that actually matter.
+
+Deleting a branch is not reversible if it still held unmerged work, so
+check before deleting:
+
+```bash
+# Files that exist on the branch but not on main — if this prints
+# anything, the branch holds work that is not merged yet.
+git diff origin/main origin/<branch> --diff-filter=A --name-only
+```
+
+Note that `git branch --merged` under-reports after a squash merge: the
+squash commit is a new object, so the branch tip is not an ancestor of
+`main` even though its content is fully merged. Use the diff check above,
+or the PR's state, rather than `--merged` alone.
 
 ## Pull requests
 
