@@ -103,9 +103,9 @@ function HeroMock() {
         className="blob blob-pink blob-fast"
         style={{ width: '24rem', height: '24rem', right: '-8rem', bottom: '-8rem' }}
       />
-      <div className="glass ring-glow relative overflow-hidden rounded-3xl p-3">
+      <div className="clay ring-glow relative overflow-hidden rounded-3xl p-3">
         <div className="noise pointer-events-none absolute inset-0" />
-        <div className="rounded-2xl bg-surface-950/70 p-3">
+        <div className="clay-inset rounded-2xl p-3">
           <div className="flex items-center justify-between px-1 pb-2">
             <div className="flex items-center gap-2">
               <LogoMark className="h-5 w-5" />
@@ -241,7 +241,7 @@ function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-40">
       <div className="mx-auto max-w-6xl px-4 pt-4">
-        <nav className="glass flex items-center justify-between rounded-2xl px-4 py-2.5">
+        <nav className="clay flex items-center justify-between rounded-2xl px-4 py-2.5">
           <Link to="/" className="font-display flex items-center gap-2 text-sm font-semibold">
             <LogoMark className="h-7 w-7" />
             OrchardVision
@@ -261,7 +261,7 @@ function Navbar() {
             <ThemeToggle />
             <Link
               to="/dashboard"
-              className="bg-mango rounded-full px-4 py-2 text-sm font-semibold text-surface-950 shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)] transition-transform hover:scale-[1.03] active:scale-[0.98]"
+              className="bg-mango rounded-full px-4 py-2 text-sm font-semibold text-surface-950 clay-press-glow"
             >
               Launch console
             </Link>
@@ -290,7 +290,7 @@ function Hero() {
       <div className="relative mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
-            <span className="glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium text-orchard-300">
+            <span className="clay-chip inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium text-orchard-300">
               <Icon name="sparkles" className="h-3.5 w-3.5" />
               Self-supervised identity learning for orchards
             </span>
@@ -311,14 +311,14 @@ function Hero() {
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 to="/dashboard"
-                className="bg-mango flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-surface-950 shadow-[0_12px_32px_-10px_rgba(249,115,22,0.65)] transition-transform hover:scale-[1.03] active:scale-[0.98] sm:w-auto"
+                className="bg-mango flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-surface-950 shadow-[0_12px_32px_-10px_rgba(249,115,22,0.65)] clay-press-glow sm:w-auto"
               >
                 Open the console
                 <Icon name="arrowRight" className="h-4 w-4" />
               </Link>
               <a
                 href="#pipeline"
-                className="glass flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-surface-200 transition-colors hover:text-surface-50 sm:w-auto"
+                className="clay-press flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-surface-200 sm:w-auto"
               >
                 See the pipeline
               </a>
@@ -372,7 +372,7 @@ function Stats() {
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {stats.map(([value, label, sub], i) => (
             <Reveal key={label} delay={i * 80}>
-              <div className="glass card-glow cursor-pointer rounded-2xl p-6 text-center">
+              <div className="clay clay-lift cursor-pointer rounded-2xl p-6 text-center">
                 <p className="text-gradient font-display text-4xl font-bold">{value}</p>
                 <p className="mt-2 text-sm font-medium text-surface-200">{label}</p>
                 <p className="mt-1 text-xs text-surface-500">{sub}</p>
@@ -410,8 +410,8 @@ function Features() {
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((feature, i) => (
             <Reveal key={feature.title} delay={(i % 3) * 90}>
-              <div className="glass card-glow group h-full cursor-pointer rounded-2xl p-6">
-                <div className="bg-mango-soft flex h-11 w-11 items-center justify-center rounded-xl text-orchard-300 transition-transform duration-300 group-hover:scale-110">
+              <div className="clay clay-lift group h-full cursor-pointer rounded-2xl p-6">
+                <div className="bg-mango-soft clay-press flex h-12 w-12 items-center justify-center rounded-xl text-orchard-300">
                   <Icon name={feature.icon} />
                 </div>
                 <h3 className="font-display mt-4 text-lg font-semibold text-surface-50">
@@ -448,7 +448,7 @@ function Pipeline() {
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {STEPS.map((step, i) => (
             <Reveal key={step.n} delay={(i % 3) * 90}>
-              <div className="glass card-glow relative h-full cursor-pointer overflow-hidden rounded-2xl p-6">
+              <div className="clay clay-lift relative h-full cursor-pointer overflow-hidden rounded-2xl p-6">
                 <span className="text-gradient font-display absolute top-3 right-5 text-3xl font-bold opacity-40">
                   {step.n}
                 </span>
@@ -485,7 +485,7 @@ function Cta() {
             <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 to="/dashboard"
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-surface-950 px-7 py-3 text-sm font-semibold text-surface-50 shadow-lg transition-transform hover:scale-[1.03] active:scale-[0.98] sm:w-auto"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-surface-950 px-7 py-3 text-sm font-semibold text-surface-50 shadow-lg clay-press sm:w-auto"
               >
                 Launch the console
                 <Icon name="arrowRight" className="h-4 w-4" />
@@ -508,7 +508,7 @@ function Footer() {
   return (
     <footer className="relative py-12">
       <div className="mx-auto max-w-6xl px-4">
-        <div className="glass rounded-2xl px-6 py-8">
+        <div className="clay rounded-2xl px-6 py-8">
           <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
             <div>
               <Logo />
