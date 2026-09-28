@@ -52,15 +52,21 @@ class DbJobState:
 
     def update(self, stage: str, progress: float, message: str | None = None) -> None:
         self.stage = stage
-        self.progress = progress
+        self.progress = max(self.progress, progress)
         self.message = message
         job = self._current()
         if job is not None:
             job.stage = stage
-            job.progress = progress
+            job.progress = self.progress
             job.message = message
             self._db.commit()
-        logger.info("Job %s stage=%s progress=%.1f %s", self.job_id, stage, progress, message or "")
+        logger.info(
+            "Job %s stage=%s progress=%.1f %s",
+            self.job_id,
+            stage,
+            self.progress,
+            message or "",
+        )
 
     @property
     def cancelled(self) -> bool:

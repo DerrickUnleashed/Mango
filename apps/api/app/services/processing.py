@@ -172,12 +172,6 @@ class ProcessingService:
                 ok, frame = cap.read()
                 if not ok:
                     break
-                if index % 50 == 0 and index > 0:
-                    state.update(
-                        ProcessingStage.EXTRACTING_FRAMES,
-                        10.0 + 50.0 * (index / max(max_frames, 1)),
-                        f"Extracting frame {index}/{max_frames}",
-                    )
                 start = time.perf_counter()
                 result = detector.detect(frame, index)
                 elapsed_ms = (time.perf_counter() - start) * 1000.0
@@ -187,7 +181,7 @@ class ProcessingService:
                 frame_timings.append({"frame_id": index, "elapsed_ms": elapsed_ms})
                 index += 1
                 if index % 20 == 0:
-                    progress = 60.0 + 15.0 * (index / max(max_frames, 1))
+                    progress = 30.0 + 30.0 * (index / max(max_frames, 1))
                     msg = f"Frame {index}/{max_frames}"
                     state.update(ProcessingStage.DETECTING, progress, msg)
         finally:
@@ -260,7 +254,7 @@ class ProcessingService:
         db,
     ) -> dict:
         """Associate per-frame detections into stable tracks and persist them."""
-        state.update(ProcessingStage.TRACKING, 55.0, "Tracking detections")
+        state.update(ProcessingStage.TRACKING, 60.0, "Tracking detections")
         tracker: Tracker = self._build_tracker(config)
         motion: MotionEstimator = self._build_motion_estimator(config)
         frame_count = len(frame_detections)
@@ -282,7 +276,7 @@ class ProcessingService:
             lost_by_frame.append(list(last.lost_track_ids))
 
             if index % 20 == 0:
-                progress = 55.0 + 25.0 * (index + 1) / max(frame_count, 1)
+                progress = 60.0 + 20.0 * (index + 1) / max(frame_count, 1)
                 msg = f"Tracking frame {index + 1}/{frame_count}"
                 state.update(ProcessingStage.TRACKING, progress, msg)
 

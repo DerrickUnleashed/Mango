@@ -18,7 +18,6 @@ export function VideoDetailPage() {
   const process = useProcessVideo()
   const settings = useSettings()
   const [inferenceMode, setInferenceMode] = useState<'mock' | 'real'>('real')
-  const [tracker, setTracker] = useState<'mock' | 'bytetrack'>('mock')
   const [cameraMotion, setCameraMotion] = useState<'static' | 'drift'>('static')
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
@@ -41,7 +40,7 @@ export function VideoDetailPage() {
 
   function startProcessing() {
     process.mutate(
-      { videoId, request: { inferenceMode, tracker, cameraMotion } },
+      { videoId, request: { inferenceMode, tracker: 'mock', cameraMotion } },
       {
         onSuccess: () => push('Processing started', 'success'),
         onError: (err) => push(`Failed to start: ${err.message}`, 'error'),
@@ -188,25 +187,6 @@ export function VideoDetailPage() {
             >
               <option value="mock">Mock</option>
               <option value="real">Real</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <label
-              className="text-xs font-medium text-surface-400"
-              htmlFor="tracker-select"
-              title="Re-run processing with the selected tracker"
-            >
-              Tracker
-            </label>
-            <select
-              id="tracker-select"
-              value={tracker}
-              onChange={(e) => setTracker(e.target.value as 'mock' | 'bytetrack')}
-              disabled={isProcessing || process.isPending}
-              className="clay-inset-sm cursor-pointer rounded-lg px-3 py-2 text-sm text-surface-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option value="mock">Mock</option>
-              <option value="bytetrack">ByteTrack</option>
             </select>
           </div>
           <div className="flex items-center gap-2">
