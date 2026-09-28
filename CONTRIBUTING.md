@@ -136,3 +136,30 @@ or the PR's state, rather than `--merged` alone.
   pass before merging.
 - Do not merge changes that regress `ruff check`, typecheck, or the test
   suites.
+
+## Releasing
+
+A release is cut by pushing a version tag. Nothing needs to be edited first
+beyond the manifests and the changelog.
+
+1. Bump the version in `apps/api/pyproject.toml`, `ml/pyproject.toml`,
+   `package.json`, and `apps/web/package.json`. They must all agree.
+2. Add the release section to `CHANGELOG.md`, under a `## [x.y.z]` heading.
+   Keep `## [Unreleased]` at the top for work not yet tagged.
+3. Open a PR with those changes and merge it once CI is green.
+4. Tag and push:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The `Release` workflow then checks the tag against the manifests, builds the
+image from `docker/Dockerfile` and publishes it to GHCR, and opens a **draft**
+GitHub release with that version's changelog section. Review the draft and
+publish it when you are happy with the notes.
+
+Step 1 is enforced: a tag that disagrees with any manifest fails the workflow
+rather than publishing an image whose version lies. Step 2 is enforced too —
+the workflow refuses to continue if `CHANGELOG.md` has no section for the
+version being tagged.
