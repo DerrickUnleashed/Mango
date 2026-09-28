@@ -19,9 +19,9 @@ const accentBar: Record<NonNullable<StatCardProps['accent']>, string> = {
 
 export function StatCard({ label, value, hint, accent = 'default' }: StatCardProps) {
   return (
-    <div className="glass card-glow relative cursor-pointer overflow-hidden rounded-2xl p-5">
+    <div className="clay clay-lift relative cursor-pointer overflow-hidden rounded-2xl p-5">
       <div
-        className={`pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accentBar[accent]}`}
+        className={`pointer-events-none absolute inset-x-3 top-0 h-1 rounded-full bg-gradient-to-r ${accentBar[accent]}`}
         aria-hidden="true"
       />
       <p className="text-xs font-medium tracking-wide text-surface-400 uppercase">{label}</p>
