@@ -119,7 +119,11 @@ class SelfSupervisedTrainer:
         try:
             import torch
         except ImportError:  # pragma: no cover - mock environments may lack torch
-            torch = None
+            # mypy infers `torch` as the Module that the import binds and
+            # rejects assigning None to it. This is the standard
+            # optional-dependency guard, which mypy cannot express: the name
+            # genuinely is a Module or None at runtime.
+            torch = None  # type: ignore[assignment]
         if torch is None:  # pragma: no cover
             raise ImportError(_NO_TORCH) from None
         self.config = config or SelfSupervisedConfig()

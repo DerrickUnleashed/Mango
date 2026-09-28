@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from orchardvision_ml.detection import MockDetector
+from orchardvision_ml.detection import MockDetector, MockFruit
 from orchardvision_ml.tracking import ByteTrackAdapter, MockTracker, Tracker
 from orchardvision_ml.tracking.base import TrackResult
 
@@ -46,7 +46,7 @@ def build_predicted_tracks(result: TrackResult | None) -> list[Tracklet]:
 
 
 def evaluate_scenario(
-    scenario: list,
+    scenario: list[MockFruit],
     num_frames: int,
     tracker: str = "mock",
     recovered: int = 0,

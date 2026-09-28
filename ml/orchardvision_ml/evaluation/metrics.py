@@ -230,12 +230,13 @@ def _aligned_pairs_per_frame(
 
     all_frames = sorted({f for t in gt + pred for f in t.frames})
     for frame in all_frames:
-        gt_boxes: list[tuple[int, tuple]] = [
-            (t.object_id, t.bbox_at(frame)) for t in gt if t.bbox_at(frame) is not None
-        ]
-        pred_boxes: list[tuple[int, tuple]] = [
-            (t.object_id, t.bbox_at(frame)) for t in pred if t.bbox_at(frame) is not None
-        ]
+        # bbox_at is called once per track and the result filtered, rather than
+        # being called again in the condition: the repeated call left the
+        # optional type unnarrowed, and it is not free.
+        gt_at = [(t.object_id, box) for t in gt if (box := t.bbox_at(frame)) is not None]
+        pred_at = [(t.object_id, box) for t in pred if (box := t.bbox_at(frame)) is not None]
+        gt_boxes: list[tuple[int, tuple]] = gt_at
+        pred_boxes: list[tuple[int, tuple]] = pred_at
         used_pred: set[int] = set()
         for gt_id, gt_box in gt_boxes:
             best_pid: int | None = None
