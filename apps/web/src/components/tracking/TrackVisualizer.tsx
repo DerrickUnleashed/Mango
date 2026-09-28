@@ -67,7 +67,7 @@ export function TrackVisualizer({
 
   if (isLoading) {
     return (
-      <div className="flex h-48 items-center justify-center glass card-glow rounded-2xl">
+      <div className="flex h-48 items-center justify-center clay clay-lift rounded-2xl">
         <span className="text-sm text-surface-500">Loading tracks…</span>
       </div>
     )
@@ -75,7 +75,7 @@ export function TrackVisualizer({
 
   if (isError) {
     return (
-      <div className="glass card-glow rounded-2xl p-5 text-sm text-red-400">
+      <div className="clay clay-lift rounded-2xl p-5 text-sm text-red-400">
         Failed to load track data.
       </div>
     )
@@ -83,7 +83,7 @@ export function TrackVisualizer({
 
   if (!tracks.length) {
     return (
-      <div className="flex h-40 items-center justify-center glass card-glow rounded-2xl">
+      <div className="flex h-40 items-center justify-center clay clay-lift rounded-2xl">
         <p className="text-sm text-surface-500">Run processing to generate tracks.</p>
       </div>
     )
@@ -92,7 +92,7 @@ export function TrackVisualizer({
   const anyAtFrame = tracks.some((t) => t.points.some((p) => p.frameId === frame))
 
   return (
-    <div className="glass card-glow rounded-2xl">
+    <div className="clay clay-lift rounded-2xl">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-surface-800 px-4 py-3">
         <div>
           <h2 className="font-medium text-surface-200">Track visualization</h2>
