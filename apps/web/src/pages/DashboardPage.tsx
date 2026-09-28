@@ -18,7 +18,7 @@ export function DashboardPage() {
             Long-term fruit tracking and counting platform for mango orchards
           </p>
         </div>
-        <div className="glass flex items-center gap-2 rounded-full px-3 py-1.5" aria-live="polite">
+        <div className="clay flex items-center gap-2 rounded-full px-3 py-1.5" aria-live="polite">
           <span
             className={`h-2 w-2 rounded-full ${health.isSuccess ? 'bg-emerald-400' : 'bg-surface-600'}`}
             aria-hidden="true"
@@ -36,7 +36,7 @@ export function DashboardPage() {
         <StatCard label="Identity Recovery" value="—" accent="warning" hint="Processing required" />
       </div>
 
-      <div className="glass card-glow rounded-2xl p-6">
+      <div className="clay clay-lift rounded-2xl p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-sm font-semibold text-surface-200">Library</h2>
           <button
@@ -61,7 +61,7 @@ export function DashboardPage() {
             <button
               type="button"
               onClick={() => navigate('/videos')}
-              className="bg-mango mt-3 cursor-pointer rounded-full px-5 py-2 text-sm font-semibold text-surface-950 shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)] transition-transform hover:scale-[1.03] active:scale-[0.98]"
+              className="bg-mango mt-3 cursor-pointer rounded-full px-5 py-2 text-sm font-semibold text-surface-950 clay-press-glow"
             >
               Upload first video
             </button>
@@ -73,7 +73,7 @@ export function DashboardPage() {
                 <button
                   type="button"
                   onClick={() => navigate(`/videos/${video.id}`)}
-                  className="glass-soft card-glow flex w-full cursor-pointer items-center justify-between rounded-xl px-4 py-3 text-left transition-colors hover:border-orchard-500/40"
+                  className="clay-sm clay-lift flex w-full cursor-pointer items-center justify-between rounded-xl px-4 py-3 text-left"
                 >
                   <span className="flex min-w-0 items-center gap-3">
                     <span className="bg-mango flex h-8 w-8 shrink-0 items-center justify-center rounded-lg opacity-90">
@@ -103,7 +103,7 @@ export function DashboardPage() {
         )}
       </div>
 
-      <div className="glass-soft flex items-center justify-between rounded-2xl px-5 py-4">
+      <div className="clay-sm flex items-center justify-between rounded-2xl px-5 py-4">
         <div className="flex items-center gap-3">
           <span className="bg-mango-soft flex h-9 w-9 items-center justify-center rounded-xl text-orchard-300">
             <svg
@@ -129,7 +129,7 @@ export function DashboardPage() {
         <button
           type="button"
           onClick={() => navigate('/videos')}
-          className="bg-mango shrink-0 cursor-pointer rounded-full px-4 py-2 text-xs font-semibold text-surface-950 transition-transform hover:scale-[1.03] active:scale-[0.98]"
+          className="bg-mango shrink-0 cursor-pointer rounded-full px-4 py-2 text-xs font-semibold text-surface-950 clay-press-glow"
         >
           Get started
         </button>
