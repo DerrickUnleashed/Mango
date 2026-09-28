@@ -184,6 +184,12 @@ alembic upgrade head
 Existing dev databases created with `create_all` can be aligned with
 `alembic stamp head` or recreated.
 
+In the container, migrations are applied automatically at API startup (the
+worker skips this deliberately, since both share one SQLite file). Databases
+predating migrations are detected by their missing alembic history and stamped
+rather than upgraded, so an existing deployment is adopted instead of failing
+with `table ... already exists`.
+
 ## Production notes
 
 - Start the API with the production entrypoint, which reads
