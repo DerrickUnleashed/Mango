@@ -35,17 +35,26 @@ jobs:
           # in a later commit.
           fetch-depth: 0
 
+      # The gitleaks CLI is run directly rather than through
+      # gitleaks/gitleaks-action. On pull_request events that action takes a
+      # code path which writes PR annotations through the API, and it fails
+      # here with "Resource not accessible by integration" because
+      # GITHUB_TOKEN is read-only on this repository; it also ignores the
+      # pinned version on that path. The CLI needs no token, behaves
+      # identically on push, pull request, and the weekly schedule, and is
+      # the exact invocation verified against this history.
       - name: Scan history for secrets (gitleaks)
-        uses: gitleaks/gitleaks-action@v2
-        with:
-          # Pinned to the version this was verified against, so a silent
-          # gitleaks upgrade cannot change what the gate means.
-          version: v8.28.0
-        env:
-          # Required by the action for pull_request events; without it the
-          # step exits with an error before scanning anything.
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+        run: |
+          set -euo pipefail
+          GITLEAKS_VERSION=8.28.0
+          curl -sSfL \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+          ./gitleaks detect \
+            --source . \
+            --redact \
+            --config .gitleaks.toml \
+            --verbose
 
   python-audit:
     name: Python vulnerabilities
