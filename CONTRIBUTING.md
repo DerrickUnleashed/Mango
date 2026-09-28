@@ -64,14 +64,20 @@ Ruff is configured in `apps/api/pyproject.toml` (line length 100, target
 ### TypeScript (web + packages)
 
 ```bash
-# Typecheck
-npm run typecheck --workspace=apps/web
+# Typecheck (runs every workspace)
+npm run typecheck
 
 # Lint, format, tests
 npx --yes oxlint@1.82.0      # from apps/web
-npm run format:check --workspace=apps/web
-npm run test --workspace=apps/web
+npm run format:check
+npm test
 ```
+
+`npm run typecheck`, `npm run format:check`, and `npm test` each fan out across
+all workspaces (`--workspaces --if-present`), so they cover both `apps/web` and
+`packages/types` without naming a workspace. Prettier config is shared from the
+repo-root `.prettierrc.json`; add new packages inside that tree rather than
+introducing a second config.
 
 ### Running the dev stack
 
