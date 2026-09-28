@@ -597,8 +597,10 @@ can replace the mock adapter without touching the rest of the pipeline.
 
 - [x] Real YOLO adapter (`orchardvision_ml.detection.YoloDetector`) wired into the
       API via `inference_mode="real"`; detector trained on `Mango_Dataset2`
-      (yolov8n-4, 50 epochs, mAP50 0.986 / test F1 0.918). Weights are
-      gitignored under `models/` (see `YOLO_WEIGHTS_PATH` env override).
+      (yolov8n-4, 50 epochs, mAP50 0.986 / test F1 0.918). Weights are ignored
+      going forward (see `YOLO_WEIGHTS_PATH` env override); note that
+      checkpoints committed before the `*.pt` rule was added are still in
+      history.
 - [x] Self-supervised identity embedding training: positive/negative pair
       generation over crop-level tracklets with temporal/spatial consistency,
       visibility-aware filtering, and hard-negative mining
@@ -626,7 +628,9 @@ can replace the mock adapter without touching the rest of the pipeline.
 ## Known Risks
 
 - [!] GPU availability for real model inference — mitigated by mock mode
-- [!] Large model weights — will use .gitignore and environment config for weight paths
+- [!] Large model weights — `.gitignore` now covers `*.pt`; the ~1.5 GB already
+      committed before that rule existed is still in git history and would need
+      a `git filter-repo` rewrite to purge
 - [!] Video processing can be slow — async job queue architecture (Celery/Redis)
 - [!] PostgreSQL may not be available for local dev — SQLite fallback provided
 - [!] OpenCV `VideoCapture` reads the full byte string upload into memory — acceptable

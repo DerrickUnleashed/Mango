@@ -17,6 +17,8 @@ build/
 .env
 .env.local
 .env.*.local
+# direnv files can carry local-only env exports
+.envrc
 
 # IDE
 .vscode/*
@@ -62,10 +64,12 @@ data/train/
 data/test/
 data/val/
 # ML Models
+*.pt
 *.pth
 *.onnx
 *.engine
 *.weights
+*.ckpt
 
 # The FastAPI "models" package must stay tracked despite the ML `models/` rule
 !apps/api/app/models/
