@@ -207,3 +207,7 @@ Participation is governed by [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 Repo-wide editor and lint defaults live in `.editorconfig`,
 `.pre-commit-config.yaml`, and `.github/dependabot.yml`; code ownership is
 enforced via `.github/CODEOWNERS`.
+
+## License
+
+Proprietary — all rights reserved. See [LICENSE](LICENSE).
