@@ -1,0 +1,91 @@
+name: Bug report
+description: Something in the pipeline is not working as expected
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please search existing issues first.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the system is affected?
+      options:
+        - api — FastAPI backend (apps/api)
+        - web — React frontend (apps/web)
+        - ml — detection/tracking/identity (ml)
+        - docker — containers and deployment
+        - infrastructure — CI, dependabot, repo config
+        - not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you observe? Include the exact error or wrong output.
+      placeholder: |
+        The job reports "completed" but no tracks appear in the overlay.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Command or UI action sequence, starting from a clean state.
+      placeholder: |
+        1. uv run --project apps/api uvicorn app.main:app --app-dir apps/api
+        2. Open a video, set Inference=Mock, click Start Processing
+        3. Observe the job progress bar stalls at 60%
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or traceback
+      description: Paste the relevant API/Celery/worker output. Trim to the failure.
+      render: shell
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Commit or version
+      description: Output of `git rev-parse --short HEAD`, or the release tag.
+      placeholder: a1b2c3d
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python and Node versions, and whether running via Docker.
+      placeholder: |
+        macOS 15.5, Python 3.13, Node 24, running `npm run dev` (not Docker)
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues for this
+          required: true
+        - label: Relevant CI checks pass on main
+          required: false

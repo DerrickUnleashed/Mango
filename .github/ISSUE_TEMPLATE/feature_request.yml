@@ -1,0 +1,69 @@
+name: Feature request
+description: Suggest new capability or an improvement to an existing one
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. Check the roadmap in `TODO.md` first — it
+        may already be planned, in which case a comment linking the issue is
+        more useful than a duplicate.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do that is awkward, slow, or impossible today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should change, and roughly how?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - api — FastAPI backend (apps/api)
+        - web — React frontend (apps/web)
+        - ml — detection/tracking/identity (ml)
+        - docker — containers and deployment
+        - infrastructure — CI, dependabot, repo config
+        - cross-cutting
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Rough scope
+      description: Helps decide whether this is a quick fix or a project.
+      options:
+        - small — a contained change in one component
+        - medium — touches several components or needs a migration
+        - large — new subsystem, or a pipeline stage
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds you are using now, or approaches you rejected and why.
+    validations:
+      required: false
+
+  - type: textarea
+    id: todo-check
+    attributes:
+      label: TODO.md
+      description: Which phase or section of TODO.md does this map to, if any?
+    validations:
+      required: false
