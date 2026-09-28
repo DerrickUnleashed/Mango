@@ -70,9 +70,23 @@ def create_app() -> FastAPI:
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         return response
 
-    app.add_exception_handler(ApiError, api_error_handler)
-    app.add_exception_handler(StarletteHTTPException, http_exception_handler)
-    app.add_exception_handler(RequestValidationError, validation_exception_handler)
+    # These three are a known FastAPI/mypy impedance mismatch, not defects.
+    # Starlette types add_exception_handler as taking a handler for
+    # `Exception`, but registering per-error-type handlers is the documented
+    # FastAPI pattern and the only way to dispatch on the specific type. The
+    # handlers are correctly narrower, which is exactly the contravariance
+    # mypy flags. Ignored per line rather than per module so any *other* type
+    # error in this file is still reported. mypy anchors the error to the
+    # argument, so that is where each ignore has to sit.
+    app.add_exception_handler(ApiError, api_error_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(
+        StarletteHTTPException,
+        http_exception_handler,  # type: ignore[arg-type]
+    )
+    app.add_exception_handler(
+        RequestValidationError,
+        validation_exception_handler,  # type: ignore[arg-type]
+    )
     app.add_exception_handler(Exception, unhandled_exception_handler)
 
     app.include_router(health_router, prefix="/api")

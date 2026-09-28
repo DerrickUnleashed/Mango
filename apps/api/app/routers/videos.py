@@ -221,8 +221,8 @@ def list_video_identities(video_id: str, db: Annotated[Session, Depends(get_db)]
 @router.get("/{video_id}/identities/projection", response_model=MultiIdentityProjectionResponse)
 def get_video_identity_projection(
     video_id: str,
+    db: Annotated[Session, Depends(get_db)],
     method: str = Query(default="tsne", pattern="^(tsne|pca)$"),
-    db: Annotated[Session, Depends(get_db)] = None,
 ) -> dict:
     """Return 2D coordinates per identity prototype for embedding visualization."""
     video = db.get(Video, video_id)
@@ -319,8 +319,8 @@ def list_video_reid_events(video_id: str, db: Annotated[Session, Depends(get_db)
 @router.get("/{video_id}/detections", response_model=MultiDetectionResponse)
 def list_video_detections(
     video_id: str,
+    db: Annotated[Session, Depends(get_db)],
     frame_id: int | None = None,
-    db: Annotated[Session, Depends(get_db)] = None,
 ) -> dict:
     """Return persisted detections for a video, optionally for a single frame."""
     video = db.get(Video, video_id)
