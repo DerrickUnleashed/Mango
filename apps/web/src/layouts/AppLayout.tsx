@@ -57,10 +57,10 @@ function HeaderTab({
       to={to}
       end={end}
       className={({ isActive }) =>
-        `flex shrink-0 cursor-pointer items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200 ${
+        `clay-press flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium ${
           isActive
-            ? 'bg-mango text-surface-950 shadow-[0_6px_20px_-8px_rgba(249,115,22,0.55)]'
-            : 'text-surface-400 hover:bg-surface-800/70 hover:text-surface-100'
+            ? 'bg-mango text-surface-950 clay-press-glow'
+            : 'text-surface-400 hover:text-surface-50'
         }`
       }
     >
@@ -74,12 +74,12 @@ function Header() {
   return (
     <header className="sticky top-0 z-30 px-4 pt-3">
       <nav
-        className="glass mx-auto flex max-w-[100rem] items-center gap-3 rounded-2xl px-3 py-2.5"
+        className="clay mx-auto flex max-w-[100rem] items-center gap-3 rounded-2xl px-3 py-2.5"
         aria-label="Primary"
       >
         <Link
           to="/"
-          className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl px-1.5 py-1 transition-colors hover:bg-surface-800/50"
+          className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl px-1.5 py-1 transition-colors hover:text-surface-50"
           title="Back to the landing page"
         >
           <LogoMark className="h-8 w-8" />
@@ -97,7 +97,7 @@ function Header() {
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <span
-            className="rounded-full border border-emerald-700/60 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300"
+            className="clay-chip rounded-full px-2.5 py-1 text-xs font-medium text-emerald-300"
             title="Inference status"
           >
             <span className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />

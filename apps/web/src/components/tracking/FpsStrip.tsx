@@ -37,7 +37,7 @@ export function FpsStrip({ timings }: { timings: FrameTiming[] }) {
   const bars = downsample(timings, TARGET_BARS)
 
   return (
-    <div className="glass-soft rounded-lg p-4">
+    <div className="clay-inset-sm rounded-lg p-4">
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-sm font-medium text-surface-300">Processing speed per frame</h3>
         <span className="font-mono text-xs text-surface-400">

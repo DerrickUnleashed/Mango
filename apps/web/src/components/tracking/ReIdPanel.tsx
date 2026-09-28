@@ -15,7 +15,7 @@ export function ReIdPanel({ videoId, enabled }: ReIdPanelProps) {
 
   if (isLoading) {
     return (
-      <div className="flex h-40 items-center justify-center glass card-glow rounded-2xl">
+      <div className="flex h-40 items-center justify-center clay clay-lift rounded-2xl">
         <span className="text-sm text-surface-500">Loading re-identification events…</span>
       </div>
     )
@@ -23,7 +23,7 @@ export function ReIdPanel({ videoId, enabled }: ReIdPanelProps) {
 
   if (isError) {
     return (
-      <div className="glass card-glow rounded-2xl p-5 text-sm text-red-400">
+      <div className="clay clay-lift rounded-2xl p-5 text-sm text-red-400">
         Failed to load re-identification data.
       </div>
     )
@@ -31,7 +31,7 @@ export function ReIdPanel({ videoId, enabled }: ReIdPanelProps) {
 
   if (!events.length) {
     return (
-      <div className="flex h-40 items-center justify-center glass card-glow rounded-2xl">
+      <div className="flex h-40 items-center justify-center clay clay-lift rounded-2xl">
         <p className="text-sm text-surface-500">
           No re-identifications in this run — fruits stayed visible throughout.
         </p>
@@ -42,7 +42,7 @@ export function ReIdPanel({ videoId, enabled }: ReIdPanelProps) {
   const accepted = events.filter((e) => e.accepted).length
 
   return (
-    <div className="glass card-glow rounded-2xl">
+    <div className="clay clay-lift rounded-2xl">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-surface-800 px-4 py-3">
         <div>
           <h2 className="font-medium text-surface-200">Re-identifications</h2>
@@ -69,7 +69,7 @@ export function CandidateComparison({ event }: { event: PersistedReidEvent }) {
 
   const maxScore = Math.max(1, ...objectValues(scores))
   return (
-    <div className="mb-2 ml-6 glass-soft rounded-lg px-3 py-2">
+    <div className="mb-2 ml-6 clay-inset-sm rounded-lg px-3 py-2">
       <p className="mb-2 text-xs font-medium text-surface-400">Candidate comparison</p>
       <ul className="space-y-1.5">
         {candidateIds.map((candidateId) => {
