@@ -23,14 +23,23 @@ if TYPE_CHECKING:
 
 CONFIDENCE_EDGES = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
+# The bin labels, derived from the edges so they cannot drift from
+# _confidence_bin. These were previously the raw edge floats, which never
+# matched the string keys _confidence_bin produces, so every count came back
+# as the defaultdict zero and the confidence histogram was always empty.
+CONFIDENCE_LABELS = [
+    f"{CONFIDENCE_EDGES[i]:.1f}–{CONFIDENCE_EDGES[i + 1]:.1f}"
+    for i in range(len(CONFIDENCE_EDGES) - 1)
+]
+
 
 def _confidence_bin(confidence: float) -> str:
-    low = CONFIDENCE_EDGES[0]
-    for high in CONFIDENCE_EDGES[1:]:
+    for label, low, high in zip(
+        CONFIDENCE_LABELS, CONFIDENCE_EDGES, CONFIDENCE_EDGES[1:], strict=False
+    ):
         if low <= confidence < high:
-            return f"{low:.1f}–{high:.1f}"
-        low = high
-    return f"{CONFIDENCE_EDGES[-2]:.1f}–{CONFIDENCE_EDGES[-1]:.1f}"
+            return label
+    return CONFIDENCE_LABELS[-1]
 
 
 def _occlusion_runs(rows: list[dict]) -> list[int]:
@@ -100,7 +109,7 @@ def compute_video_analytics(db: Session, video: Video) -> dict:
     for row in det_rows:
         bin_counts[_confidence_bin(row["confidence"])] += 1
     confidence_distribution = [
-        {"label": label, "count": bin_counts[label]} for label in CONFIDENCE_EDGES[1:]
+        {"label": label, "count": bin_counts[label]} for label in CONFIDENCE_LABELS
     ]
 
     occlusion_runs = _occlusion_runs(
