@@ -41,7 +41,7 @@ npm install
 Copy the API environment file and adjust values as needed:
 
 ```bash
-cp apps/api/.env.example apps/api/.env
+cp .env.example .env
 ```
 
 Never commit `.env` or any real secret.
@@ -91,7 +91,7 @@ introducing a second config.
 ### Running the dev stack
 
 ```bash
-docker compose -f docker/docker-compose.dev.yml up --build
+docker compose -f docker/docker-compose.yml up --build
 ```
 
 The API is served on `localhost:8001`; the Vite dev server proxies `/api`
