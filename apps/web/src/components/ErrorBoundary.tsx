@@ -23,13 +23,13 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           role="alert"
           className="flex min-h-screen items-center justify-center bg-surface-950 p-6 text-surface-50"
         >
-          <div className="glass card-glow w-full max-w-md rounded-3xl p-8 text-center">
+          <div className="clay clay-lift w-full max-w-md rounded-3xl p-8 text-center">
             <LogoMark className="mx-auto h-14 w-14" />
             <h1 className="font-display mt-5 text-2xl font-semibold">Something went wrong</h1>
             <p className="mt-2 text-surface-400">{this.state.message}</p>
             <button
               type="button"
-              className="bg-mango mt-6 cursor-pointer rounded-full px-6 py-2.5 font-semibold text-surface-950 shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)] transition-transform hover:scale-[1.03]"
+              className="bg-mango mt-6 cursor-pointer rounded-full px-6 py-2.5 font-semibold text-surface-950 clay-press-glow"
               onClick={() => window.location.reload()}
             >
               Reload application
