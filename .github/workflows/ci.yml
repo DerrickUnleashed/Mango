@@ -45,6 +45,14 @@ jobs:
           uv run --project ml ruff check ml/orchardvision_ml ml/tests
           uv run --project ml ruff format --check ml/orchardvision_ml ml/tests
 
+      - name: Typecheck (API)
+        run: |
+          uv run --project apps/api mypy --config-file apps/api/pyproject.toml \
+            apps/api/app apps/api/migrate.py --exclude '__main__\.py'
+
+      - name: Typecheck (ML)
+        run: uv run --project ml mypy --config-file ml/pyproject.toml ml/orchardvision_ml
+
       - name: Test API
         run: uv run --project apps/api pytest apps/api/tests -q
 
