@@ -84,7 +84,7 @@ jobs:
       # No uv or Python setup needed here: the image build does its own
       # `uv sync` inside the container.
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -94,7 +94,7 @@ jobs:
       # leaves a broken tag or a partially published image. Building it
       # separately first as well would just double the wall time.
       - name: Build and publish the image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/Dockerfile
