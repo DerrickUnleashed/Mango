@@ -267,6 +267,14 @@ def test_processing_exposes_analytics(client: TestClient, sample_video_bytes: by
     assert len(summary["fruitPerFrame"]) == summary["totalFrames"]
     assert len(summary["tracksPerFrame"]) == summary["totalFrames"]
     assert summary["confidenceDistribution"]
+    # The bars must account for every detection. An earlier version asserted
+    # only that the list was non-empty, which a chart of eight zero-count bars
+    # satisfied - so the histogram could be entirely empty of data and still
+    # pass. The counts are built from the bin labels while the labels were
+    # previously taken from the raw confidence edges, so no bar ever matched.
+    distribution = summary["confidenceDistribution"]
+    assert sum(bar["count"] for bar in distribution) == summary["totalFruitDetections"]
+    assert any(bar["count"] > 0 for bar in distribution)
     assert summary["processingSeconds"] >= 0.0
 
 
