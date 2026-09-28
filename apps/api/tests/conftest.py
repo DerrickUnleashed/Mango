@@ -25,6 +25,26 @@ from fastapi.testclient import TestClient  # noqa: E402
 from app.main import app  # noqa: E402
 
 
+@pytest.fixture(autouse=True, scope="session")
+def _dispose_engine() -> Iterator[None]:
+    """Close the session's pooled connections when the run finishes.
+
+    `app.core.database` creates its engine at import time and nothing
+    disposes it, so the pooled SQLite connections are still open when the
+    interpreter tears down. Best effort rather than a guarantee: disposing
+    the engine does not close every pooled connection, which is why the
+    narrow ResourceWarning filter in pyproject.toml exists alongside this.
+
+    The absence of an actual leak is asserted by
+    `test_database.py::test_repeated_requests_do_not_leak_connections`, so
+    this fixture is hygiene, not the safety net.
+    """
+    yield
+    from app.core.database import engine
+
+    engine.dispose()
+
+
 @pytest.fixture()
 def client() -> Iterator[TestClient]:
     with TestClient(app) as c:
