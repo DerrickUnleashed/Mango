@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    # Weekly, because advisories for already-pinned versions are published
+    # after the fact. Without this, a scan only ever runs when something is
+    # pushed. Monday 06:17 UTC, deliberately off the hour to avoid the
+    # crowded top-of-hour scheduling window.
+    - cron: "17 6 * * 1"
 
 permissions:
   contents: read
@@ -76,3 +82,91 @@ jobs:
 
       - name: Build
         run: npm run build --workspace=apps/web
+
+  # Security checks run only after the build and tests pass (`needs`). They
+  # are listed here rather than in a separate workflow because `needs` cannot
+  # span workflow files, and these are required status checks, so a failure
+  # in either blocks the merge.
+  #
+  # All three are kept despite the "Security" name: a job named for the class
+  # of problem it catches reads clearly in the checks list, and they stay
+  # separate jobs so one failing does not hide the others.
+  #
+  # `actions/dependency-review-action` is intentionally absent. It needs GitHub
+  # Advanced Security, which is not available on this repository's plan
+  # (individual account, private repo), and it exits with "Dependency review is
+  # not supported on this repository" rather than skipping. The two audit jobs
+  # cover the dependency tree; dependency-review would add per-PR diff
+  # visibility. Worth adding if this ever moves to an organisation or a plan
+  # with GHAS.
+
+  secret-scan:
+    name: "Security: Secret scan"
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history: a leaked key is still a leak after it is removed
+          # in a later commit.
+          fetch-depth: 0
+
+      # The gitleaks CLI is run directly rather than through
+      # gitleaks/gitleaks-action. On pull_request events that action takes a
+      # code path which writes PR annotations through the API, and it fails
+      # here with "Resource not accessible by integration" because
+      # GITHUB_TOKEN is read-only on this repository; it also ignores the
+      # pinned version on that path. The CLI needs no token, behaves
+      # identically on push, pull request, and the weekly schedule, and is
+      # the exact invocation verified against this history.
+      - name: Scan history for secrets (gitleaks)
+        run: |
+          set -euo pipefail
+          GITLEAKS_VERSION=8.28.0
+          curl -sSfL \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+          ./gitleaks detect \
+            --source . \
+            --redact \
+            --config .gitleaks.toml \
+            --verbose
+
+  python-audit:
+    name: "Security: Python vulnerabilities"
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Audit the API dependency tree
+        run: |
+          uv export --project apps/api --frozen --no-emit-workspace --no-dev -q > /tmp/api-reqs.txt
+          uvx pip-audit -r /tmp/api-reqs.txt --no-deps
+
+      - name: Audit the ML dependency tree
+        run: |
+          uv export --project ml --frozen --no-emit-workspace --no-dev -q > /tmp/ml-reqs.txt
+          uvx pip-audit -r /tmp/ml-reqs.txt --no-deps
+
+  npm-audit:
+    name: "Security: Node vulnerabilities"
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Audit the npm dependency tree
+        run: npm audit --audit-level=moderate
+
