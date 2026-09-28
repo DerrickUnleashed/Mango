@@ -57,7 +57,7 @@ export function Toaster() {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`glass pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-xl px-4 py-3 shadow-[0_16px_48px_-16px_rgba(0,0,0,0.5)]`}
+          className={`clay clay-lg pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-xl px-4 py-3`}
         >
           <div
             className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${variantStyles[toast.variant]} to-transparent`}
