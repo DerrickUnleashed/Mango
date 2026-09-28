@@ -48,6 +48,12 @@ lcov.info
 .pytest_cache/
 .coverage
 
+# Playwright output
+playwright-report/
+test-results/
+blob-report/
+.playwright/
+
 # Data
 data/uploads/*
 !data/uploads/.gitkeep
