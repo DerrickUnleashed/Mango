@@ -3,6 +3,14 @@ name: Security
 # Dependency and secret scanning. Kept separate from CI so a vulnerability
 # is obviously a security signal rather than a test failure, and so it can
 # be tuned without touching the build gate.
+#
+# Note: `actions/dependency-review-action` is intentionally absent. It needs
+# GitHub Advanced Security, which is not available on this repository's plan
+# (individual account, private repo), and it exits with "Dependency review is
+# not supported on this repository" rather than skipping. The two audit jobs
+# above already cover the dependency tree; dependency-review would only add
+# per-PR diff visibility. It is worth adding if this repo ever moves to an
+# organisation or a plan with GHAS.
 
 on:
   push:
@@ -29,7 +37,14 @@ jobs:
 
       - name: Scan history for secrets (gitleaks)
         uses: gitleaks/gitleaks-action@v2
+        with:
+          # Pinned to the version this was verified against, so a silent
+          # gitleaks upgrade cannot change what the gate means.
+          version: v8.28.0
         env:
+          # Required by the action for pull_request events; without it the
+          # step exits with an error before scanning anything.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
 
   python-audit:
@@ -67,15 +82,3 @@ jobs:
 
       - name: Audit the npm dependency tree
         run: npm audit --audit-level=moderate
-
-  dependency-review:
-    name: Dependency review
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Review the dependency diff
-        uses: actions/dependency-review-action@v4
-        with:
-          fail-on-severity: moderate
