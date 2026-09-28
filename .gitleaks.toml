@@ -1,0 +1,27 @@
+# Gitleaks configuration.
+#
+# The repository deliberately contains strings that look like credentials:
+# a SECRET_KEY placeholder in a few places, and a Postgres DSN with inline
+# user:password in the example env file. These are checked-in placeholders,
+# not leaked secrets, and the production path actively refuses the
+# SECRET_KEY ones.
+#
+# The allowlist below matches those exact values rather than whole files. A
+# file-scoped allowlist would be simpler but wrong: it would also stop the
+# scanner flagging a real key committed to, say, .env.example or
+# config.py, which is precisely the case worth catching.
+
+title = "OrchardVision gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documented placeholder values, refused at runtime in production"
+regexTarget = "match"
+regexes = [
+  '''dev-secret-key-change-me''',
+  '''change-me-in-production''',
+  '''change-me-to-a-random-string''',
+  '''postgresql\+psycopg://orchard:orchard@localhost''',
+]
