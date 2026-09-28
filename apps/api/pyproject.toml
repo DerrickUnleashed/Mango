@@ -39,6 +39,19 @@ packages = ["app"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+# Scoped to this one message rather than ignoring ResourceWarning wholesale,
+# so a real unclosed file or socket would still be reported.
+#
+# The pooled SQLite connections are still open when the interpreter tears
+# down, and CPython warns as it collects them. This is a shutdown-order
+# artifact, not a leak: the engine pool is bounded, `get_db` releases every
+# session, and test_database.py asserts both. Suppressing the message
+# without that assertion would hide the symptom whether or not a cause
+# existed.
+filterwarnings = [
+    "error",
+    "ignore:unclosed database in:ResourceWarning",
+]
 # --cov-fail-under=85 is a ratchet: the measured value is 89% with branch
 # coverage, so this blocks a drop without blocking unrelated work. Raise it
 # as tests are added.
