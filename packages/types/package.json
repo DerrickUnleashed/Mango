@@ -9,6 +9,8 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "tsc --noEmit --skipLibCheck",
     "typecheck": "tsc --noEmit --skipLibCheck"
   }

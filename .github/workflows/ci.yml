@@ -58,17 +58,17 @@ jobs:
         run: npm ci
 
       - name: Typecheck
-        run: npm run typecheck --workspace=apps/web
+        run: npm run typecheck
 
       - name: Lint
         run: npx --yes oxlint@1.82.0
         working-directory: apps/web
 
       - name: Test
-        run: npm run test --workspace=apps/web
+        run: npm test
 
       - name: Format check
-        run: npm run format:check --workspace=apps/web
+        run: npm run format:check
 
       - name: Build
         run: npm run build --workspace=apps/web

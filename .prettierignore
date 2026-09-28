@@ -1,0 +1,13 @@
+node_modules
+dist
+build
+coverage
+
+# Generated training artifacts (committed, not hand-formatted)
+models
+data
+runs
+
+# Lockfiles
+package-lock.json
+uv.lock
