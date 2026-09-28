@@ -22,7 +22,12 @@ torch = [
 ]
 
 [dependency-groups]
-dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "ruff>=0.5"]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.5",
+    "pytest-cov>=7.1.0",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -34,6 +39,27 @@ packages = ["orchardvision_ml"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+# --cov-fail-under=80 is a ratchet: the measured value is 85% with branch
+# coverage, so this blocks a drop without blocking unrelated work. Raise it
+# as tests are added.
+addopts = "--cov=orchardvision_ml --cov-report=term-missing:skip-covered --cov-branch --cov-fail-under=80"
+
+[tool.coverage.run]
+source = ["orchardvision_ml"]
+
+[tool.coverage.report]
+# The gate itself is --cov-fail-under in addopts above; fail_under here does
+# not affect pytest's exit code, so it is deliberately not repeated.
+# torch_extractor and torch_trainer stay in the measurement: they read low
+# because most of their code needs real weights and a GPU, which is worth
+# seeing rather than hiding.
+show_missing = true
+skip_covered = true
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
 
 [tool.ruff]
 line-length = 100

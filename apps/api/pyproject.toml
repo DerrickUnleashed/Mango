@@ -26,6 +26,7 @@ dev = [
     "httpx2>=2.13.1",
     "aiosqlite>=0.20",
     "ruff>=0.5",
+    "pytest-cov>=7.1.0",
 ]
 
 [build-system]
@@ -38,6 +39,27 @@ packages = ["app"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+# --cov-fail-under=85 is a ratchet: the measured value is 89% with branch
+# coverage, so this blocks a drop without blocking unrelated work. Raise it
+# as tests are added.
+addopts = "--cov=app --cov-report=term-missing:skip-covered --cov-report=xml --cov-branch --cov-fail-under=85"
+
+[tool.coverage.run]
+source = ["app"]
+# The `__main__` CLI entrypoint is a thin process wrapper that the test
+# suite drives through the app instead, so it never runs under test.
+omit = ["app/__main__.py"]
+
+[tool.coverage.report]
+# The gate itself is --cov-fail-under in addopts above; fail_under here does
+# not affect pytest's exit code, so it is deliberately not repeated.
+show_missing = true
+skip_covered = true
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
 
 [tool.ruff]
 line-length = 100
