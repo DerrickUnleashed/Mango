@@ -68,6 +68,19 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # GHCR requires a fully lowercase image path, and github.repository is
+      # `DerrickUnleashed/Mango` - capital M. Passing it straight through
+      # fails before the build starts with "repository name must be
+      # lowercase", so the name is normalised here once and reused for both
+      # tags and the login.
+      - name: Resolve the image name
+        id: image
+        run: |
+          set -euo pipefail
+          repo="$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+          echo "name=ghcr.io/$repo" >> "$GITHUB_OUTPUT"
+          echo "Publishing to ghcr.io/$repo"
+
       # No uv or Python setup needed here: the image build does its own
       # `uv sync` inside the container.
       - name: Log in to GHCR
@@ -87,8 +100,8 @@ jobs:
           file: docker/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:${{ needs.verify.outputs.version }}
-            ghcr.io/${{ github.repository }}:latest
+            ${{ steps.image.outputs.name }}:${{ needs.verify.outputs.version }}
+            ${{ steps.image.outputs.name }}:latest
 
   release:
     name: Create the GitHub release
