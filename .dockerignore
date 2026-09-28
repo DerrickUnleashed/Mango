@@ -1,0 +1,66 @@
+# Docker build context exclusions.
+#
+# The image only needs what docker/Dockerfile COPYs: the workspace manifests
+# (pyproject.toml, uv.lock, apps/api, ml) and docker/entrypoint.sh. Everything
+# below is either not needed at runtime or must never be baked into an image.
+
+# Version control — the single largest item (~2.5G in this repo). Not needed to
+# build; sending it also leaks full history into the daemon and the build cache.
+.git
+.gitignore
+.gitattributes
+
+# Node
+node_modules
+apps/web
+packages
+.npmrc
+package.json
+package-lock.json
+
+# Python build/runtime noise
+.venv
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+*.egg-info
+
+# Secrets and local config — must never land in an image layer
+.env
+.env.*
+!.env.example
+
+# Large generated and local-only data (~2.7G combined). The container creates
+# and mounts its own /data and /data/uploads; these host directories are for
+# local dev only and are not COPY'd by the Dockerfile.
+data
+runs
+models
+*.pt
+*.pth
+*.onnx
+*.engine
+*.weights
+
+# Build and test artifacts
+dist
+build
+coverage
+htmlcov
+*.tsbuildinfo
+
+# Docs and CI config (not needed in the image)
+.github
+*.md
+docs
+
+# Editor / OS / agent noise
+.DS_Store
+.vscode
+.idea
+.opencode
+
+# Logs
+*.log
