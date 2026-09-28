@@ -85,10 +85,10 @@ export function VideosPage() {
 
       {/* Upload dropzone */}
       <label
-        className={`glass-soft flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-10 text-center transition-colors ${
+        className={`clay-inset-sm flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-10 text-center transition-colors ${
           upload.isPending
-            ? 'border-orchard-500/70 bg-orchard-500/10'
-            : 'border-surface-700/60 hover:border-orchard-500/50 hover:bg-orchard-500/5'
+            ? 'border-orchard-500/70'
+            : 'border-surface-700/60 hover:border-orchard-500/60'
         }`}
         role="button"
         aria-label="Upload orchard video"
@@ -151,7 +151,7 @@ export function VideosPage() {
             Failed to load videos. Is the API running on port 8001?
           </p>
         ) : (videos.data?.videos.length ?? 0) === 0 ? (
-          <div className="glass card-glow rounded-2xl p-10 text-center">
+          <div className="clay clay-lift rounded-2xl p-10 text-center">
             <p className="text-surface-400">No videos yet.</p>
             <p className="mt-1 text-xs text-surface-500">Upload footage above to begin.</p>
           </div>
@@ -159,7 +159,7 @@ export function VideosPage() {
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {(videos.data?.videos ?? []).map((video) => (
               <li key={video.id}>
-                <article className="glass card-glow group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl">
+                <article className="clay clay-lift group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl">
                   <button
                     type="button"
                     className="flex items-start text-left"
