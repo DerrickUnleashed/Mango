@@ -13,7 +13,7 @@ export function MotionPanel({ videoId, enabled }: MotionPanelProps) {
   const isDrifting = Boolean(estimate && estimate.meanAbsShift > 1e-6)
 
   return (
-    <div className="glass card-glow rounded-2xl p-5">
+    <div className="clay clay-lift rounded-2xl p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-medium text-surface-200">Camera motion</h2>
@@ -59,7 +59,7 @@ export function MotionPanel({ videoId, enabled }: MotionPanelProps) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="glass-soft rounded-lg px-3 py-2">
+    <div className="clay-inset-sm rounded-lg px-3 py-2">
       <dt className="text-xs text-surface-500">{label}</dt>
       <dd className="mt-0.5 font-mono text-sm text-surface-200">{value}</dd>
     </div>
