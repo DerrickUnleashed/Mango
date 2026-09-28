@@ -97,7 +97,7 @@ export function SettingsPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <section className="glass card-glow rounded-2xl p-6">
+        <section className="clay clay-lift rounded-2xl p-6">
           <h2 className="font-display mb-4 font-medium text-surface-200">Detector</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
@@ -110,13 +110,13 @@ export function SettingsPage() {
                 max={1}
                 step={0.05}
                 {...fieldNumber('confidenceThreshold')}
-                className="w-full glass-soft rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
+                className="w-full clay-inset-sm rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
               />
             </label>
           </div>
         </section>
 
-        <section className="glass card-glow rounded-2xl p-6">
+        <section className="clay clay-lift rounded-2xl p-6">
           <h2 className="font-display mb-4 font-medium text-surface-200">Tracker</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
@@ -129,7 +129,7 @@ export function SettingsPage() {
                 max={1000}
                 step={10}
                 {...fieldNumber('trackerMatchThreshold')}
-                className="w-full glass-soft rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
+                className="w-full clay-inset-sm rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
               />
               <span className="mt-1 block text-xs text-surface-600">
                 Max centre distance to associate a detection with an existing track.
@@ -145,7 +145,7 @@ export function SettingsPage() {
                 max={1000}
                 step={1}
                 {...fieldNumber('trackerBufferFrames')}
-                className="w-full glass-soft rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
+                className="w-full clay-inset-sm rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
               />
               <span className="mt-1 block text-xs text-surface-600">
                 Frames a track survives without a match before it is dropped.
@@ -154,7 +154,7 @@ export function SettingsPage() {
           </div>
         </section>
 
-        <section className="glass card-glow rounded-2xl p-6">
+        <section className="clay clay-lift rounded-2xl p-6">
           <h2 className="font-display mb-4 font-medium text-surface-200">Re-Identification</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
@@ -167,7 +167,7 @@ export function SettingsPage() {
                 max={1}
                 step={0.05}
                 {...fieldNumber('reidThreshold')}
-                className="w-full glass-soft rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
+                className="w-full clay-inset-sm rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
               />
             </label>
             <label className="block">
@@ -179,13 +179,13 @@ export function SettingsPage() {
                 min={1}
                 max={600}
                 {...fieldNumber('occlusionTimeoutSec')}
-                className="w-full glass-soft rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
+                className="w-full clay-inset-sm rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
               />
             </label>
           </div>
         </section>
 
-        <section className="glass card-glow rounded-2xl p-6">
+        <section className="clay clay-lift rounded-2xl p-6">
           <h2 className="font-display mb-4 font-medium text-surface-200">Identity Memory</h2>
           <label className="block max-w-xs">
             <span className="mb-1 block text-xs font-medium text-surface-400">
@@ -197,12 +197,12 @@ export function SettingsPage() {
               max={1}
               step={0.05}
               {...fieldNumber('memoryUpdateRate')}
-              className="w-full glass-soft rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
+              className="w-full clay-inset-sm rounded-lg px-3 py-2 text-surface-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400"
             />
           </label>
         </section>
 
-        <section className="glass card-glow rounded-2xl p-6">
+        <section className="clay clay-lift rounded-2xl p-6">
           <h2 className="font-display mb-4 font-medium text-surface-200">Camera Motion</h2>
           <fieldset>
             <legend className="mb-2 text-xs font-medium text-surface-400">Motion mode</legend>
@@ -227,7 +227,7 @@ export function SettingsPage() {
           </fieldset>
         </section>
 
-        <section className="glass card-glow rounded-2xl p-6">
+        <section className="clay clay-lift rounded-2xl p-6">
           <h2 className="font-display mb-4 font-medium text-surface-200">Visualization</h2>
           <div className="grid gap-2 sm:grid-cols-2">
             {PANEL_KEYS.map((panel) => (
@@ -250,7 +250,7 @@ export function SettingsPage() {
           <button
             type="submit"
             disabled={saveMutation.isPending}
-            className="bg-mango cursor-pointer rounded-full px-6 py-2 font-semibold text-surface-950 shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)] transition-transform hover:scale-[1.03] disabled:opacity-50 active:scale-[0.98]"
+            className="bg-mango cursor-pointer rounded-full px-6 py-2 font-semibold text-surface-950 shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)] clay-press-glow disabled:opacity-50"
           >
             {saveMutation.isPending ? 'Saving…' : 'Save settings'}
           </button>
