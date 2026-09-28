@@ -5,8 +5,8 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description }: EmptyStateProps) {
   return (
-    <div className="glass card-glow rounded-2xl p-10 text-center" role="status">
-      <div className="bg-mango mx-auto flex h-12 w-12 items-center justify-center rounded-2xl opacity-90">
+    <div className="clay clay-lift rounded-2xl p-10 text-center" role="status">
+      <div className="bg-mango clay-press-glow mx-auto flex h-12 w-12 items-center justify-center rounded-2xl">
         <svg
           className="h-6 w-6 text-surface-950"
           viewBox="0 0 24 24"
