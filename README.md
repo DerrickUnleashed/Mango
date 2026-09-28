@@ -206,3 +206,7 @@ commit/PR conventions. Report security issues per [SECURITY.md](SECURITY.md).
 Repo-wide editor and lint defaults live in `.editorconfig`,
 `.pre-commit-config.yaml`, and `.github/dependabot.yml`; code ownership is
 enforced via `.github/CODEOWNERS`.
+
+## License
+
+Proprietary — all rights reserved. See [LICENSE](LICENSE).
