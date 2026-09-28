@@ -118,7 +118,7 @@ export function VideoDetailPage() {
 
       {/* Preview area — plays the uploaded source; the track overlay above
           mirrors the processed run */}
-      <div className="glass relative overflow-hidden rounded-2xl p-2.5">
+      <div className="clay relative overflow-hidden rounded-2xl p-2.5">
         <div className="relative overflow-hidden rounded-xl bg-surface-950">
           <video
             ref={videoRef}
@@ -146,7 +146,7 @@ export function VideoDetailPage() {
       </div>
 
       {/* Processing controls */}
-      <div className="glass card-glow rounded-2xl p-5">
+      <div className="clay clay-lift rounded-2xl p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-display font-medium text-surface-200">Processing</h2>
@@ -161,7 +161,7 @@ export function VideoDetailPage() {
                 {configEntries.map(([label, value]) => (
                   <div
                     key={label}
-                    className="glass-soft rounded-full px-2.5 py-1 text-xs text-surface-400"
+                    className="clay-chip rounded-full px-2.5 py-1 text-xs text-surface-400"
                   >
                     <dt className="inline text-surface-500">{label}</dt>
                     {` · `}
@@ -184,7 +184,7 @@ export function VideoDetailPage() {
               value={inferenceMode}
               onChange={(e) => setInferenceMode(e.target.value as 'mock' | 'real')}
               disabled={isProcessing || process.isPending}
-              className="glass-soft cursor-pointer rounded-lg px-3 py-2 text-sm text-surface-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400 disabled:cursor-not-allowed disabled:opacity-50"
+              className="clay-inset-sm cursor-pointer rounded-lg px-3 py-2 text-sm text-surface-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="mock">Mock</option>
               <option value="real">Real</option>
@@ -203,7 +203,7 @@ export function VideoDetailPage() {
               value={tracker}
               onChange={(e) => setTracker(e.target.value as 'mock' | 'bytetrack')}
               disabled={isProcessing || process.isPending}
-              className="glass-soft cursor-pointer rounded-lg px-3 py-2 text-sm text-surface-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400 disabled:cursor-not-allowed disabled:opacity-50"
+              className="clay-inset-sm cursor-pointer rounded-lg px-3 py-2 text-sm text-surface-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="mock">Mock</option>
               <option value="bytetrack">ByteTrack</option>
@@ -222,7 +222,7 @@ export function VideoDetailPage() {
               value={cameraMotion}
               onChange={(e) => setCameraMotion(e.target.value as 'static' | 'drift')}
               disabled={isProcessing || process.isPending}
-              className="glass-soft cursor-pointer rounded-lg px-3 py-2 text-sm text-surface-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400 disabled:cursor-not-allowed disabled:opacity-50"
+              className="clay-inset-sm cursor-pointer rounded-lg px-3 py-2 text-sm text-surface-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="static">Static</option>
               <option value="drift">Drift</option>
@@ -232,7 +232,7 @@ export function VideoDetailPage() {
             type="button"
             onClick={startProcessing}
             disabled={isProcessing || process.isPending}
-            className="bg-mango cursor-pointer rounded-full px-5 py-2 font-medium text-surface-950 shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)] transition-transform hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
+            className="bg-mango cursor-pointer rounded-full px-5 py-2 font-medium text-surface-950 shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)] clay-press-glow disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isProcessing ? 'Processing…' : 'Start Processing'}
           </button>
