@@ -27,6 +27,7 @@ dev = [
     "aiosqlite>=0.20",
     "ruff>=0.5",
     "pytest-cov>=7.1.0",
+    "mypy>=2.3.1",
 ]
 
 [build-system]
@@ -84,3 +85,15 @@ ignore = ["S101", "S108"]
 
 [tool.ruff.format]
 quote-style = "double"
+
+[tool.mypy]
+python_version = "3.12"
+# Third-party stubs are incomplete for opencv and celery, and installing them is
+# not an option here, so missing imports are ignored rather than silenced
+# per-import.
+ignore_missing_imports = true
+pretty = false
+# Redundant suppressions are reported. A type: ignore that stops being needed
+# should be noticed and removed, not left to accumulate and hide real errors.
+warn_unused_ignores = true
+warn_redundant_casts = true

@@ -8,6 +8,7 @@ exercised without a trained model or a real video.
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -135,7 +136,10 @@ class MockDetector(Detector):
 
     def __init__(
         self,
-        scenario: tuple[MockFruit, ...] = SCENARIO_ORCHARD,
+        # Sequence, not tuple: the scenario is only ever iterated, and callers
+        # in practice pass lists (see evaluate_scenario and its tests) while
+        # the default is a tuple. The narrower annotation was simply wrong.
+        scenario: Sequence[MockFruit] = SCENARIO_ORCHARD,
         confidence_range: tuple[float, float] = (0.55, 0.98),
         low_confidence: bool = False,
     ) -> None:

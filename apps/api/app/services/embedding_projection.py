@@ -51,7 +51,7 @@ def project_prototypes(
 
     if method == "tsne":
         try:
-            from sklearn.manifold import TSNE  # type: ignore[import-not-found]
+            from sklearn.manifold import TSNE
 
             perplexity = min(30.0, max(2.0, len(data) - 1))
             coords = TSNE(
