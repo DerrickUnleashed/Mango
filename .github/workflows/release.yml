@@ -105,18 +105,17 @@ jobs:
         run: |
           set -euo pipefail
           version="${GITHUB_REF_NAME#v}"
-          {
-            # The section for this version, matched on the bracketed form so
-            # that 0.1.0 cannot also match a 0.10.0 heading.
-            awk -v want="[${version}]" '
-              /^## / { emit = index($0, want) > 0 }
-              /^## / && !emit { next }
-              emit { print }
-            ' CHANGELOG.md
-            # The link reference, so the compare URL at the bottom of the
-            # changelog still renders inside the release notes.
-            grep -E "^\[${version}\]:" CHANGELOG.md || true
-          } > release-notes.md
+          # awk alone, from the version's heading to the end of the file. It
+          # already carries the `[x.y.z]:` link reference at the bottom of the
+          # changelog, because the reference lines sit under the last `## `
+          # heading with no further heading to stop at. An earlier version also
+          # grepped for that reference and appended it, which emitted it twice
+          # in the release notes.
+          awk -v want="[${version}]" '
+            /^## / { emit = index($0, want) > 0 }
+            /^## / && !emit { next }
+            emit { print }
+          ' CHANGELOG.md > release-notes.md
 
           if [ ! -s release-notes.md ]; then
             echo "::error::CHANGELOG.md has no section for $version; add it before tagging"
