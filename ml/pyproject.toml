@@ -51,10 +51,13 @@ packages = ["orchardvision_ml"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
-# --cov-fail-under=80 is a ratchet: the measured value is 85% with branch
-# coverage, so this blocks a drop without blocking unrelated work. Raise it
-# as tests are added.
-addopts = "--cov=orchardvision_ml --cov-report=term-missing:skip-covered --cov-branch --cov-fail-under=80"
+# Coverage's omit/source live in this file's [tool.coverage] section, but the
+# suite is run from the repo root, where coverage reads the root pyproject.toml
+# (just the uv workspace stub, no coverage section) and the omit list would be
+# silently dropped. pytest-cov resolves --cov-config relative to the current
+# directory, so this path assumes the documented root-relative invocation
+# (`uv run --project ml pytest ml/tests`), which is how CI runs it.
+addopts = "--cov=orchardvision_ml --cov-config=ml/pyproject.toml --cov-report=term-missing:skip-covered --cov-branch --cov-fail-under=80"
 
 [tool.coverage.run]
 source = ["orchardvision_ml"]

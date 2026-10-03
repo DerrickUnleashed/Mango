@@ -56,7 +56,13 @@ filterwarnings = [
 # --cov-fail-under=85 is a ratchet: the measured value is 89% with branch
 # coverage, so this blocks a drop without blocking unrelated work. Raise it
 # as tests are added.
-addopts = "--cov=app --cov-report=term-missing:skip-covered --cov-report=xml --cov-branch --cov-fail-under=85"
+# Coverage's omit/source live in this file's [tool.coverage] section, but the
+# suite is run from the repo root, where coverage reads the root pyproject.toml
+# (just the uv workspace stub, no coverage section) and the omit list would be
+# silently dropped. pytest-cov resolves --cov-config relative to the current
+# directory, so this path assumes the documented root-relative invocation
+# (`uv run --project apps/api pytest apps/api/tests`), which is how CI runs it.
+addopts = "--cov=app --cov-config=apps/api/pyproject.toml --cov-report=term-missing:skip-covered --cov-report=xml --cov-branch --cov-fail-under=85"
 
 [tool.coverage.run]
 source = ["app"]
