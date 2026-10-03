@@ -7,6 +7,11 @@ dependencies = [
     "numpy>=1.26",
     "opencv-python-headless>=4.10",
     "ultralytics>=8.0.0",
+    # urllib3 enters the graph via ultralytics -> requests. Pin a floor so the
+    # resolver never settles on a version with known CVEs (PYSEC-2026-4175,
+    # PYSEC-2026-4176, PYSEC-2026-4177, all fixed in 2.8.0); pip-audit blocks
+    # the PR otherwise.
+    "urllib3>=2.8.0",
 ]
 
 # Real (non-mock) training and inference. torch/torchvision were previously
