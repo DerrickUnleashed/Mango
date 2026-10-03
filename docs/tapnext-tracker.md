@@ -85,18 +85,27 @@ Consequences, all by design:
 
 - Query rows are seeded once, on the first model call, from whatever fruit is
   in frame at that moment (up to `max_query_points`, default 256).
-- Fruits that appear **later** are still tracked, but **position-only**: their
-  last known detection centre is the association point and there is no model
-  query behind them. If such a fruit disappears and reappears far away it is
-  treated as new (no point model to bridge the gap) — the same degradation
-  you would get from a plain box tracker.
+- **Grow the set by re-seeding, not by appending.** When
+  `rebootstrap_interval > 0` (rebootstrap enabled), a ring of the last frames
+  is kept. A fruit first seen mid-stream whose query row is still available is
+  *deferred* rather than lost: the tracker records it as a position-only track
+  and waits. Once `rebootstrap_interval` frames have passed since the last
+  (re-)seed, the model is restarted from the first buffered frame with **all**
+  live queries re-seeded at their predicted position **plus** the deferred
+  ones, and the buffered frames are replayed forward. The replay ends exactly
+  on the current frame, so the surrounding forward pass is skipped (the two are
+  equivalent). Cost: one extra forward per replayed frame, amortised against
+  the interval, and old queries' pre-bootstrap SSM memory is discarded (the
+  reason TAPNext++ itself reboots periodically).
+- Fruits whose query would exceed `max_query_points`, and every late fruit when
+  rebootstrap is disabled (`0`), stay **position-only**: their last known
+  detection centre is the association point and there is no model query behind
+  them. If such a fruit disappears and reappears far away it is treated as new
+  (no point model to bridge the gap) — the same degradation you would get from
+  a plain box tracker.
 - Retired tracks leave their query row in place; the model's token space is
-  fixed per stream, so the row is inert but cannot be popped without breaking
+  fixed per session, so the row is inert but cannot be popped without breaking
   the caches.
-
-Supporting true mid-stream query growth is the TAPNext++ "rebootstrap"
-mechanism (replay a bounded window of video with the expanded query set). It
-is deferred future work — see [Future work](#future-work).
 
 ## Why the pieces sit where they sit
 
@@ -137,7 +146,8 @@ being close is handled by winner-take-all ordering over ascending distance.
 | `model` | `None` | Pre-built object with a `track_frame(frame_bgr, query_points_xy=None, state=None) -> (positions_xy, visible, state)`. Tests and embedding hosts. |
 | `match_threshold_px` | `120.0` | Display-pixel radius deciding "new detection" and association matching. Larger = more merge-y, smaller = more fragmentation. |
 | `buffer_size` | `30` | Frames a track is kept after its last match before being reported lost. |
-| `max_query_points` | `256` | Cap on the *initial* query set (model point capacity). |
+| `max_query_points` | `256` | Cap on model query rows, including rows granted by rebootstrap (model point capacity). |
+| `rebootstrap_interval` | `0` | Frames between model re-seeds that grant deferred queries to fruits first seen mid-stream. `0` disables rebootstrap (position-only for all post-seed fruits); `>0` opts in. Larger = cheaper replay, later query grants. Reboots only fire when a fruit is actually waiting. |
 
 ## Running it
 
@@ -158,20 +168,18 @@ RUN_TORCH_TESTS=1 uv run --project ml pytest ml/tests -q
 
 ## Future work / how to change it
 
-- **Mid-stream queries (rebootstrap).** To grow the query set while a stream
-  is live you must re-seed the model from a stored checkpoint frame and replay
-  the buffered frames with the expanded query set. Sketch: keep a ring buffer
-  of recent frames in the tracker; when a new fruit needs a query and the
-  buffer is non-empty, restart `state` at the buffer head with all live +
-  pending queries and replay forward. Expect a compute burst proportional to
-  the replay length; the upstream colab's online loop is the behavioural
-  reference.
+- **Rebootstrap tuning.** Mid-stream query growth is implemented (see
+  [The fixed query set](#the-fixed-query-set-is-the-core-constraint)) but the
+  interval is a single knob. Ideas when re-seeding feels too expensive or too
+  stale: age queries out instead of keeping them forever (freeing rows needs a
+  rebootstrap anyway); trigger on *low predicted visibility* for an old query
+  rather than a fixed interval; or replay in half-resolution to halve the cost.
 - **API wiring.** `apps/api` currently validates `tracker` against
-  `^(mock|bytetrack)$` and constructs the tracker in `video.py`/`processing.py`.
-  Adding `tapnext` means: extend the schema/regex, build the tracker from the
-  persisted checkpoint path (and remember `apps/api` runs torch-less — the
-  tracker must stay lazy there too), and surface `matchThresholdPx` /
-  `bufferSize` through `GET/PUT /api/settings`.
+  `^(mock|bytetrack|tapnext)$` and builds the tracker in `processing.py`.
+  `TAPNextTracker` stays lazy in the API process (which runs torch-less), but a
+  real run requires the `tapnext` extra installed there *and*
+  `TAPNEXT_CHECKPOINT_PATH` set to a downloaded checkpoint; without it a
+  `tapnext` run fails loudly, not silently.
 - **Tuning.** `match_threshold_px` dominates behaviour. Fruits in tight canopy
   may need a smaller radius to avoid merges; fast-moving fruit may need a
   larger one. `buffer_size` trades lost-reports vs stale tracks and is worth
@@ -182,15 +190,22 @@ RUN_TORCH_TESTS=1 uv run --project ml pytest ml/tests -q
 - **Fake-model contract.** Any injected model must speak
   `track_frame(frame, query_points_xy=None, state=None) -> (positions_xy,
   visible, state)` with rows ordered exactly like the query set, because
-  `_advance_model` indexes predictions by query index.
+  `_advance_model`/`_maybe_rebootstrap` index predictions by query index. A
+  `query_points_xy` call starts a fresh session (seed or rebootstrap); a
+  state-only call continues the current session.
 
 ## Known limitations
 
-- No mid-stream query growth (see above) — late-entering fruit is position-only.
-- Query rows are permanent for a stream; long-running streams with many
-  entrants never claim a query for the late ones without a rebootstrap.
+- A rebootstrap **discards the model's pre-bootstrap memory** for already-live
+  queries (it re-seeds them from scratch). That is the accepted cost of growing
+  the query set on the SSM, and the reason longer intervals are recommended for
+  scenes where older fruits still matter.
+- Query rows are permanent for a session (a rebootstrap is required to reclaim
+  or change them), so an unbounded stream of entrants eventually exhausts
+  `max_query_points` and the tail falls back to position-only.
 - Untrained/random weights produce arbitrary positions and visibility, so
   behavioural integration tests keep to structural invariants (query set size,
   track counts) rather than exact positions.
-- Per-frame cost is the TAPNext++ forward (ms-scale on GPU, slower on CPU);
-  the tracker is aimed at the GPU runtime, not the default dev loop.
+- Per-frame cost is the TAPNext++ forward (ms-scale on GPU, slower on CPU) plus,
+  on rebootstrap frames, one forward each for the replayed frames; the tracker
+  is aimed at the GPU runtime, not the default dev loop.
