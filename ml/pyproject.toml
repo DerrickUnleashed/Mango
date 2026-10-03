@@ -20,6 +20,17 @@ torch = [
     "torch>=2.14.0",
     "torchvision>=0.29.0",
 ]
+# TAPNext++ point tracking needs its own stack on top of torch: einops is a
+# hard import of the vendored model code in tracking/tapnext, and requests is
+# used by the checkpoint downloader script. The tracker never imports these
+# at package import time, so this extra is only for the script user and the
+# GPU runtime that actually selects TRACKER_BACKEND=tapnext.
+tapnext = [
+    "torch>=2.14.0",
+    "torchvision>=0.29.0",
+    "einops>=0.8",
+    "requests>=2.31",
+]
 
 [dependency-groups]
 dev = [
@@ -47,6 +58,10 @@ addopts = "--cov=orchardvision_ml --cov-report=term-missing:skip-covered --cov-b
 
 [tool.coverage.run]
 source = ["orchardvision_ml"]
+# tracking/tapnext is vendored upstream source (Google DeepMind), exercised
+# only when torch is installed and a GPU is available. Keep it out of the
+# measurement like other code that needs real weights to run.
+omit = ["orchardvision_ml/tracking/tapnext/*"]
 
 [tool.coverage.report]
 # The gate itself is --cov-fail-under in addopts above; fail_under here does
@@ -65,6 +80,9 @@ exclude_also = [
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+# Vendored TAPNext++ source keeps upstream's 2-space, JAX-style formatting on
+# purpose (byte-fidelity to google-deepmind/tapnet); skip it in lint/format.
+extend-exclude = ["orchardvision_ml/tracking/tapnext"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "S"]
@@ -75,6 +93,10 @@ quote-style = "double"
 
 [tool.mypy]
 python_version = "3.12"
+# Vendored TAPNext++ source is excluded for the same reason it is skipped by
+# ruff and coverage: it must stay byte-faithful to upstream rather than be
+# reworked to satisfy the project's mypy profile.
+exclude = "orchardvision_ml/tracking/tapnext"
 # Third-party stubs are incomplete for the heavy dependencies (ultralytics,
 # opencv, torch) and installing their stubs is not an option here, so missing
 # imports are ignored rather than silenced per-import.
