@@ -14,6 +14,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
 import numpy as np
+from numpy.typing import NDArray
 
 from orchardvision_ml.detection import Detection, FrameDetections
 
@@ -81,9 +82,24 @@ def _next_track_id(used: set[int]) -> int:
 class Tracker(ABC):
     """Abstract short-term tracker."""
 
+    #: True for trackers whose association needs the raw frame pixels (point
+    #: trackers such as TAPNext++). The pipeline feeds ``update_frame`` before
+    #: every ``update`` call when this flag is set. Box-only trackers leave it
+    #: ``False`` and never receive frames.
+    supports_frame_input: bool = False
+
     @abstractmethod
     def update(self, detections: FrameDetections) -> TrackResult:
         """Process detections for the current frame and return updated tracks."""
+
+    def update_frame(self, frame: NDArray[np.uint8]) -> None:
+        """Cache the current frame for trackers that need pixel input.
+
+        Called by the pipeline directly before :meth:`update`. Point trackers
+        override this to remember the frame so ``update`` can run the model
+        and associate queries; the default is a no-op.
+        """
+        del frame
 
     @property
     def name(self) -> str:
