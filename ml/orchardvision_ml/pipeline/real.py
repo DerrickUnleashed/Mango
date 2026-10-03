@@ -85,6 +85,9 @@ class CountingPipeline:
             detections = self._stabilize(frame_id, frame_detections.detections)
             total_detections += len(detections)
 
+            if self.tracker.supports_frame_input:
+                self.tracker.update_frame(frame)
+
             track_result = self.tracker.update(
                 FrameDetections(frame_id=frame_id, detections=detections)
             )

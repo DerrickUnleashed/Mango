@@ -32,10 +32,12 @@ export interface ProcessingJob {
   createdAt: string
 }
 
+export type TrackerBackend = 'mock' | 'bytetrack' | 'tapnext'
+
 export interface PipelineConfig {
   inference_mode: 'mock' | 'real'
   confidence_threshold: number
-  tracker: 'mock' | 'bytetrack'
+  tracker: TrackerBackend
   camera_motion: 'static' | 'drift'
   reid_threshold: number
   memory_update_rate: number
@@ -58,7 +60,7 @@ export interface VideoListResponse {
 export interface ProcessVideoRequest {
   confidenceThreshold?: number
   inferenceMode?: 'mock' | 'real'
-  tracker?: 'mock' | 'bytetrack'
+  tracker?: TrackerBackend
   cameraMotion?: 'static' | 'drift'
   maxFrames?: number
   modelPath?: string

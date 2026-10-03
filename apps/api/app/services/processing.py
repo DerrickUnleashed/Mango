@@ -64,6 +64,7 @@ class PipelineConfig:
     model_path: str | None = None
     sliced: int = 0
     embedding_model_path: str | None = os.environ.get("EMBEDDING_MODEL_PATH")
+    tapnext_checkpoint_path: str | None = None
 
     def effective_max_frames(self, total_frames: int) -> int:
         cap = self.max_frames or DEFAULT_MAX_FRAMES
@@ -256,6 +257,11 @@ class ProcessingService:
         """Associate per-frame detections into stable tracks and persist them."""
         state.update(ProcessingStage.TRACKING, 60.0, "Tracking detections")
         tracker: Tracker = self._build_tracker(config)
+        frame_aware = tracker.supports_frame_input
+        frame_source = storage_service.resolve(video.filename) if frame_aware else None
+        cap = cv2.VideoCapture(str(frame_source)) if frame_source is not None else None
+        if cap is not None and not cap.isOpened():
+            raise ValueError("Could not open video file for frame-aware tracking")
         motion: MotionEstimator = self._build_motion_estimator(config)
         frame_count = len(frame_detections)
 
@@ -264,21 +270,32 @@ class ProcessingService:
         last = None
         assigned_detections: list = []
         lost_by_frame: list = []
-        for index, frame_detection in enumerate(frame_detections):
-            if state.cancelled:
-                raise InterruptedError("Processing cancelled")
-            stable_detection = self.compensate_frame_detections(frame_detection, motion, index)
-            last = tracker.update(stable_detection)
-            new_track_count += len(last.new_track_ids)
-            lost_track_count += len(last.lost_track_ids)
-            assigned = self._assign_track_ids(index, stable_detection, last.active_tracks)
-            assigned_detections.append(self._decompensate_frame_detections(assigned, motion, index))
-            lost_by_frame.append(list(last.lost_track_ids))
+        try:
+            for index, frame_detection in enumerate(frame_detections):
+                if state.cancelled:
+                    raise InterruptedError("Processing cancelled")
+                if cap is not None:
+                    ok, frame = cap.read()
+                    if not ok:
+                        raise ValueError("Video ended before tracked frames were exhausted")
+                    tracker.update_frame(frame)
+                stable_detection = self.compensate_frame_detections(frame_detection, motion, index)
+                last = tracker.update(stable_detection)
+                new_track_count += len(last.new_track_ids)
+                lost_track_count += len(last.lost_track_ids)
+                assigned = self._assign_track_ids(index, stable_detection, last.active_tracks)
+                assigned_detections.append(
+                    self._decompensate_frame_detections(assigned, motion, index)
+                )
+                lost_by_frame.append(list(last.lost_track_ids))
 
-            if index % 20 == 0:
-                progress = 60.0 + 20.0 * (index + 1) / max(frame_count, 1)
-                msg = f"Tracking frame {index + 1}/{frame_count}"
-                state.update(ProcessingStage.TRACKING, progress, msg)
+                if index % 20 == 0:
+                    progress = 60.0 + 20.0 * (index + 1) / max(frame_count, 1)
+                    msg = f"Tracking frame {index + 1}/{frame_count}"
+                    state.update(ProcessingStage.TRACKING, progress, msg)
+        finally:
+            if cap is not None:
+                cap.release()
 
         # Persist final track trajectories for this video (replace prior runs)
         tracks = self._persist_tracks(job, video, last, db, motion)
@@ -399,6 +416,15 @@ class ProcessingService:
     def _build_tracker(self, config: PipelineConfig) -> Tracker:
         if config.tracker == "bytetrack":
             return ByteTrackAdapter()
+        if config.tracker == "tapnext":
+            from orchardvision_ml.tracking import TAPNextTracker
+
+            checkpoint = config.tapnext_checkpoint_path or str(settings.tapnext_checkpoint_path)
+            return TAPNextTracker(
+                checkpoint_path=checkpoint,
+                match_threshold_px=config.tracker_match_threshold,
+                buffer_size=config.tracker_buffer_frames,
+            )
         return MockTracker(
             match_threshold=config.tracker_match_threshold,
             max_buffer=config.tracker_buffer_frames,
