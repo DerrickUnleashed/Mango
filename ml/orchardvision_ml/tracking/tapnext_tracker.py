@@ -10,14 +10,15 @@ Kalman, which buys continuity through fast motion and occlusion for roughly
 the same pipeline semantics as the box trackers (tracks, track ids, lost
 ids, buffering).
 
-Query lifecycle: unmatched detections start a new track and seed a query
-point on the current frame. Query rows are append-only for the life of the
-run — the recurrent model assigns state per token position, so a row cannot
-be popped without invalidating the SSM caches. ``max_query_points`` bounds
-stream length; once the cap is reached, new fruits are still tracked through
-their last known position (no model query) until the stream ends. Reclaiming
-query slots by periodically re-seeding the model (a TAPNext "rebootstrap")
-is future work.
+Query lifecycle: the model seeds a fixed query set on its first frame and
+carries it for the rest of the stream — TAPNext++ keys its recurrent SSM
+caches by token position, so query rows cannot grow mid-stream without
+re-seeding (the upstream torch colab follows the same single-seed pattern).
+``max_query_points`` bounds that initial set (the model's 256-point capacity).
+Fruits that appear after the seed frame are still tracked, but through their
+last known position (no model query) — a position-only fallback that behaves
+like a plain box tracker until the stream ends. Reclaiming/expanding queries
+by re-seeding the model (a TAPNext "rebootstrap") is future work.
 """
 
 from __future__ import annotations
@@ -90,8 +91,9 @@ class TAPNextTracker(Tracker):
             from every track's last point count as new tracks.
         buffer_size: Frames a track survives without a matched detection
             before it is reported lost.
-        max_query_points: Upper bound on live model query rows. Once reached,
-            new fruits fall back to position-only association.
+        max_query_points: Upper bound on the *initial* model query set (the
+            model's point capacity). Fruits beyond the bound on the seed
+            frame, like fruits that appear later, are tracked position-only.
     """
 
     supports_frame_input = True
@@ -139,15 +141,17 @@ class TAPNextTracker(Tracker):
         dets = detections.detections
 
         # Detections that do not sit near any existing track become new
-        # tracks. Seedable ones (within the query cap) also get a model query
-        # point at their centre; the rest are position-only tracks.
+        # tracks. Queries are only seable when the model has not been seeded
+        # yet (a fixed per-stream set); everything else is a position-only
+        # track that still gets a detection on its first frame.
         pending_new = self._find_new_detections(dets)
         pending_set = {idx for idx, _ in pending_new}
         new_track_ids: list[int] = []
+        fresh_tids: set[int] = set()
 
         seed_xy: list[list[float]] = []
         seed_tids: list[int] = []
-        seed_capacity = max(0, self.max_query_points - len(self._query_track_ids))
+        seed_capacity = self.max_query_points if self._state is None else 0
         for position, (_idx, det) in enumerate(pending_new):
             tid = self._allocate_track_id()
             trk = Track(track_id=tid)
@@ -157,19 +161,15 @@ class TAPNextTracker(Tracker):
             self._last_points[tid] = (det.center[0], det.center[1])
             self._last_visible[tid] = True
             new_track_ids.append(tid)
+            fresh_tids.add(tid)
             if position < seed_capacity:
                 seed_xy.append([det.center[0], det.center[1]])
                 seed_tids.append(tid)
 
-        self._advance_model(
-            model,
-            frame,
-            np.asarray(seed_xy, dtype=np.float32) if seed_xy else None,
-            seed_tids,
-        )
+        self._advance_model(model, frame, seed_xy, seed_tids)
 
         remaining = [idx for idx in range(len(dets)) if idx not in pending_set]
-        new_track_ids.extend(self._associate(frame_id, dets, remaining))
+        new_track_ids.extend(self._associate(frame_id, dets, remaining, fresh_tids))
 
         return self._retire_and_report(frame_id, new_track_ids)
 
@@ -177,20 +177,16 @@ class TAPNextTracker(Tracker):
         self,
         model: Any,
         frame: NDArray[np.uint8],
-        seed_xy: NDArray[np.float32] | None,
+        seed_xy: list[list[float]],
         seed_tids: list[int],
     ) -> None:
-        """Step the online model once, seeding new query rows when needed."""
+        """Step the online model once; seed its fixed query set on first use."""
         if self._state is None:
-            if seed_xy is None:
+            if not seed_xy:
                 return
-            positions, visible, self._state = model.track_frame(frame, query_points_xy=seed_xy)
+            seed_arr = np.asarray(seed_xy, dtype=np.float32)
+            positions, visible, self._state = model.track_frame(frame, query_points_xy=seed_arr)
             self._query_track_ids = list(seed_tids)
-        elif seed_xy is not None:
-            positions, visible, self._state = model.track_frame(
-                frame, query_points_xy=seed_xy, state=self._state
-            )
-            self._query_track_ids = list(self._query_track_ids) + list(seed_tids)
         else:
             positions, visible, self._state = model.track_frame(frame, state=self._state)
 
@@ -203,6 +199,7 @@ class TAPNextTracker(Tracker):
         frame_id: int,
         dets: list[Detection],
         det_indices: list[int],
+        fresh_tids: set[int],
     ) -> list[int]:
         """Match remaining detections to visible candidates; buffer leftovers.
 
@@ -238,6 +235,7 @@ class TAPNextTracker(Tracker):
             matched_dets.add(det_indices[di])
 
         new_track_ids: list[int] = []
+        fresh_tids.update(new_track_ids)
         for idx in det_indices:
             if idx in matched_dets:
                 continue
@@ -251,7 +249,7 @@ class TAPNextTracker(Tracker):
             new_track_ids.append(tid)
 
         for tid in self._tracks:
-            if tid not in matched_tids:
+            if tid not in matched_tids and tid not in fresh_tids:
                 self._frames_since_match[tid] = self._frames_since_match.get(tid, 0) + 1
 
         return new_track_ids
