@@ -38,8 +38,10 @@ class FakeModel:
 
     ``behavior(n_queries, seeds)`` returns ``(offsets, visible)``: each call,
     the model reports the seed positions (plus the offsets) as tracked points
-    for all live queries. Query seeds are only ever added on the first call,
-    mirroring the fixed query set of the real model.
+    for all live queries. A ``query_points_xy`` call starts a fresh session
+    with exactly those rows — used for the initial seed and for rebootstrap
+    re-seeds — while a state-only call keeps the current rows, mirroring the
+    real model's per-session fixed query set.
     """
 
     def __init__(self, behavior: Method | None = None) -> None:
@@ -49,8 +51,7 @@ class FakeModel:
 
     def track_frame(self, frame, query_points_xy=None, state=None):
         if query_points_xy is not None:
-            for p in query_points_xy:
-                self.seeds.append([float(p[0]), float(p[1])])
+            self.seeds = [[float(p[0]), float(p[1])] for p in query_points_xy]
         offsets, visible = self._behavior(len(self.seeds), self.seeds)
         positions = np.asarray(
             [[sx + ox, sy + oy] for (sx, sy), (ox, oy) in zip(self.seeds, offsets, strict=True)],
@@ -275,6 +276,119 @@ def test_query_cap_falls_back_to_buffer_only_tracks() -> None:
     assert tracker._query_track_ids == [1]
 
 
+# --- rebootstrap (mid-stream query growth) -----------------------------------
+
+
+def test_rebootstrap_grows_query_set_mid_stream() -> None:
+    model = FakeModel()
+    tracker = TAPNextTracker(
+        model=model, match_threshold_px=120, rebootstrap_interval=3
+    )
+    # Frame 0 seeds the model with one fruit.
+    tracker.update_frame(_frame())
+    tracker.update(FrameDetections(0, [_det(100, 100)]))
+    assert tracker._query_track_ids == [1]
+    assert model.calls == [1]
+    # A fruit appears mid-stream: its query waits (interval 3, origin 0), but
+    # the track exists and is position-only meanwhile.
+    tracker.update_frame(_frame())
+    result = tracker.update(FrameDetections(1, [_det(600, 300)]))
+    assert result.total_tracks == 2
+    assert result.new_track_ids == [2]
+    assert tracker._query_track_ids == [1]
+    assert tracker._pending_queries == [2]
+    assert model.calls == [1, 1]
+    # Frame 2 still advances state only (interval not reached).
+    tracker.update_frame(_frame())
+    result = tracker.update(FrameDetections(2, []))
+    assert tracker._pending_queries == [2]
+    assert model.calls == [1, 1, 1]
+    # Frame 3: eligible -> re-seed with both queries and replay frames 0..3.
+    tracker.update_frame(_frame())
+    result = tracker.update(FrameDetections(3, []))
+    assert tracker._query_track_ids == [1, 2]
+    assert tracker._pending_queries == []
+    assert tracker._bootstrap_frame_id == 3
+    # Fresh seed (2 rows) + replay of frames 1,2,3 (2 rows each).
+    assert model.calls == [1, 1, 1, 2, 2, 2, 2]
+    assert len(model.seeds) == 2
+    # The late fruit continues as a real query after the reboot.
+    tracker.update_frame(_frame())
+    result = tracker.update(FrameDetections(4, [_det(600, 300)]))
+    assert result.total_tracks == 2
+    assert result.new_track_ids == []
+    assert tracker._query_track_ids == [1, 2]
+    assert tracker._tracks[2].length == 2  # birth frame + this match
+    assert model.calls[-1] == 2
+
+
+def test_position_only_when_rebootstrap_disabled() -> None:
+    """Default (interval 0) keeps the fixed set behaviour, no deferred rows."""
+    model = FakeModel()
+    tracker = TAPNextTracker(model=model, match_threshold_px=120)
+    tracker.update_frame(_frame())
+    tracker.update(FrameDetections(0, [_det(100, 100)]))
+    tracker.update_frame(_frame())
+    result = tracker.update(FrameDetections(1, [_det(600, 300)]))
+    assert result.total_tracks == 2
+    assert tracker._query_track_ids == [1]
+    assert tracker._pending_queries == []
+    assert not tracker._maybe_rebootstrap(model, 1)
+
+
+def test_rebootstrap_respects_query_capacity() -> None:
+    model = FakeModel()
+    tracker = TAPNextTracker(
+        model=model, match_threshold_px=120, max_query_points=2, rebootstrap_interval=2
+    )
+    tracker.update_frame(_frame())
+    tracker.update(FrameDetections(0, [_det(100, 100), _det(300, 200)]))
+    assert tracker._query_track_ids == [1, 2]
+    # Capacity full -> third fruit cannot even be deferred to a rebootstrap.
+    tracker.update_frame(_frame())
+    tracker.update(FrameDetections(1, [_det(600, 300)]))
+    assert tracker._pending_queries == []
+    assert tracker._query_track_ids == [1, 2]
+    # No pending, so no reboot ever triggers.
+    tracker.update_frame(_frame())
+    tracker.update(FrameDetections(2, []))
+    assert tracker._query_track_ids == [1, 2]
+
+
+def test_retired_pending_track_not_reboot_seeded() -> None:
+    """A fruit that waits too long and retires must not be granted later."""
+    model = FakeModel()
+    tracker = TAPNextTracker(
+        model=model, match_threshold_px=120, buffer_size=2, rebootstrap_interval=5
+    )
+    tracker.update_frame(_frame())
+    tracker.update(FrameDetections(0, [_det(100, 100)]))
+    tracker.update_frame(_frame())
+    tracker.update(FrameDetections(1, [_det(600, 300)]))
+    assert tracker._pending_queries == [2]
+    # Both tracks age; the seed track 1 retires first (frames 1,2,3 empty).
+    tracker.update_frame(_frame())
+    result = tracker.update(FrameDetections(2, []))
+    assert tracker._pending_queries == [2]
+    assert result.lost_track_ids == []
+    tracker.update_frame(_frame())
+    result = tracker.update(FrameDetections(3, []))
+    assert 1 in result.lost_track_ids
+    assert tracker._pending_queries == [2]
+    # The deferred fruit now ages out too, and clears its pending slot.
+    tracker.update_frame(_frame())
+    result = tracker.update(FrameDetections(4, []))
+    assert 2 in result.lost_track_ids
+    assert tracker._pending_queries == []
+    # Frame 5 is interval-eligible, but nothing is waiting: no reboot, and the
+    # retired track is not resurrected into the query set.
+    tracker.update_frame(_frame())
+    result = tracker.update(FrameDetections(5, []))
+    assert tracker._query_track_ids == [1]
+    assert result.lost_track_ids == []
+    assert tracker._pending_queries == []
+
+
 # --- real TAPNext wrapper (torch-gated) ---------------------------------------
 
 RUN_TORCH = os.environ.get("RUN_TORCH_TESTS") == "1"
@@ -353,3 +467,33 @@ def test_tapnext_tracker_runs_real_tiny_model() -> None:
     result = tracker.update(FrameDetections(2, [_det(800, 500)]))
     assert tracker._query_track_ids == [1, 2]
     assert len(result.active_tracks) >= 3
+
+
+@requires_torch
+def test_real_model_rebootstrap_grows_query_set() -> None:
+    """The real model accepts a re-seed with a grown query set + replay.
+
+    This is the empirical validation that rebootstrap is legal on the actual
+    SSM (unlike appending rows to a live state, which crashes); the untrained
+    heads make predictions arbitrary, so only structure is asserted.
+    """
+    model = _build_tiny_model()
+    frame = np.zeros((360, 640, 3), np.uint8)
+    tracker = TAPNextTracker(model=model, match_threshold_px=120, rebootstrap_interval=2)
+
+    tracker.update_frame(frame)
+    result = tracker.update(FrameDetections(0, [_det(100, 100), _det(300, 200)]))
+    assert tracker._query_track_ids == [1, 2]
+    tracker.update_frame(frame)
+    result = tracker.update(FrameDetections(1, []))
+    assert result.lost_track_ids == []
+    # Frame 2: new fruit defers a query and the interval (origin 0) is due.
+    tracker.update_frame(frame)
+    result = tracker.update(FrameDetections(2, [_det(800, 500)]))
+    assert tracker._pending_queries == []
+    assert tracker._query_track_ids == [1, 2, 3]
+    # The model kept running after the re-seed and replay.
+    tracker.update_frame(frame)
+    result = tracker.update(FrameDetections(3, []))
+    assert tracker._query_track_ids == [1, 2, 3]
+    assert result.lost_track_ids == []
