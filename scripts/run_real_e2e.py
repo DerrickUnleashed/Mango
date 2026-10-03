@@ -1,10 +1,13 @@
 """End-to-end real-mode run of the video analysis pipeline via the HTTP surface.
 
 Drives the real FastAPI app (via TestClient) against a real input video:
-upload -> process (inference_mode="real", bytetrack, optional frame cap) ->
-query persisted detections/tracks/identities/re-id/analytics. Prints a
+upload -> process (inference_mode="real", configurable tracker and frame cap)
+-> query persisted detections/tracks/identities/re-id/analytics. Prints a
 compact JSON summary. Exits non-zero if the job fails or produces no
 detections (unless --allow-empty is given).
+
+``--tracker tapnext`` requires the ml ``tapnext`` extra in the API process
+and ``TAPNEXT_CHECKPOINT_PATH`` pointing at a downloaded checkpoint.
 """
 
 from __future__ import annotations
@@ -23,6 +26,12 @@ def main() -> int:
     parser.add_argument("video", type=Path, help="Path to the input video file")
     parser.add_argument(
         "--max-frames", type=int, default=0, help="Cap on processed frames (0 = all)"
+    )
+    parser.add_argument(
+        "--tracker",
+        choices=("bytetrack", "tapnext"),
+        default="bytetrack",
+        help="Tracker backend (tapnext needs the ml extra + checkpoint)",
     )
     parser.add_argument("--model-path", default=None, help="YOLO weights override")
     parser.add_argument(
@@ -57,7 +66,7 @@ def main() -> int:
 
         request: dict = {
             "inference_mode": "real",
-            "tracker": "bytetrack",
+            "tracker": args.tracker,
             "camera_motion": "static",
         }
         if args.max_frames:
