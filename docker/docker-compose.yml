@@ -28,6 +28,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    env_file:
+      - ../.env
     environment:
       ENVIRONMENT: production
       DATABASE_URL: sqlite:////data/orchardvision.db
@@ -39,7 +41,6 @@ services:
       CELERY_RESULT_BACKEND: redis://redis:6379/1
       CELERY_TASK_ALWAYS_EAGER: "false"
       ALLOWED_ORIGINS: '${ALLOWED_ORIGINS:-["http://localhost:5173","http://127.0.0.1:5173"]}'
-      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
     ports:
       - "${API_PORT:-8001}:8001"
     volumes:
@@ -55,6 +56,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    env_file:
+      - ../.env
     environment:
       ENVIRONMENT: production
       DATABASE_URL: sqlite:////data/orchardvision.db
@@ -63,7 +66,6 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
       CELERY_TASK_ALWAYS_EAGER: "false"
-      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
     volumes:
       - api-data:/data
       - ../models:/orchardvision/models:ro
