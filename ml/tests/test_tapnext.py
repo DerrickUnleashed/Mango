@@ -281,9 +281,7 @@ def test_query_cap_falls_back_to_buffer_only_tracks() -> None:
 
 def test_rebootstrap_grows_query_set_mid_stream() -> None:
     model = FakeModel()
-    tracker = TAPNextTracker(
-        model=model, match_threshold_px=120, rebootstrap_interval=3
-    )
+    tracker = TAPNextTracker(model=model, match_threshold_px=120, rebootstrap_interval=3)
     # Frame 0 seeds the model with one fruit.
     tracker.update_frame(_frame())
     tracker.update(FrameDetections(0, [_det(100, 100)]))

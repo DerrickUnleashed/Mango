@@ -109,8 +109,10 @@ describe('VideoDetailPage', () => {
     render(<VideoDetailPage />)
     const tracker = screen.getByLabelText('Tracker') as HTMLSelectElement
     expect(tracker.value).toBe('bytetrack')
-    expect(
-      Array.from(tracker.options).map((option) => option.value),
-    ).toEqual(['bytetrack', 'tapnext', 'mock'])
+    expect(Array.from(tracker.options).map((option) => option.value)).toEqual([
+      'bytetrack',
+      'tapnext',
+      'mock',
+    ])
   })
 })
