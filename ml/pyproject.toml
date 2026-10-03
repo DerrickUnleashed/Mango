@@ -61,7 +61,7 @@ source = ["orchardvision_ml"]
 # tracking/tapnext is vendored upstream source (Google DeepMind), exercised
 # only when torch is installed and a GPU is available. Keep it out of the
 # measurement like other code that needs real weights to run.
-omit = ["orchardvision_ml/tracking/tapnext/*"]
+omit = ["*/tracking/tapnext/*"]
 
 [tool.coverage.report]
 # The gate itself is --cov-fail-under in addopts above; fail_under here does
