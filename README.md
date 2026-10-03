@@ -112,8 +112,10 @@ Processing runs per video in a background thread:
 2. **Camera motion compensation** — estimates pan/tilt drift and shifts boxes
    before tracking (`static`/`drift`).
 3. **Tracking** — mock identity-primitive tracker (configurable association
-   distance + recovery buffer) or a ByteTrack-style adapter
-   (`orchardvision_ml.tracking`).
+   distance + recovery buffer), a ByteTrack-style adapter, or the optional
+   TAPNext++ point tracker
+   (`orchardvision_ml.tracking`; implementation notes in
+   [`docs/tapnext-tracker.md`](docs/tapnext-tracker.md)).
 4. **Identity embedding + memory** — quality-aware prototypes per fruit with
    online prototype updates (`orchardvision_ml.identity.embedding`/`memory`).
 5. **Re-identification** — after a track loss, queries identity memory to recover
@@ -214,6 +216,23 @@ with `table ... already exists`.
   the detection/embedding interfaces.
 
 See `TODO.md` for the full phase map and known technical debt.
+
+### TAPNext++ point tracker (optional)
+
+A second short-term tracker backed by Google DeepMind's TAPNext++ running
+recurrently under the hood, with the model code vendored and torch kept out of
+the default install. How it works, why the query set is fixed per stream, and
+how to extend it are documented in
+[`docs/tapnext-tracker.md`](docs/tapnext-tracker.md). To use it:
+
+```bash
+uv sync --project ml --extra tapnext
+python scripts/download_tapnext_weights.py          # -> models/tapnextpp_ckpt.pt
+python scripts/run_tapnext_tracker.py <video> --model-path models/yolov8n.pt
+```
+
+Its tests are in `ml/tests/test_tapnext.py` (mock-model tests run without
+torch; `RUN_TORCH_TESTS=1` exercises a tiny real model).
 
 ## Contributing
 
