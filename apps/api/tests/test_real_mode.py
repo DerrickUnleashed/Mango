@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import cv2
 import pytest
 from orchardvision_ml.detection import MockDetector as MLMockDetector
 from orchardvision_ml.detection import YoloDetector
@@ -86,6 +87,142 @@ def test_mock_mode_builds_mock_embedder() -> None:
     config = PipelineConfig(inference_mode="mock")
     embedder = processing_service._build_embedder(config)
     assert isinstance(embedder, MockEmbeddingExtractor)
+
+
+def test_process_request_accepts_tapnext_tracker() -> None:
+    from app.schemas.video import ProcessRequest
+
+    request = ProcessRequest(inference_mode="mock", tracker="tapnext")
+    assert request.tracker == "tapnext"
+    # The experiment harness stays on the light trackers: no tapnext there.
+    with pytest.raises(ValueError):
+        from app.schemas.video import CreateExperimentRequest
+
+        CreateExperimentRequest(tracker="tapnext")
+
+
+def test_tapnext_mode_builds_tapnext_tracker() -> None:
+    from orchardvision_ml.tracking import TAPNextTracker
+
+    config = PipelineConfig(
+        tracker="tapnext",
+        tapnext_checkpoint_path="/some/ckpt.pt",
+        tracker_match_threshold=77.0,
+        tracker_buffer_frames=11,
+    )
+    tracker = processing_service._build_tracker(config)
+    assert isinstance(tracker, TAPNextTracker)
+    assert tracker.supports_frame_input
+    assert tracker.checkpoint_path == "/some/ckpt.pt"
+    assert tracker.match_threshold_px == 77.0
+    assert tracker.buffer_size == 11
+
+
+class _StubProgressState:
+    job_id = "job-1"
+    video_id = "vid-1"
+    stage = "tracking"
+    progress = 0.0
+    message: str | None = None
+    inference_mode = "mock"
+
+    @property
+    def cancelled(self) -> bool:
+        return False
+
+    def update(self, stage: str, progress: float, message: str | None = None) -> None:
+        self.stage = stage
+        self.progress = progress
+        self.message = message
+
+
+class _RecordingTracker:
+    """Tracker spy asserting the frame-aware contract in track_frames."""
+
+    supports_frame_input = True
+    name = "recording"
+
+    def __init__(self) -> None:
+        from orchardvision_ml.tracking.base import TrackResult
+
+        self._result = TrackResult
+        self.frames: list = []
+        self.update_calls = 0
+
+    def update_frame(self, frame) -> None:
+        self.frames.append(frame.copy())
+
+    def update(self, detections):
+        self.update_calls += 1
+        return self._result(
+            frame_id=detections.frame_id,
+            active_tracks=[],
+            new_track_ids=[],
+            lost_track_ids=[],
+            total_tracks=0,
+        )
+
+
+def test_frame_aware_tracker_receives_every_frame(
+    client, sample_video_bytes: bytes, monkeypatch
+) -> None:
+    """track_frames feeds raw frames to update_frame for frame-input trackers.
+
+    This is the API-side half of the TAPNext++ integration: the tracker cannot
+    run without the pixels, so the pipeline must decode and hand each frame
+    over in lockstep with the detection batches (torch-free here — only the
+    frame feeding is under test).
+    """
+    import numpy as np
+    from orchardvision_ml.detection import MockDetector as MLMockDetector
+
+    from app.core.database import SessionLocal
+    from app.models import Video
+    from app.services.storage import storage_service
+
+    response = client.post(
+        "/api/videos",
+        files={"file": ("tap.mp4", sample_video_bytes, "video/mp4")},
+    )
+    assert response.status_code == 201
+    video_id = response.json()["video"]["id"]
+
+    db = SessionLocal()
+    try:
+        video = db.get(Video, video_id)
+        assert video is not None
+        source = storage_service.resolve(video.filename)
+
+        cap = cv2.VideoCapture(str(source))
+        frames: list = []
+        try:
+            while len(frames) < 6:
+                ok, frame = cap.read()
+                assert ok, "sample video shorter than expected"
+                frames.append(frame)
+        finally:
+            cap.release()
+
+        detector = MLMockDetector()
+        frame_detections = [detector.detect(f, i) for i, f in enumerate(frames)]
+        tracker = _RecordingTracker()
+        monkeypatch.setattr(processing_service, "_build_tracker", lambda config: tracker)
+        monkeypatch.setattr(processing_service, "_persist_tracks", lambda *a, **k: [])
+
+        summary = processing_service.track_frames(
+            video,
+            job=None,
+            state=_StubProgressState(),
+            config=PipelineConfig(),
+            frame_detections=frame_detections,
+            db=db,
+        )
+        assert summary["tracker"] == "recording"
+        assert tracker.update_calls == 6
+        assert len(tracker.frames) == 6
+        assert all(np.array_equal(a, b) for a, b in zip(tracker.frames, frames, strict=True))
+    finally:
+        db.close()
 
 
 def test_real_mode_with_missing_checkpoint_falls_back_to_torch(tmp_path) -> None:

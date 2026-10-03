@@ -122,7 +122,7 @@ class MultiFrameTimingResponse(BaseModel):
 class ProcessRequest(BaseModel):
     confidence_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
     inference_mode: str = Field(default="mock", pattern="^(mock|real)$")
-    tracker: str = Field(default="mock", pattern="^(mock|bytetrack)$")
+    tracker: str = Field(default="mock", pattern="^(mock|bytetrack|tapnext)$")
     camera_motion: str = Field(default="static", pattern="^(static|drift)$")
     reid_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
     memory_update_rate: float | None = Field(default=None, ge=0.0, le=1.0)

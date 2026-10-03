@@ -441,6 +441,7 @@ def process_video(
         max_frames=request.max_frames,
         model_path=request.model_path,
         sliced=request.sliced or 0,
+        tapnext_checkpoint_path=str(settings.tapnext_checkpoint_path),
     )
 
     job = ProcessingJob(
