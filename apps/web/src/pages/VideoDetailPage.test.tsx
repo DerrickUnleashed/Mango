@@ -103,4 +103,14 @@ describe('VideoDetailPage', () => {
       screen.getByText('Run the analysis pipeline to detect, track, and re-identify fruits.'),
     ).toBeInTheDocument()
   })
+
+  it('offers the TAPNext++ tracker alongside box trackers', () => {
+    mocks.withJob = false
+    render(<VideoDetailPage />)
+    const tracker = screen.getByLabelText('Tracker') as HTMLSelectElement
+    expect(tracker.value).toBe('bytetrack')
+    expect(
+      Array.from(tracker.options).map((option) => option.value),
+    ).toEqual(['bytetrack', 'tapnext', 'mock'])
+  })
 })
