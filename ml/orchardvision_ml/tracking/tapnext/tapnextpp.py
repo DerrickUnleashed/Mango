@@ -21,8 +21,7 @@ import pathlib
 from typing import Tuple
 
 import numpy as np
-from .. import tapnext_torch
-from . import utils
+from . import tapnext_torch, utils
 import torch
 from torch import nn
 
