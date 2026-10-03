@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+import numpy as np
+
 from orchardvision_ml.camera import SyntheticVideoSource
 from orchardvision_ml.detection import MockDetector
 from orchardvision_ml.identity import MockEmbeddingExtractor
 from orchardvision_ml.memory import MockIdentityMemory
 from orchardvision_ml.pipeline import CountingPipeline, PipelineResult
 from orchardvision_ml.reid import MockReIdentifier
-from orchardvision_ml.tracking import ByteTrackAdapter
+from orchardvision_ml.tracking import ByteTrackAdapter, Tracker, TrackResult
 
 
 def _make_pipeline() -> CountingPipeline:
@@ -19,6 +21,45 @@ def _make_pipeline() -> CountingPipeline:
         memory=MockIdentityMemory(),
         reidentifier=MockReIdentifier(),
     )
+
+
+class _FrameAwareRecorderTracker(Tracker):
+    """Minimal frame-consuming tracker used to test the pipeline hook."""
+
+    supports_frame_input = True
+    name = "frame-recorder"
+
+    def __init__(self) -> None:
+        self.frames_seen: list[int] = []
+
+    def update_frame(self, frame: np.ndarray) -> None:
+        self.frames_seen.append(int(frame.sum()))
+
+    def update(self, detections):
+        return TrackResult(
+            frame_id=detections.frame_id,
+            active_tracks=[],
+            new_track_ids=[],
+            lost_track_ids=[],
+            total_tracks=0,
+        )
+
+
+def test_pipeline_feeds_frames_to_frame_aware_trackers() -> None:
+    recorder = _FrameAwareRecorderTracker()
+    pipeline = CountingPipeline(
+        detector=MockDetector(),
+        tracker=recorder,
+        embedder=MockEmbeddingExtractor(),
+        memory=MockIdentityMemory(),
+        reidentifier=MockReIdentifier(),
+    )
+    result = pipeline.run(SyntheticVideoSource())
+    assert result.frames_processed == 300
+    # Every frame reached the tracker through update_frame before update().
+    assert len(recorder.frames_seen) == result.frames_processed
+    # Assert the frames are non-empty footage (not an empty buffer).
+    assert all(seen > 0 for seen in recorder.frames_seen)
 
 
 def test_pipeline_counts_fruit() -> None:
