@@ -50,6 +50,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-frames", type=int, default=0, help="0 = all")
     parser.add_argument("--match-threshold-px", type=float, default=120.0)
     parser.add_argument("--buffer-size", type=int, default=30)
+    parser.add_argument(
+        "--rebootstrap-interval",
+        type=int,
+        default=0,
+        help="Frames between model re-seeds that grant queries to late fruits; 0 disables",
+    )
     parser.add_argument("--device", default=None, help="torch device (cuda/cpu)")
     args = parser.parse_args(argv)
 
@@ -72,6 +78,7 @@ def main(argv: list[str] | None = None) -> int:
         device=args.device,
         match_threshold_px=args.match_threshold_px,
         buffer_size=args.buffer_size,
+        rebootstrap_interval=args.rebootstrap_interval,
     )
 
     cap = cv2.VideoCapture(str(args.video))

@@ -10,19 +10,22 @@ Kalman, which buys continuity through fast motion and occlusion for roughly
 the same pipeline semantics as the box trackers (tracks, track ids, lost
 ids, buffering).
 
-Query lifecycle: the model seeds a fixed query set on its first frame and
-carries it for the rest of the stream — TAPNext++ keys its recurrent SSM
-caches by token position, so query rows cannot grow mid-stream without
-re-seeding (the upstream torch colab follows the same single-seed pattern).
-``max_query_points`` bounds that initial set (the model's 256-point capacity).
-Fruits that appear after the seed frame are still tracked, but through their
-last known position (no model query) — a position-only fallback that behaves
-like a plain box tracker until the stream ends. Reclaiming/expanding queries
-by re-seeding the model (a TAPNext "rebootstrap") is future work.
+Query lifecycle: TAPNext++ keys its recurrent SSM caches by token position,
+so the live online loop cannot grow query rows mid-stream — only a
+*re-seed* can change the query set. The tracker therefore seeds a fixed set
+on its first frame and carries it for the stream, unless ``rebootstrap_interval``
+is set: then a ring of recent frames is kept and, once a new fruit is waiting
+for a query and ``rebootstrap_interval`` frames have passed, the model is
+re-seeded (fresh state) with the old queries plus the deferred ones and the
+ring is replayed forward. ``max_query_points`` bounds the total query rows.
+While a fruit waits for a rebootstrap, and for every fruit when rebootstrap is
+disabled, it is tracked position-only (last known detection point) — the
+behaviour of a plain box tracker.
 """
 
 from __future__ import annotations
 
+from collections import deque
 from pathlib import Path
 from typing import Any
 
@@ -91,9 +94,15 @@ class TAPNextTracker(Tracker):
             from every track's last point count as new tracks.
         buffer_size: Frames a track survives without a matched detection
             before it is reported lost.
-        max_query_points: Upper bound on the *initial* model query set (the
-            model's point capacity). Fruits beyond the bound on the seed
-            frame, like fruits that appear later, are tracked position-only.
+        max_query_points: Upper bound on model query rows, including rows
+            granted by rebootstrap (the model's point capacity). Fruits beyond
+            the bound are tracked position-only.
+        rebootstrap_interval: Frames between model re-seeds that grant deferred
+            queries to fruits first seen mid-stream. ``0`` (the default)
+            disables rebootstrap and falls back to position-only tracking for
+            all post-seed fruits; larger values trade replay cost (a forward
+            pass per buffered frame) for fresher queries. Reboots only happen
+            when a fruit is actually waiting for a query.
     """
 
     supports_frame_input = True
@@ -108,6 +117,7 @@ class TAPNextTracker(Tracker):
         match_threshold_px: float = DEFAULT_MATCH_THRESHOLD_PX,
         buffer_size: int = MAX_TRACK_BUFFER_FRAMES,
         max_query_points: int = DEFAULT_MAX_QUERY_POINTS,
+        rebootstrap_interval: int = 0,
     ) -> None:
         self.checkpoint_path = checkpoint_path
         self.device = device
@@ -115,11 +125,15 @@ class TAPNextTracker(Tracker):
         self.match_threshold_px = match_threshold_px
         self.buffer_size = buffer_size
         self.max_query_points = max_query_points
+        self.rebootstrap_interval = rebootstrap_interval
 
         self._model: Any | None = model
         self._state: Any | None = None
         self._frame: NDArray[np.uint8] | None = None
         self._query_track_ids: list[int] = []
+        self._pending_queries: list[int] = []
+        self._frame_buffer: deque[NDArray[np.uint8]] = deque()
+        self._bootstrap_frame_id: int | None = None
         self._tracks: dict[int, Track] = {}
         self._frames_since_match: dict[int, int] = {}
         self._last_points: dict[int, tuple[float, float]] = {}
@@ -140,10 +154,16 @@ class TAPNextTracker(Tracker):
         frame_id = detections.frame_id
         dets = detections.detections
 
+        if self.rebootstrap_interval > 0:
+            self._frame_buffer.append(frame)
+            if len(self._frame_buffer) > self.rebootstrap_interval + 1:
+                self._frame_buffer.popleft()
+
         # Detections that do not sit near any existing track become new
-        # tracks. Queries are only seable when the model has not been seeded
-        # yet (a fixed per-stream set); everything else is a position-only
-        # track that still gets a detection on its first frame.
+        # tracks. On the first frame they claim a query row directly (the
+        # seeded set is fixed for that seed); on later frames they are
+        # deferred to a rebootstrap (when enabled, else position-only) but
+        # still get a detection on their first frame.
         pending_new = self._find_new_detections(dets)
         pending_set = {idx for idx, _ in pending_new}
         new_track_ids: list[int] = []
@@ -165,8 +185,19 @@ class TAPNextTracker(Tracker):
             if position < seed_capacity:
                 seed_xy.append([det.center[0], det.center[1]])
                 seed_tids.append(tid)
+            elif self._can_defer_query():
+                self._pending_queries.append(tid)
 
-        self._advance_model(model, frame, seed_xy, seed_tids)
+        # A rebootstrap replaces this frame's step: the replay ends with the
+        # model already advanced through the current frame.
+        if not self._maybe_rebootstrap(model, frame_id):
+            self._advance_model(model, frame, seed_xy, seed_tids)
+
+        if self._state is not None and self._bootstrap_frame_id is None:
+            self._bootstrap_frame_id = frame_id
+            if self.rebootstrap_interval > 0:
+                self._frame_buffer.clear()
+                self._frame_buffer.append(frame)
 
         remaining = [idx for idx in range(len(dets)) if idx not in pending_set]
         new_track_ids.extend(self._associate(frame_id, dets, remaining, fresh_tids))
@@ -193,6 +224,57 @@ class TAPNextTracker(Tracker):
         for i, tid in enumerate(self._query_track_ids):
             self._last_points[tid] = (float(positions[i][0]), float(positions[i][1]))
             self._last_visible[tid] = bool(visible[i])
+
+    def _can_defer_query(self) -> bool:
+        """Whether a new mid-stream fruit may wait for a rebootstrap query."""
+        return (
+            self._state is not None
+            and self.rebootstrap_interval > 0
+            and len(self._query_track_ids) + len(self._pending_queries) < self.max_query_points
+        )
+
+    def _maybe_rebootstrap(self, model: Any, frame_id: int) -> bool:
+        """Re-seed the model with deferred queries and replay the frame ring.
+
+        The live SSM caches cannot grow query rows, so granting a late fruit a
+        query requires restarting the model from the last bootstrapped frame
+        with the full query set (old queries re-seed at their predicted
+        position, deferred queries join now) and replaying the buffered frames
+        through to the current one. Returns ``True`` when a rebootstrap ran
+        (and the surrounding step should therefore be skipped).
+        """
+        if self.rebootstrap_interval <= 0:
+            return False
+        if not self._pending_queries:
+            return False
+        if self._bootstrap_frame_id is None:
+            return False
+        if frame_id - self._bootstrap_frame_id < self.rebootstrap_interval:
+            return False
+        if not self._frame_buffer:
+            return False
+
+        pending_tids = list(self._pending_queries)
+        query_xy = [self._last_points[tid] for tid in self._query_track_ids]
+        query_xy += [self._last_points[tid] for tid in pending_tids]
+
+        frames = list(self._frame_buffer)
+        positions, visible, state = model.track_frame(
+            frames[0], query_points_xy=np.asarray(query_xy, dtype=np.float32)
+        )
+        for frm in frames[1:]:
+            positions, visible, state = model.track_frame(frm, state=state)
+
+        self._state = state
+        self._query_track_ids = self._query_track_ids + pending_tids
+        for i, tid in enumerate(self._query_track_ids):
+            self._last_points[tid] = (float(positions[i][0]), float(positions[i][1]))
+            self._last_visible[tid] = bool(visible[i])
+
+        self._pending_queries.clear()
+        self._frame_buffer.clear()
+        self._bootstrap_frame_id = frame_id
+        return True
 
     def _associate(
         self,
@@ -263,6 +345,8 @@ class TAPNextTracker(Tracker):
                 self._frames_since_match.pop(tid, None)
                 self._last_points.pop(tid, None)
                 self._last_visible.pop(tid, None)
+                if tid in self._pending_queries:
+                    self._pending_queries.remove(tid)
 
         return TrackResult(
             frame_id=frame_id,

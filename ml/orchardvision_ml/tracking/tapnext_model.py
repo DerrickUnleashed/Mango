@@ -9,9 +9,11 @@ Note on query growth: TAPNext++'s recurrent state keys its SSM caches by
 token position, so the live online loop cannot grow its query rows mid-stream
 (verified empirically and in the upstream torch colab, which seeds once and
 then only steps ``state``). The tracker therefore seeds a fixed query set on
-its first frame and falls back to position-only association for fruits seen
-later. Supporting more queries mid-stream requires TAPNext++-style
-rebootstrap replay (deferred future work).
+its first frame. Expanding the set mid-stream requires restarting the model
+from a checkpoint frame and replaying — :class:`TAPNextTracker` implements
+this as an opt-in "rebootstrap" (``rebootstrap_interval``); it re-seeds with
+the old plus deferred queries and replays the buffered frames through the
+current one.
 
 relies on the vendored ``track_frame`` contract exactly as upstream defines
 it. This module pulls in torch transitively through the vendored wrapper, so
