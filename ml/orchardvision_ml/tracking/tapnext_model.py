@@ -1,66 +1,31 @@
 """PyTorch glue over the vendored TAPNext++ wrapper.
 
-The upstream ``tapnextpp.py`` only accepts ``query_points_xy`` on the very
-first frame (when ``state`` is ``None``). For multi-object tracking, fruits
-enter and leave the frame all the time, so the tracker needs to seed *new*
-query points mid-stream. This subclass keeps the vendored upstream files
-byte-for-byte and adds one capability: when ``track_frame`` is called with
-**both** a recurrent ``state`` and new display pixels, the new points are
-appended to the state's query rows (each tagged with the current step, so
-the model places its query token on exactly this frame) before the usual
-online forward pass.
+Upstream ``tapnextpp.py`` returns a plain ``TAPNextPP`` from
+``from_checkpoint``. This subclass keeps the vendored upstream files byte
+-for-byte and only narrows the return annotation, so callers and tests can
+type against :class:`TAPNextModel` directly.
 
-This module imports torch at the top; it is only imported by
-:class:`TAPNextTracker` when a real model is built, never at package import
-time.
+Note on query growth: TAPNext++'s recurrent state keys its SSM caches by
+token position, so the live online loop cannot grow its query rows mid-stream
+(verified empirically and in the upstream torch colab, which seeds once and
+then only steps ``state``). The tracker therefore seeds a fixed query set on
+its first frame and falls back to position-only association for fruits seen
+later. Supporting more queries mid-stream requires TAPNext++-style
+rebootstrap replay (deferred future work).
+
+relies on the vendored ``track_frame`` contract exactly as upstream defines
+it. This module pulls in torch transitively through the vendored wrapper, so
+it is only imported by :class:`TAPNextTracker` when a real model is built,
+never at package import time.
 """
 
 from __future__ import annotations
 
-import numpy as np
-import torch
-
-from .tapnext import TAPNextPP, TAPNextTrackingState, utils
+from .tapnext import TAPNextPP
 
 
 class TAPNextModel(TAPNextPP):
-    """TAPNextPP plus mid-stream query seeding."""
-
-    def track_frame(
-        self,
-        frame_bgr: np.ndarray,
-        query_points_xy: np.ndarray | None = None,
-        state: TAPNextTrackingState | None = None,
-        autocast: bool = True,
-    ) -> tuple[np.ndarray, np.ndarray, TAPNextTrackingState]:
-        if state is not None and query_points_xy is not None:
-            state = self._extend_state(frame_bgr.shape[:2], state, query_points_xy)
-            query_points_xy = None
-        return super().track_frame(
-            frame_bgr,
-            query_points_xy=query_points_xy,
-            state=state,
-            autocast=autocast,
-        )
-
-    def _extend_state(
-        self,
-        hw: tuple[int, int],
-        state: TAPNextTrackingState,
-        points_xy: np.ndarray,
-    ) -> TAPNextTrackingState:
-        """Append query rows for newly-seen points at the current step.
-
-        New rows carry ``query_timestep == state.step``, the index of the
-        frame about to be processed, so the model's online path (which places
-        the point-query token only where ``t - step == 0``) seeds them on
-        exactly this frame rather than re-seeding the older queries.
-        """
-        h, w = hw
-        model_pts = utils.display_to_model(points_xy, h, w, self.MODEL_SIZE)
-        new_rows = utils.make_query_tensor(model_pts, self.device, query_timestep=state.step)
-        state.query_points = torch.cat([state.query_points, new_rows], dim=1)
-        return state
+    """TAPNextPP wrapper with a tightened ``from_checkpoint`` return type."""
 
     @classmethod
     def from_checkpoint(  # type: ignore[override]
