@@ -1,0 +1,1 @@
+Made OrchardVision. It gives every mango in the grove a persistent identity — so when #7 slips behind a leaf, it comes back as the same #7. Every mango, counted once.
