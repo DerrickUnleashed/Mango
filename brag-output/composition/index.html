@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>OrchardVision — Every mango, counted once</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Space Grotesk";
+        src: url("assets/fonts/SpaceGrotesk.woff2") format("woff2");
+        font-weight: 300 700;
+        font-style: normal;
+        font-display: block;
+      }
+      @font-face {
+        font-family: "DM Sans";
+        src: url("assets/fonts/DMSans.woff2") format("woff2");
+        font-weight: 100 1000;
+        font-style: normal;
+        font-display: block;
+      }
+      @font-face {
+        font-family: "JetBrains Mono";
+        src: url("assets/fonts/JetBrainsMono.woff2") format("woff2");
+        font-weight: 100 800;
+        font-style: normal;
+        font-display: block;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0b0e13;
+        font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+        color: #fafafa;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background:
+          radial-gradient(1200px 800px at 8% -10%, rgba(251, 191, 36, 0.14), transparent 60%),
+          radial-gradient(1000px 700px at 104% 108%, rgba(96, 165, 250, 0.1), transparent 58%),
+          linear-gradient(160deg, #12161d 0%, #0f1219 55%, #0b0e13 100%);
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      .font-display {
+        font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+      }
+      .mono {
+        font-family: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+      }
+
+      /* ---------- background layers ---------- */
+      #bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+      }
+      .glow {
+        position: absolute;
+        border-radius: 9999px;
+        filter: blur(90px);
+        will-change: transform;
+      }
+      #glow-a {
+        width: 760px;
+        height: 760px;
+        left: -180px;
+        top: -220px;
+        background: radial-gradient(circle at 35% 35%, #fbbf24, #f97316 72%);
+        opacity: 0.42;
+      }
+      #glow-b {
+        width: 620px;
+        height: 620px;
+        right: -160px;
+        bottom: -200px;
+        background: radial-gradient(circle at 40% 40%, #6ee7b7, #34d399 78%);
+        opacity: 0.14;
+      }
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 96px 96px;
+        mask-image: radial-gradient(circle at 50% 42%, #000 10%, transparent 78%);
+        -webkit-mask-image: radial-gradient(circle at 50% 42%, #000 10%, transparent 78%);
+      }
+      .ghost {
+        position: absolute;
+        left: -60px;
+        bottom: -120px;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 300px;
+        letter-spacing: -0.04em;
+        color: #ffffff;
+        opacity: 0.022;
+        white-space: nowrap;
+      }
+
+      /* ---------- shared surfaces ---------- */
+      .clay {
+        background: linear-gradient(145deg, #212734 0%, #1a1f28 100%);
+        box-shadow:
+          0 22px 50px rgba(0, 0, 0, 0.6),
+          inset 0 0 0 2px rgba(255, 255, 255, 0.06);
+      }
+      .well {
+        background: #10141a;
+        box-shadow:
+          inset 6px 6px 16px rgba(0, 0, 0, 0.6),
+          inset -6px -6px 16px rgba(255, 255, 255, 0.035),
+          inset 0 0 0 2px rgba(255, 255, 255, 0.05);
+      }
+      .bg-mango {
+        background-image: linear-gradient(120deg, #facc15 0%, #f97316 50%, #fb7185 100%);
+      }
+      .soft-mango {
+        background-image: linear-gradient(
+          145deg,
+          rgba(251, 191, 36, 0.22),
+          rgba(251, 146, 60, 0.14)
+        );
+      }
+      .eyebrow {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 0.34em;
+        text-transform: uppercase;
+        color: #fcd34d;
+      }
+      .headline {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #fafafa;
+        line-height: 1.04;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        padding: 7px 16px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+      }
+
+      /* ---------- orchard backdrops ---------- */
+      .orchard-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background: linear-gradient(155deg, #101a15 0%, #0c130f 48%, #0a0f0c 100%);
+      }
+      .leaf {
+        position: absolute;
+        border-radius: 9999px;
+        filter: blur(60px);
+      }
+
+      .fruit {
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        margin: -8px 0 0 -8px;
+      }
+      .fruit .core {
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
+        background: #fcd34d;
+        box-shadow: 0 0 16px rgba(251, 191, 36, 0.9);
+      }
+      .fruit .halo {
+        position: absolute;
+        inset: -12px;
+        border-radius: 999px;
+        border: 2px solid rgba(251, 191, 36, 0.75);
+      }
+      .fruit .tag {
+        position: absolute;
+        left: 18px;
+        top: -30px;
+        white-space: nowrap;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fde68a;
+        background: rgba(10, 14, 12, 0.82);
+        border: 1px solid rgba(252, 211, 77, 0.4);
+        border-radius: 999px;
+        padding: 4px 11px;
+      }
+      .fruit .state {
+        position: absolute;
+        left: 18px;
+        top: -30px;
+        white-space: nowrap;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fca5a5;
+        background: rgba(10, 14, 12, 0.82);
+        border: 1px solid rgba(248, 113, 113, 0.45);
+        border-radius: 999px;
+        padding: 4px 11px;
+        opacity: 0;
+      }
+      .occ-band {
+        position: absolute;
+        top: -10%;
+        left: -520px;
+        width: 520px;
+        height: 120%;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(6, 10, 8, 0.86) 45%,
+          rgba(6, 10, 8, 0.92) 55%,
+          transparent 100%
+        );
+        filter: blur(6px);
+      }
+
+      /* ---------- track overlay boxes ---------- */
+      .tbox {
+        position: absolute;
+        border-radius: 8px;
+        border: 2px solid #f59e0b;
+        box-shadow: 0 0 18px rgba(0, 0, 0, 0.5);
+      }
+      .tbox .lbl {
+        position: absolute;
+        top: -26px;
+        left: -2px;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 6px 6px 6px 0;
+        color: #0b0e13;
+        white-space: nowrap;
+      }
+
+      /* ---------- scene 2 ---------- */
+      .drop {
+        border: 2px dashed rgba(148, 148, 158, 0.45);
+        border-radius: 22px;
+      }
+      .bar-track {
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        background: #27272a;
+        overflow: hidden;
+      }
+      .bar {
+        height: 100%;
+        border-radius: 999px;
+        transform-origin: left center;
+        transform: scaleX(0);
+      }
+      .stages {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+      .stage {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-radius: 18px;
+        padding: 20px 22px;
+        background: linear-gradient(145deg, #212734, #1a1f28);
+        box-shadow:
+          0 14px 30px rgba(0, 0, 0, 0.45),
+          inset 0 0 0 2px rgba(255, 255, 255, 0.06);
+        opacity: 0;
+      }
+      .stage .num {
+        flex: 0 0 auto;
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        background: rgba(217, 119, 6, 0.16);
+        color: #fcd34d;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .stage .name {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 26px;
+        font-weight: 600;
+        color: #fafafa;
+      }
+
+      /* ---------- metric chips ---------- */
+      .metric {
+        border-radius: 16px;
+        padding: 14px 18px;
+        background: linear-gradient(145deg, #212734, #1a1f28);
+        box-shadow:
+          0 12px 26px rgba(0, 0, 0, 0.45),
+          inset 0 0 0 2px rgba(255, 255, 255, 0.06);
+        opacity: 0;
+      }
+      .metric .k {
+        font-size: 14px;
+        color: #94949e;
+        letter-spacing: 0.02em;
+      }
+      .metric .v {
+        margin-top: 4px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 30px;
+        font-weight: 600;
+      }
+
+      /* ---------- identity rows ---------- */
+      .irow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        border-radius: 14px;
+        padding: 13px 16px;
+        background: rgba(255, 255, 255, 0.025);
+        box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.05);
+        opacity: 0;
+      }
+      .badge {
+        border-radius: 999px;
+        padding: 3px 11px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      /* ---------- embedding map ---------- */
+      .embed {
+        position: relative;
+        border-radius: 22px;
+        overflow: hidden;
+      }
+      .edot {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        border-radius: 999px;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1920"
+      data-height="1080"
+      data-duration="18.5"
+      data-fps="30"
+    >
+      <!-- ============ persistent background ============ -->
+      <div id="bg" data-layout-allow-overflow="true">
+        <div id="glow-a" class="glow"></div>
+        <div id="glow-b" class="glow"></div>
+        <div class="grid"></div>
+        <div id="ghost" class="ghost">ORCHARD</div>
+      </div>
+
+      <!-- ============ SCENE 1 — HOOK ============ -->
+      <section id="s1" class="clip" data-start="0" data-duration="3" data-track-index="1">
+        <div class="orchard-bg" data-layout-allow-overflow="true">
+          <div class="leaf" style="width: 780px; height: 780px; left: -160px; top: -220px; background: radial-gradient(circle at 40% 40%, rgba(52, 211, 153, 0.5), transparent 70%);"></div>
+          <div class="leaf" style="width: 640px; height: 640px; right: -140px; bottom: -180px; background: radial-gradient(circle at 40% 40%, rgba(251, 191, 36, 0.35), transparent 72%);"></div>
+          <div class="leaf" style="width: 520px; height: 520px; left: 42%; top: 30%; background: radial-gradient(circle at 40% 40%, rgba(56, 189, 248, 0.16), transparent 72%);"></div>
+        </div>
+
+        <div class="fruit" data-fruit style="left: 15%; top: 40%;">
+          <span class="halo"></span><span class="core"></span>
+        </div>
+        <div class="fruit" data-fruit style="left: 27%; top: 66%;">
+          <span class="halo"></span><span class="core"></span>
+        </div>
+        <div class="fruit" data-fruit style="left: 36%; top: 30%;">
+          <span class="halo"></span><span class="core"></span>
+        </div>
+        <div class="fruit" data-fruit style="left: 49%; top: 70%;">
+          <span class="halo"></span><span class="core"></span>
+        </div>
+        <div class="fruit" data-fruit style="left: 71%; top: 62%;">
+          <span class="halo"></span><span class="core"></span>
+        </div>
+        <div class="fruit" data-fruit style="left: 84%; top: 34%;">
+          <span class="halo"></span><span class="core"></span>
+        </div>
+        <div class="fruit" data-fruit style="left: 33%; top: 84%;">
+          <span class="halo"></span><span class="core"></span>
+        </div>
+        <div class="fruit" data-fruit style="left: 76%; top: 80%;">
+          <span class="halo"></span><span class="core"></span>
+        </div>
+
+        <!-- Fruit #7 -->
+        <div id="f7" class="fruit" style="left: 60%; top: 46%;">
+          <span id="f7-halo" class="halo"></span>
+          <span id="f7-core" class="core"></span>
+          <span id="f7-tag" class="tag">Fruit #7</span>
+          <span id="f7-state" class="state">lost</span>
+        </div>
+
+        <div id="occ" class="occ-band"></div>
+
+        <div style="position: absolute; inset: 0; padding: 74px 104px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <svg viewBox="0 0 32 32" width="40" height="40" aria-hidden="true">
+                <defs>
+                  <linearGradient id="mg1" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#FDE047" />
+                    <stop offset="55%" stop-color="#FBBF24" />
+                    <stop offset="100%" stop-color="#F97316" />
+                  </linearGradient>
+                  <linearGradient id="mg2" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#34D399" />
+                    <stop offset="100%" stop-color="#059669" />
+                  </linearGradient>
+                </defs>
+                <ellipse cx="16" cy="17.6" rx="8.2" ry="12" transform="rotate(36 16 17.6)" fill="url(#mg1)" />
+                <path d="M9.4 8.1 17.4 6.2c2.2-.5 4.3.7 4.9 2.8.5 1.9-.3 3.9-2 4.8-1.7.9-3.8.9-5.4-.2L9.2 9.8c-.6-2 .2-2.1.2-1.7z" fill="url(#mg2)" />
+              </svg>
+              <span class="font-display" style="font-size: 22px; font-weight: 600; color: #d4d4d8;">Orchard A — North Row</span>
+            </div>
+            <span class="pill" style="background: rgba(52, 211, 153, 0.14); color: #6ee7b7; letter-spacing: 0.18em;">
+              <span class="dot" style="background: #34d399;"></span>LIVE
+            </span>
+          </div>
+        </div>
+
+        <div style="position: absolute; left: 104px; bottom: 300px;">
+          <div class="mono" style="font-size: 19px; color: #d4d4d8; background: rgba(10, 14, 12, 0.7); border-radius: 12px; padding: 10px 16px;">
+            17 fruits · 0 occluded · tracking stable
+          </div>
+        </div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 96px; text-align: center;">
+          <h1 id="s1-head" class="headline" style="font-size: 92px; opacity: 0;">Fruit #7 just disappeared.</h1>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 2 — PIPELINE ============ -->
+      <section id="s2" class="clip" data-start="3" data-duration="4" data-track-index="2">
+        <div style="position: absolute; inset: 0; padding: 92px 120px; display: flex; flex-direction: column;">
+          <div id="s2-eyebrow" style="opacity: 0;"><span class="eyebrow">How it works</span></div>
+          <h2 id="s2-head" class="headline" style="margin-top: 14px; font-size: 54px; opacity: 0;">
+            Six stages from raw feed to reliable counts
+          </h2>
+
+          <div style="margin-top: 54px; display: grid; grid-template-columns: 0.86fr 1.14fr; gap: 56px; align-items: start;">
+            <div id="s2-drop" class="clay" style="border-radius: 26px; padding: 30px; opacity: 0;">
+              <div class="well drop" style="padding: 30px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <span class="soft-mango" style="width: 66px; height: 66px; border-radius: 20px; display: grid; place-items: center; color: #fcd34d;">
+                  <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zM3 8h18M3 16h18M8 8v13M16 8v13" />
+                  </svg>
+                </span>
+                <p id="s2-file" class="font-display" style="margin-top: 20px; font-size: 25px; font-weight: 600; color: #fafafa;">orchard_north_row.mp4</p>
+                <p class="mono" style="margin-top: 8px; font-size: 16px; color: #94949e;">MP4, MOV, AVI, WebM, MPEG · up to 2 GB</p>
+                <div class="bar-track" style="margin-top: 26px;">
+                  <div id="s2-bar" class="bar bg-mango"></div>
+                </div>
+                <p id="s2-pct" class="mono" style="margin-top: 12px; font-size: 15px; color: #fcd34d;">0%</p>
+              </div>
+              <div style="margin-top: 26px; display: flex; justify-content: center;">
+                <span id="s2-btn" class="bg-mango font-display" style="border-radius: 999px; padding: 15px 34px; font-size: 22px; font-weight: 600; color: #0b0e13; box-shadow: 0 12px 30px -10px rgba(249, 115, 22, 0.65);">
+                  Start Processing
+                </span>
+              </div>
+            </div>
+
+            <div id="s2-stages" class="stages"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 3 — RECOVERY ============ -->
+      <section id="s3" class="clip" data-start="7" data-duration="5" data-track-index="3">
+        <div class="orchard-bg" data-layout-allow-overflow="true">
+          <div class="leaf" style="width: 700px; height: 700px; left: -140px; top: -180px; background: radial-gradient(circle at 40% 40%, rgba(52, 211, 153, 0.42), transparent 70%);"></div>
+          <div class="leaf" style="width: 560px; height: 560px; left: 44%; bottom: -160px; background: radial-gradient(circle at 40% 40%, rgba(251, 191, 36, 0.3), transparent 72%);"></div>
+        </div>
+
+        <div id="s3-overlay" style="position: absolute; left: 0; top: 0; width: 1180px; height: 1080px; opacity: 0;">
+          <div class="fruit" data-fruit style="left: 18%; top: 40%;"><span class="halo"></span><span class="core"></span></div>
+          <div class="fruit" data-fruit style="left: 34%; top: 68%;"><span class="halo"></span><span class="core"></span></div>
+          <div class="fruit" data-fruit style="left: 72%; top: 62%;"><span class="halo"></span><span class="core"></span></div>
+
+          <div class="tbox" data-tbox style="left: 15%; top: 35%; width: 66px; height: 66px; border-color: #34d399;">
+            <span class="lbl" style="background: #34d399;">id-3</span>
+          </div>
+          <div class="tbox" data-tbox style="left: 31%; top: 63%; width: 66px; height: 66px; border-color: #22d3ee;">
+            <span class="lbl" style="background: #22d3ee;">id-12</span>
+          </div>
+          <div class="tbox" data-tbox style="left: 69%; top: 57%; width: 70px; height: 70px; border-color: #a78bfa;">
+            <span class="lbl" style="background: #a78bfa;">id-19</span>
+          </div>
+
+          <!-- the recovering fruit -->
+          <div id="s3-f7box" class="tbox" style="left: 47%; top: 30%; width: 80px; height: 80px; border-color: #f59e0b;">
+            <span id="s3-f7lbl" class="lbl" style="background: #f59e0b;">id-7</span>
+          </div>
+          <div class="fruit" style="left: 47%; top: 30%;">
+            <span class="halo"></span><span class="core"></span>
+          </div>
+          <div id="s3-flash" style="position: absolute; left: 44%; top: 27%; width: 140px; height: 140px; border-radius: 999px; box-shadow: 0 0 60px 24px rgba(251, 191, 36, 0.65); opacity: 0;"></div>
+        </div>
+
+        <div id="s3-panel" class="clay" style="position: absolute; right: 88px; top: 150px; width: 640px; border-radius: 26px; padding: 34px 34px 38px; opacity: 0;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <h3 class="font-display" style="font-size: 26px; font-weight: 600; color: #e4e4e7;">Re-identifications</h3>
+            <span class="mono" style="font-size: 16px; color: #94949e;">1 event · 1 accepted</span>
+          </div>
+
+          <div id="s3-row" class="well" style="margin-top: 22px; border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; opacity: 0;">
+            <span style="display: flex; align-items: center; gap: 12px;">
+              <span class="dot" style="background: #f59e0b;"></span>
+              <span class="mono" style="font-size: 21px; color: #e4e4e7;">track&nbsp;#12 → id-7</span>
+              <span class="badge" style="background: rgba(217, 119, 6, 0.22); color: #fcd34d;">recovered</span>
+            </span>
+          </div>
+          <p id="s3-rowmeta" class="mono" style="margin-top: 10px; font-size: 16px; color: #94949e; opacity: 0;">lost f412 · 18f gap · sim 0.94</p>
+
+          <h2 id="s3-head" class="headline" style="margin-top: 24px; font-size: 50px; opacity: 0;">
+            Fruit #7 is still Fruit #7.
+          </h2>
+
+          <div id="s3-metrics" style="margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="metric"><div class="k">Detected</div><div class="v" style="color: #fcd34d;">17</div></div>
+            <div class="metric"><div class="k">ID Recovery</div><div class="v" style="color: #6ee7b7;">0.92</div></div>
+            <div class="metric"><div class="k">Count MAE</div><div class="v" style="color: #fcd34d;">1.3</div></div>
+            <div class="metric"><div class="k">ID Switches</div><div class="v" style="color: #d4d4d8;">3</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 4 — IDENTITIES ============ -->
+      <section id="s4" class="clip" data-start="12" data-duration="3.5" data-track-index="4">
+        <div style="position: absolute; inset: 0; padding: 120px 120px; display: flex; flex-direction: column;">
+          <div style="display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: stretch;">
+            <div id="s4-panel" class="clay" style="border-radius: 26px; padding: 30px 30px 34px;">
+              <div style="display: flex; align-items: baseline; justify-content: space-between;">
+                <h3 class="font-display" style="font-size: 26px; font-weight: 600; color: #e4e4e7;">Identities</h3>
+                <span class="mono" style="font-size: 16px; color: #94949e;">5 identities · 3 confident</span>
+              </div>
+              <div style="margin-top: 22px; display: flex; flex-direction: column; gap: 12px;">
+                <div class="irow" data-irow>
+                  <span style="display: flex; align-items: center; gap: 14px;">
+                    <span class="dot" style="width: 12px; height: 12px; background: #f59e0b;"></span>
+                    <span class="mono" style="font-size: 22px; color: #e4e4e7;">id-7</span>
+                    <span class="badge" style="background: rgba(217, 119, 6, 0.22); color: #fcd34d;">confident</span>
+                  </span>
+                  <span class="mono" style="font-size: 15px; color: #94949e;">0–537 · 214 obs · q 0.96</span>
+                </div>
+                <div class="irow" data-irow>
+                  <span style="display: flex; align-items: center; gap: 14px;">
+                    <span class="dot" style="width: 12px; height: 12px; background: #22d3ee;"></span>
+                    <span class="mono" style="font-size: 22px; color: #e4e4e7;">id-12</span>
+                    <span class="badge" style="background: rgba(217, 119, 6, 0.22); color: #fcd34d;">confident</span>
+                  </span>
+                  <span class="mono" style="font-size: 15px; color: #94949e;">0–541 · 198 obs · q 0.91</span>
+                </div>
+                <div class="irow" data-irow>
+                  <span style="display: flex; align-items: center; gap: 14px;">
+                    <span class="dot" style="width: 12px; height: 12px; background: #a78bfa;"></span>
+                    <span class="mono" style="font-size: 22px; color: #e4e4e7;">id-19</span>
+                    <span class="badge" style="background: rgba(217, 119, 6, 0.22); color: #fcd34d;">confident</span>
+                  </span>
+                  <span class="mono" style="font-size: 15px; color: #94949e;">6–528 · 176 obs · q 0.88</span>
+                </div>
+                <div class="irow" data-irow>
+                  <span style="display: flex; align-items: center; gap: 14px;">
+                    <span class="dot" style="width: 12px; height: 12px; background: #34d399;"></span>
+                    <span class="mono" style="font-size: 22px; color: #e4e4e7;">id-3</span>
+                  </span>
+                  <span class="mono" style="font-size: 15px; color: #94949e;">0–519 · 151 obs · q 0.83</span>
+                </div>
+                <div class="irow" data-irow>
+                  <span style="display: flex; align-items: center; gap: 14px;">
+                    <span class="dot" style="width: 12px; height: 12px; background: #fb7185;"></span>
+                    <span class="mono" style="font-size: 22px; color: #e4e4e7;">id-21</span>
+                  </span>
+                  <span class="mono" style="font-size: 15px; color: #94949e;">14–503 · 122 obs · q 0.79</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="clay" style="border-radius: 26px; padding: 30px;">
+              <div style="display: flex; align-items: baseline; justify-content: space-between;">
+                <h3 class="font-display" style="font-size: 26px; font-weight: 600; color: #e4e4e7;">Embedding map</h3>
+                <span class="mono" style="font-size: 16px; color: #94949e;">per-identity prototypes</span>
+              </div>
+              <div id="s4-embed" class="well embed" style="margin-top: 22px; height: 372px;">
+                <span class="edot" style="left: 20%; top: 30%; background: #f59e0b;"></span>
+                <span class="edot" style="left: 26%; top: 42%; background: #fbbf24;"></span>
+                <span class="edot" style="left: 15%; top: 48%; background: #f97316;"></span>
+                <span class="edot" style="left: 31%; top: 25%; background: #f59e0b;"></span>
+                <span class="edot" style="left: 62%; top: 34%; background: #22d3ee;"></span>
+                <span class="edot" style="left: 70%; top: 44%; background: #60a5fa;"></span>
+                <span class="edot" style="left: 57%; top: 52%; background: #22d3ee;"></span>
+                <span class="edot" style="left: 46%; top: 70%; background: #a78bfa;"></span>
+                <span class="edot" style="left: 54%; top: 78%; background: #a78bfa;"></span>
+                <span class="edot" style="left: 38%; top: 62%; background: #34d399;"></span>
+                <span class="edot" style="left: 24%; top: 74%; background: #34d399;"></span>
+                <span class="edot" style="left: 80%; top: 66%; background: #fb7185;"></span>
+                <span class="edot" style="left: 72%; top: 78%; background: #f472b6;"></span>
+                <span class="edot" style="left: 86%; top: 52%; background: #fb7185;"></span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 52px; text-align: center;">
+            <h2 id="s4-head" class="headline" style="font-size: 58px; opacity: 0;">Every fruit gets a persistent identity.</h2>
+            <p id="s4-sub" class="mono" style="margin-top: 16px; font-size: 20px; color: #94949e; opacity: 0;">1:1 fruit identity · 0 labeled frames</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 5 — OUTRO ============ -->
+      <section id="s5" class="clip" data-start="15.5" data-duration="3" data-track-index="5">
+        <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <h2 id="s5-cta" class="headline" style="font-size: 82px; text-align: center; opacity: 0;">Stop guessing your yield.</h2>
+
+          <div id="s5-logo" style="margin-top: 74px; display: flex; flex-direction: column; align-items: center; opacity: 0;">
+            <svg viewBox="0 0 32 32" width="96" height="96" aria-hidden="true">
+              <defs>
+                <linearGradient id="mg3" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#FDE047" />
+                  <stop offset="55%" stop-color="#FBBF24" />
+                  <stop offset="100%" stop-color="#F97316" />
+                </linearGradient>
+                <linearGradient id="mg4" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#34D399" />
+                  <stop offset="100%" stop-color="#059669" />
+                </linearGradient>
+              </defs>
+              <ellipse cx="16" cy="17.6" rx="8.2" ry="12" transform="rotate(36 16 17.6)" fill="url(#mg3)" />
+              <path d="M9.4 8.1 17.4 6.2c2.2-.5 4.3.7 4.9 2.8.5 1.9-.3 3.9-2 4.8-1.7.9-3.8.9-5.4-.2L9.2 9.8c-.6-2 .2-2.1.2-1.7z" fill="url(#mg4)" />
+            </svg>
+            <span class="font-display" style="margin-top: 14px; font-size: 56px; font-weight: 700; letter-spacing: -0.02em;">OrchardVision</span>
+            <span style="margin-top: 12px; font-size: 28px; color: #a1a1aa;">Every mango, counted once.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ AUDIO ============ -->
+      <audio
+        id="music"
+        src="assets/music/happy-beats-business-moves-vol-12-by-ende-dot-app.mp3"
+        data-start="0"
+        data-duration="18.5"
+        data-track-index="10"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.16},{"t":0.9,"v":0.32},{"t":6.6,"v":0.33},{"t":8.5,"v":0.4},{"t":11.0,"v":0.33},{"t":15.4,"v":0.34},{"t":16.9,"v":0.18},{"t":18.0,"v":0.18},{"t":18.5,"v":0}]}]}'
+      ></audio>
+
+      <audio id="sfx-occ" src="assets/sfx/interface/drop_001.ogg" data-start="1.5" data-duration="0.4" data-track-index="11" data-volume="0.6"></audio>
+      <audio id="sfx-st1" src="assets/sfx/interface/click_003.ogg" data-start="3.6" data-duration="0.08" data-track-index="12" data-volume="0.3"></audio>
+      <audio id="sfx-st2" src="assets/sfx/interface/click_003.ogg" data-start="3.92" data-duration="0.08" data-track-index="13" data-volume="0.3"></audio>
+      <audio id="sfx-st3" src="assets/sfx/interface/click_003.ogg" data-start="4.24" data-duration="0.08" data-track-index="14" data-volume="0.3"></audio>
+      <audio id="sfx-st4" src="assets/sfx/interface/click_003.ogg" data-start="4.56" data-duration="0.08" data-track-index="15" data-volume="0.3"></audio>
+      <audio id="sfx-st5" src="assets/sfx/interface/click_003.ogg" data-start="4.88" data-duration="0.08" data-track-index="16" data-volume="0.3"></audio>
+      <audio id="sfx-st6" src="assets/sfx/interface/click_003.ogg" data-start="5.2" data-duration="0.08" data-track-index="17" data-volume="0.3"></audio>
+      <audio id="sfx-start" src="assets/sfx/interface/click_003.ogg" data-start="4.62" data-duration="0.08" data-track-index="18" data-volume="0.5"></audio>
+      <audio id="sfx-s3" src="assets/sfx/impact/impactSoft_medium_001.ogg" data-start="7.0" data-duration="0.3" data-track-index="19" data-volume="0.5"></audio>
+      <audio id="sfx-recover" src="assets/sfx/interface/bong_001.ogg" data-start="8.74" data-duration="0.4" data-track-index="20" data-volume="0.6"></audio>
+      <audio id="sfx-id1" src="assets/sfx/interface/click_003.ogg" data-start="12.35" data-duration="0.08" data-track-index="21" data-volume="0.26"></audio>
+      <audio id="sfx-id2" src="assets/sfx/interface/click_003.ogg" data-start="12.7" data-duration="0.08" data-track-index="22" data-volume="0.26"></audio>
+      <audio id="sfx-id3" src="assets/sfx/interface/click_003.ogg" data-start="13.05" data-duration="0.08" data-track-index="23" data-volume="0.26"></audio>
+      <audio id="sfx-outro" src="assets/sfx/interface/drop_001.ogg" data-start="15.6" data-duration="0.4" data-track-index="24" data-volume="0.5"></audio>
+      <audio id="sfx-logo" src="assets/sfx/impact/impactBell_heavy_000.ogg" data-start="17.4" data-duration="1.0" data-track-index="25" data-volume="0.7"></audio>
+    </div>
+
+    <script>
+      const STAGES = [
+        ["01", "Detect"],
+        ["02", "Compensate"],
+        ["03", "Track"],
+        ["04", "Remember"],
+        ["05", "Re-identify"],
+        ["06", "Evaluate"],
+      ];
+      const stageHost = document.getElementById("s2-stages");
+      STAGES.forEach(function (s) {
+        const el = document.createElement("div");
+        el.className = "stage";
+        el.innerHTML =
+          '<span class="num">' + s[0] + "</span>" +
+          '<span class="name">' + s[1] + "</span>";
+        stageHost.appendChild(el);
+      });
+
+      function build(audioData) {
+        const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+
+        /* ---------- ambient background ---------- */
+        tl.fromTo("#ghost", { x: -40 }, { x: 80, duration: 18.5, ease: "none" }, 0);
+        tl.fromTo("#glow-b", { y: -30 }, { y: 40, duration: 18.5, ease: "none" }, 0);
+
+        /* ---------- SCENE 1 — hook ---------- */
+        // ambient fruit halo pulses (CSS .halo drives the others; these are extra)
+        tl.fromTo(
+          "#s1 .fruit .core",
+          { scale: 0.9 },
+          { scale: 1.08, duration: 0.7, repeat: 3, yoyo: true, stagger: 0.09, ease: "sine.inOut" },
+          0.1,
+        );
+        // #7 halo: GSAP-driven (no CSS conflict)
+        tl.fromTo(
+          "#f7-halo",
+          { scale: 1, opacity: 0.85 },
+          { scale: 1.5, opacity: 0.15, duration: 0.9, repeat: 2, yoyo: true, ease: "sine.inOut" },
+          0.1,
+        );
+        // the occlusion sweep
+        tl.fromTo("#occ", { x: 0 }, { x: 1900, duration: 0.9, ease: "power2.inOut" }, 1.15);
+        // #7 loses identity as the leaf passes
+        tl.to("#f7-halo", { scale: 1.9, opacity: 0, duration: 0.45, ease: "power2.out", overwrite: true }, 1.5);
+        tl.to("#f7-core", { backgroundColor: "#78350f", boxShadow: "0 0 0 rgba(0,0,0,0)", scale: 0.7, duration: 0.4 }, 1.5);
+        tl.to("#f7-tag", { opacity: 0, y: -8, duration: 0.3 }, 1.5);
+        tl.to("#f7-state", { opacity: 1, duration: 0.3 }, 1.7);
+        // headline slams in
+        tl.fromTo(
+          "#s1-head",
+          { opacity: 0, y: 30, scale: 0.94 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power4.out" },
+          1.75,
+        );
+
+        /* ---------- SCENE 2 — pipeline ---------- */
+        tl.fromTo("#s2-eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4 }, 3.15);
+        tl.fromTo("#s2-head", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.45 }, 3.22);
+        tl.fromTo("#s2-drop", { opacity: 0, x: -34 }, { opacity: 1, x: 0, duration: 0.5 }, 3.3);
+        tl.fromTo("#s2-file", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 3.5);
+        // progress bar fills, 0 -> 100
+        tl.fromTo("#s2-bar", { scaleX: 0 }, { scaleX: 1, duration: 1.05, ease: "power1.inOut" }, 3.55);
+        tl.to("#s2-pct", { innerText: 100, snap: { innerText: 1 }, duration: 1.05, ease: "power1.inOut" }, 3.55);
+        // six stages, one by one, then hold
+        tl.to("#s2-stages .stage", { opacity: 1, y: 0, duration: 0.32, stagger: 0.32, ease: "power2.out" }, 3.6);
+        // process button reacts
+        tl.fromTo("#s2-btn", { scale: 1 }, { scale: 1.06, duration: 0.16, yoyo: true, repeat: 1, ease: "sine.inOut" }, 4.62);
+
+        /* ---------- SCENE 3 — recovery ---------- */
+        tl.to("#s3-overlay", { opacity: 1, duration: 0.5 }, 7.0);
+        tl.fromTo("#s3-panel", { opacity: 0, x: 48 }, { opacity: 1, x: 0, duration: 0.55 }, 7.05);
+        tl.fromTo("#s3 .tbox", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.4, stagger: 0.1 }, 7.3);
+        // #7 track lost
+        tl.to("#s3-f7box", { borderColor: "#f59e0b", opacity: 0.4, scale: 0.94, duration: 0.35 }, 7.55);
+        tl.to("#s3-f7lbl", { opacity: 0, duration: 0.3 }, 7.55);
+        // #7 recovered on the strong cue
+        tl.fromTo("#s3-f7box", { opacity: 0.4, scale: 0.94 }, { opacity: 1, scale: 1, borderColor: "#f59e0b", duration: 0.4, ease: "back.out(2.4)" }, 8.74);
+        tl.set("#s3-f7lbl", { opacity: 1 }, 8.74);
+        tl.fromTo("#s3-flash", { opacity: 0.9, scale: 0.7 }, { opacity: 0, scale: 1.5, duration: 0.6, ease: "power2.out" }, 8.74);
+        // re-id row resolves
+        tl.fromTo("#s3-row", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4 }, 8.95);
+        tl.fromTo("#s3-rowmeta", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 9.1);
+        tl.fromTo("#s3-head", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, 9.35);
+        // metric chips arrive one by one, then hold
+        tl.to("#s3-metrics .metric", { opacity: 1, y: 0, duration: 0.34, stagger: 0.34, ease: "back.out(1.5)" }, 9.95);
+
+        /* ---------- SCENE 4 — identities ---------- */
+        tl.fromTo("#s4 .clay", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 }, 12.15);
+        tl.to("#s4 .irow", { opacity: 1, duration: 0.32, stagger: 0.24, ease: "power2.out" }, 12.35);
+        tl.to("#s4 .edot", { opacity: 1, duration: 0.3, stagger: { each: 0.05, from: "start" }, ease: "power2.out" }, 12.5);
+        tl.fromTo("#s4-head", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5 }, 13.6);
+        tl.fromTo("#s4-sub", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 13.9);
+
+        /* ---------- SCENE 5 — outro ---------- */
+        tl.fromTo("#s5-cta", { opacity: 0, y: 34, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "power4.out" }, 15.65);
+        tl.fromTo("#s5-logo", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.55, ease: "back.out(1.6)" }, 17.4);
+        tl.fromTo("#s5-logo svg", { scale: 0.7, rotation: -12 }, { scale: 1, rotation: 0, duration: 0.6, ease: "back.out(2)" }, 17.4);
+
+        /* ---------- audio-reactive warmth (subtle) ---------- */
+        if (audioData && audioData.frames) {
+          const total = Math.min(audioData.frames.length, Math.round(18.5 * (audioData.fps || 30)));
+          for (let f = 0; f < total; f++) {
+            const bass = audioData.frames[f].bands[0];
+            const mid = audioData.frames[f].bands[4];
+            tl.call(
+              (function (b, m) {
+                return function () {
+                  gsap.set("#glow-a", { opacity: 0.4 + b * 0.34, scale: 1 + b * 0.05 });
+                  gsap.set("#glow-b", { opacity: 0.12 + m * 0.1 });
+                };
+              })(bass, mid),
+              [],
+              f / (audioData.fps || 30),
+            );
+          }
+        }
+
+        window.__timelines["main"] = tl;
+      }
+
+      document.fonts.ready.then(function () {
+        fetch("assets/music/audio-data.json")
+          .then(function (r) { return r.json(); })
+          .catch(function () { return null; })
+          .then(function (data) { build(data); });
+      });
+    </script>
+  </body>
+</html>
