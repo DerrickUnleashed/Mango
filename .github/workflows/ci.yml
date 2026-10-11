@@ -22,6 +22,7 @@ permissions:
 jobs:
   backend:
     name: Backend (API + ML)
+    needs: [frontend]
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -131,6 +132,7 @@ jobs:
   # it required once it has a track record of stability.
   e2e:
     name: End-to-end (Playwright)
+    needs: [frontend]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -197,7 +199,7 @@ jobs:
 
   secret-scan:
     name: "Security: Secret scan"
-    needs: [backend, frontend]
+    needs: [backend, e2e]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -229,7 +231,7 @@ jobs:
 
   python-audit:
     name: "Security: Python vulnerabilities"
-    needs: [backend, frontend]
+    needs: [secret-scan, npm-audit]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -268,7 +270,7 @@ jobs:
 
   npm-audit:
     name: "Security: Node vulnerabilities"
-    needs: [backend, frontend]
+    needs: [backend, e2e]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
