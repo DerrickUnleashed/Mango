@@ -10,16 +10,15 @@ Legend: `[ ]` todo · `[x]` done · file refs are `docs/<file>`.
 
 ## 1. Front matter (`docs/main.tex`)
 
-- [ ] `\guidename` — guide's name (line 136)
-- [ ] `\guidedesig` — guide's designation (line 137)
-- [ ] `\hodname` — Head of Department name (line 138)
-- [ ] `\specname` — specialization name, e.g. `Artificial Intelligence` (line 139)
-- [ ] `\submitdate` — currently `November, 2026`; confirm against actual submission date (line 140)
-- [ ] Confirm candidate block is correct and in order: DERRICK SAMUEL R. (23BCE1040),
+- [x] `\guidename` — guide's name (line 136)
+- [x] `\guidedesig` — guide's designation (line 137)
+- [x] `\hodname` — Head of Department name (line 138)
+- [x] `\specname` — specialization name (line 139)
+- [x] `\submitdate` — `November, 2026` (line 140)
+- [x] Candidate block in order: DERRICK SAMUEL R. (23BCE1040),
       PRANNAVAKHANTH (23BCE1869), PRIYANKA KALIRAJ (23BCE5131) (lines 134–139)
-- [ ] Declaration + certificate wording still uses singular framing ("I hereby declare",
-      "a record of bonafide work carried out by me"). Read for team grammar consistency
-- [ ] Acknowledgement signature line prints only `\candname` — decide if all three sign
+- [x] Declaration + certificate wording reviewed
+- [x] Acknowledgement signature line
 
 ## 2. Diagrams to draw (`\figph` — 12 total)
 
