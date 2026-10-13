@@ -2,12 +2,12 @@
 %%  BCSE497J Project Report -- OrchardVision
 %%  Built from the VIT Chennai BCSE497J report template.
 %%
-%%  HIGHLIGHT CONVENTION
-%%    Yellow  = content that is NOT in the project documentation
-%%              (added context, literature, placeholders, suggestions).
-%%    No colour = taken directly from the project documentation.
-%%  To remove ALL yellow highlighting before submission, change
-%%  \showhltrue to \showhlfalse below.
+%%  MARKER CONVENTION
+%%    \add{...}  = content beyond the project documentation
+%%    \ph{...}   = placeholder to fill before submission
+%%    \pp{...}   = value to fill before submission (prints as <<VALUE>>)
+%%    \hr        = table-row marker (put first in the row)
+%%    No colour is applied to any of these; the macros are pass-through.
 %% =====================================================================
 \documentclass[12pt,a4paper]{report}
 
@@ -44,33 +44,20 @@
 \urlstyle{tt}
 \def\UrlBreaks{\do\/\do\_\do\-\do\.\do\{\do\}}
 
-% ---------- yellow-highlight machinery (no 'soul' package needed) ----------
-\newif\ifshowhl
-\showhlfalse
-\definecolor{hlcolor}{RGB}{255,255,0}
-\newcommand{\hlstrut}{\vrule width 0pt height 0.78em depth 0.27em\relax}
-\newif\ifhlit
-\newcommand{\hlword}[1]{{\setlength{\fboxsep}{0pt}\colorbox{hlcolor}{\ifhlit\itshape\fi\hlstrut#1}}}
-% italic spanning several words inside \add: \emphon{}first ... last\emphoff{}
-\ifshowhl
-  \newcommand{\emphon}{\global\hlittrue\itshape}
-  \newcommand{\emphoff}{\global\hlitfalse}
-\else
-  \newcommand{\emphon}{\itshape}
-  \newcommand{\emphoff}{\upshape}
-\fi
-\newcommand{\hlgap}{{\color{hlcolor}\leaders\vrule height 0.78em depth 0.27em\hskip 0.25em plus 0.12em minus 0.08em\relax}}
-\def\hlloop#1 #2\hlsentinel{\hlword{#1}\if\relax\detokenize{#2}\relax\else\hlgap\expandafter\hlloop\expandafter#2\hlsentinel\fi}
-% \add{...}  : highlighted text (one paragraph at a time, no blank lines inside)
-\newcommand{\add}[1]{\ifshowhl\hlloop#1 \hlsentinel\else#1\fi}
-% \ph{...}   : highlighted placeholder (same look, different meaning)
-\newcommand{\ph}[1]{\add{#1}}
-% \hr        : highlight a table row (put first in the row)
-\newcommand{\hr}{\ifshowhl\rowcolor{hlcolor}\fi}
+% ---------- marker macros (no highlighting; kept so chapters compile unchanged) ----------
+% \emphon{} ... \emphoff{}  : italic span inside \add{...}
+\newcommand{\emphon}{\itshape}
+\newcommand{\emphoff}{\upshape}
+% \add{...}  : text contributed beyond the project documentation
+\newcommand{\add}[1]{#1}
+% \ph{...}   : placeholder to fill before submission
+\newcommand{\ph}[1]{#1}
+% \hr        : table-row marker (put first in the row)
+\newcommand{\hr}{}
 \newcommand{\pp}[1]{\textless\kern0pt\textless{}#1\textgreater\kern0pt\textgreater{}}
 % code / path in text
 \newcommand{\code}[1]{\path{#1}}
-\ifshowhl\def\phcol{hlcolor}\else\def\phcol{white}\fi
+\def\phcol{white}
 
 % image placeholder: label, short caption, long caption, description, height
 \newcommand{\figph}[5]{%
