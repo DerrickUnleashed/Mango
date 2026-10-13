@@ -20,9 +20,15 @@ Legend: `[ ]` todo · `[x]` done · file refs are `docs/<file>`.
 - [x] Declaration + certificate wording reviewed
 - [x] Acknowledgement signature line
 
-## 2. Diagrams to draw (`\figph` — 12 total)
+## 2. Diagrams to draw (`\figph` — 13 total)
 
 Each one replaces a placeholder box with a real figure via `\includegraphics`.
+**Definitive generation prompts for all of these are in
+[`image-prompts.md`](./image-prompts.md)** — one prompt per figure, with the
+global style block, the negative prompt, the pixel size and the target filename.
+Four of them (`fig:ui_*`) must be real screenshots of the running system, and
+`fig:bars`, `fig:proj`, `fig:thr` and `fig:timing` are better plotted from the
+experiment export than generated.
 
 - [ ] `fig:usecase` — `ch3_architecture.tex:95`. UML use-case diagram, 2 actors, 10 use cases
 - [ ] `fig:seq` — `ch6_api.tex:78`. Sequence diagram for upload + process + poll
@@ -53,7 +59,8 @@ No measured numbers exist yet. Every value below is `\pp{XX}` / `\pp{XX.X}` / `\
 - [ ] Threshold sensitivity study for 0.5 / 0.6 / 0.7 / 0.8 (`:93-96`)
 - [ ] Per-video results table (`:113-115`) and summary (`:132-134`)
 - [ ] Hardware used for the experiments — CPU/GPU model and RAM (`ch3_architecture.tex:110`)
-- [ ] Rewrite the chapter opening paragraph (`:5`) — it currently states no results exist
+- [ ] Rewrite the chapter opening paragraph (`:5`) — states no results exist yet; rewrite
+      after the evaluation runs
 - [ ] Conclusion (`ch9_conclusion.tex`) claims are gated on Chapter 8; update once results land
 
 ## 4. Gantt chart
@@ -64,14 +71,13 @@ No measured numbers exist yet. Every value below is `\pp{XX}` / `\pp{XX.X}` / `\
 
 ## 5. Content to write or verify
 
-- [ ] `ch1_introduction.tex` — check scope, objectives (Section 1.5) and contributions
-      match what was actually built
+- [x] `ch1_introduction.tex` — objectives and pipeline description corrected against the code
 - [ ] `ch2_literature.tex` — verify every cited claim against the papers in
       `references.tex`; add any source you consulted but is missing (23 entries exist)
-- [ ] `ch5_pipeline.tex` — longest chapter; confirm tracker settings, thresholds and
-      stage names match the shipped config
-- [ ] `appendices.tex` — repository layout must match the actual tree; add
-      API/environment setup instructions if the department expects them
+- [x] `ch5_pipeline.tex` — stage names, status models, thresholds, prototype update rule,
+      camera-motion modes and the identity-numbering scheme corrected against the code
+- [x] `appendices.tex` — repository layout, run commands and sample responses match the
+      actual tree, scripts and API
 - [ ] `acronyms.tex` — verify each acronym is used at least once in the body
 - [ ] `references.tex` — add BibTeX/DOI for anything cited in-text but absent
 
@@ -80,16 +86,39 @@ No measured numbers exist yet. Every value below is `\pp{XX}` / `\pp{XX.X}` / `\
 - [x] Highlighting machinery removed (`\hlword`, `\hlgap`, `\hlloop`, `\hlcolor`,
       `\showhl`) — `\add`, `\ph`, `\hr`, `\emphon` now plain pass-throughs (`main.tex:47-56`)
 - [x] LaTeX build artifacts gitignored (`*.aux`, `*.fls`, `*.fdb_latexmk`, `*.lof`, `*.lot`, `*.out`, `*.toc`)
-- [ ] Final `latexmk -pdf main.tex` clean run — 60 pages, no warnings that matter
-- [ ] Page count and formatting match department norms
+- [x] Final `latexmk -pdf main.tex` clean run — 65 pages, exit 0
+- [ ] Page count and formatting match department norms (65 pages after the corrections)
 
 ---
 
 ## Fastest path to a submittable draft
 
-1. Fill the four front-matter macros (guide, designation, HOD, specialization).
-2. Run the pipeline on 3 orchard videos and export the experiment CSV.
+1. Run the pipeline on 3 orchard videos and export the experiment CSV.
 3. Fill every `ch8_results.tex` table from that export; generate the charts from it.
 4. Draw the 3 structural diagrams (use-case, sequence, workflow) — the rest are
    screenshots or plots from step 3.
-5. Fill Gantt dates, then do a read-through of Chapters 1, 2, 5 against the code.
+5. Fill Gantt dates and the experiment-hardware row, then read Chapter 2 against the
+   papers in `references.tex`.
+
+---
+
+## Verified against the code (no longer pending)
+
+Content in the chapters that was checked against the repository and corrected:
+
+- API prefix is `/api`, not `/api/v1`; 28 routes listed, including the frame,
+  file-streaming and single-track endpoints that were missing (`ch6_api.tex`)
+- Job statuses are lowercase (`queued`/`running`/`completed`/`failed`/`cancelled`),
+  there are 10 pipeline stages, and progress is a percentage (`ch5`, `ch6`)
+- Error envelope is `{"code", "detail", "details"}` — there is no `status` field
+- Experiments run synchronously and accept only `mock`/`bytetrack`; TAPNext is
+  pipeline-only
+- Production uses SQLite + local disk + Redis/Celery, not PostgreSQL/MinIO/S3
+  (claims removed from `ch1`, `ch3`, `ch4`, `ch5`, `ch7`, `ch9`)
+- Deployment topology figure (`fig:deploy`) redrawn to the real container stack
+- Identity numbering is track-chain based with a motion gate, not clustering
+- Prototype update, quality gate (0.3), confidence rule (3 obs / 0.5) documented
+- Camera-motion estimators are synthetic (`static` / `drift`)
+- Per-video analytics does not compute IDF1/HOTA; the evaluation harness does
+- Detector/embedder selection in `mock` vs `real` mode documented
+- TypeScript types corrected (`VisibilityState` has 5 values, no `ProcessingStatus`)
