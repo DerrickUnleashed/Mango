@@ -9,7 +9,7 @@ The main take-away points are:
 \begin{itemize}
   \item identities are first-class, persistent objects (prototype, quality, observation count, confidence), which allows a fruit that disappears and reappears to be recognised rather than counted twice;
   \item the tracker back-end (mock, ByteTrack, TAPNext), camera-motion mode and thresholds are configurable and can be compared reproducibly through the experiment harness;
-  \item the same code runs on SQLite for development and PostgreSQL with object storage for production.
+  \item the same code runs on a laptop with SQLite and as a container stack in which a queue worker processes the long-running jobs, so nothing about the pipeline depends on the deployment.
 \end{itemize}
 
 \add{Measured against the objectives of Section~1.5, the pipeline, data model, API, experiment harness and deployment configuration are in place. The accuracy objectives can only be claimed once Chapter~8 has been populated with results from real orchard videos; until then the quality of the counts should be treated as unverified. A realistic limitation is that identity matching rests on appearance embeddings of visually similar fruit, so merged or fragmented identities are expected in dense clusters and after very long gaps.}
