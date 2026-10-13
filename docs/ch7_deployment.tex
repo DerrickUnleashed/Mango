@@ -7,14 +7,25 @@ This chapter describes how OrchardVision is run in development and production, h
 \section{Development Environment}
 
 \begin{itemize}
-  \item \textbf{Backend:} \code{uvicorn apps.api.app.main:app --reload}, with SQLite stored at \code{./data/app.db}.
-  \item \textbf{Frontend:} \code{npm run dev} starts the Vite dev server, which proxies \code{/api/} to the backend.
-  \item \textbf{CORS:} \code{localhost:5173} is configured as an allowed origin.
+  \item \textbf{Backend:} \code{uvicorn app.main:app} from \code{apps/api/}, which serves the API on port \code{8001}; the development database is SQLite at \code{data/orchardvision.db}.
+  \item \textbf{Frontend:} \code{npm run dev} starts the Vite dev server on port \code{5173}, which proxies \code{/api/} to the backend.
+  \item \textbf{CORS:} \code{localhost:5173} is configured as an allowed origin through \code{ALLOWED\_ORIGINS}.
+  \item \textbf{Models:} YOLO weights and the TAPNext checkpoint are read from \code{models/}, which is mounted read-only in the container stack.
 \end{itemize}
 
-\section{Production Deployment}
+\section{Container Deployment}
 
-In production the database is PostgreSQL, selected through \code{DATABASE_URL}. The API is served by gunicorn with uvicorn workers behind a reverse proxy. Uploads are limited to 2\,GB by default, configurable with the \code{MAX_UPLOAD_BYTES} environment variable. Videos and frames are stored through the \code{StorageService} in MinIO/S3.
+\add{The production stack is defined in \code{docker/docker-compose.yml} and consists of three services: the API, a Celery worker built from the same image so that the machine-learning code and the application code always match, and a Redis instance used as the broker and result backend. Uploads, extracted frames and the SQLite database live in a named volume shared by the API and the worker.}
+
+\add{A few points are worth stating explicitly, because they differ from the more common production arrangement:}
+\begin{itemize}
+  \item the database is \textbf{SQLite in production as well}. The stack points \code{DATABASE\_URL} at a file in the shared volume, and both the API and the worker open it. The application is written against SQLAlchemy and a PostgreSQL driver is a declared dependency, so switching to a server database is a configuration change rather than a code change;
+  \item media is stored on the \textbf{local disk} of the API and worker through \code{StorageService}, which writes uploads to \code{UPLOAD\_DIR} and cached frames to \code{UPLOAD\_DIR/frames/<video\_id>}. The service validates that the resolved path stays inside the upload directory. Object storage is not implemented;
+  \item uploads are limited to 2\,GB by default through \code{MAX\_UPLOAD\_BYTES}. The whole file is read into memory before it is written, so the limit also bounds the memory a single request can consume;
+  \item the Celery task and the in-process background task share one entry point, so a deployment without a broker still works. With more than one uvicorn worker, however, an in-process background task dies with the worker that owns it, which is why the container stack always runs Redis;
+  \item \code{RUN\_MIGRATIONS=true} makes the API apply the Alembic migrations before serving, and \code{AUTO\_CREATE\_TABLES} is switched off so that schema changes are explicit;
+  \item when \code{ENVIRONMENT=production}, the settings validator refuses to start with the placeholder development \code{SECRET\_KEY}, and the interactive API documentation is disabled.
+\end{itemize}
 
 \begin{figure}[htbp]
 \centering
@@ -24,22 +35,27 @@ In production the database is PostgreSQL, selected through \code{DATABASE_URL}. 
   arr/.style={-{Stealth[length=2mm]},thick}]
 \node[b] (c) {Browser};
 \node[b,right=of c] (p) {Reverse proxy};
-\node[b,right=of p] (g) {gunicorn / uvicorn\\FastAPI};
-\node[b,below=16mm of p] (pg) {PostgreSQL};
-\node[b,left=of pg] (w) {Celery worker};
-\node[b,right=of pg] (s3) {MinIO / S3};
+\node[b,right=of p] (g) {uvicorn\\FastAPI};
+\node[b,below=16mm of p] (r) {Redis\\broker};
+\node[b,left=of r] (w) {Celery worker};
+\node[b,below=of r] (v) {Shared volume\\SQLite + media};
+\node[b,right=of r] (m) {models/\\read-only};
 \draw[arr,<->] (c) -- (p);\draw[arr,<->] (p) -- (g);
-\draw[arr,<->] (g.south) -- (pg.north east);
-\draw[arr,<->] (g.south) -- (s3.north);
+\draw[arr,<->] (g.south) -- (v.north);
+\draw[arr,<->] (g.south) -- (r.north);
 \draw[arr,<->] (g.south west) -- (w.north);
+\draw[arr,<->] (w.south) -- (v.north);
+\draw[arr,<->] (g.south east) -- (m.west);
 \end{tikzpicture}
-\caption{Production deployment topology.}
+\caption{Container deployment topology.}
 \label{fig:deploy}
 \end{figure}
 
 \section{Configuration}
 
-Settings are loaded with \code{pydantic_settings} from the \code{.env} file. The environment variables referred to in this report are \code{DATABASE_URL} (database selection) and \code{MAX_UPLOAD_BYTES} (upload limit). The pipeline defaults themselves are stored in the database and edited through the settings endpoints.
+Settings are loaded with \code{pydantic_settings} from the \code{.env} file at the repository root; the name of an environment variable is the upper-cased field name of \code{app/core/config.py}. Besides \code{DATABASE_URL} (database selection) and \code{MAX_UPLOAD_BYTES} (upload limit), the variables that shape a processing run are \code{DEFAULT_INFERENCE_MODE} (\code{mock} or \code{real}), \code{DEFAULT_CONFIDENCE_THRESHOLD} (0.35), \code{DEFAULT_REID_THRESHOLD} (0.6), \code{DEFAULT_MEMORY_UPDATE_RATE} (0.2), \code{DEFAULT_TRACKER_MATCH_THRESHOLD} (120\,px), \code{DEFAULT_TRACKER_BUFFER_FRAMES} (30) and \code{YOLO_WEIGHTS_PATH}. The pipeline defaults can be edited at run time through the settings endpoints, which store them in the single \code{AppSettings} row together with a \code{revision} counter.
+
+\add{Two limitations are worth noting. The embedding model path is read once when the pipeline configuration object is created and is therefore not overridable per request. The settings page of the web interface seeds its form from a local defaults object rather than from the values it fetched, so a value changed elsewhere is not reflected in the form until the page is rebuilt.}
 
 \section{Extending the System}
 
@@ -52,9 +68,9 @@ Settings are loaded with \code{pydantic_settings} from the \code{.env} file. The
 
 \section{Testing}
 
-The Python test suite is run with \code{pytest} from the repository root, and the shared TypeScript types are type-checked with \code{pnpm exec tsc --noEmit} from \code{packages/types/}.
+The Python test suite is run with \code{pytest} from \code{apps/api/}; it uses \code{httpx.AsyncClient} against the FastAPI application with an isolated SQLite database and covers configuration, database setup, migrations, the upload and processing routes, tracks, frames, settings, experiments, the queueing path and real inference mode. The web application is tested with Vitest and Testing Library (twelve component and page test files, with coverage thresholds enforced in \code{vitest.config.ts}) and end-to-end with Playwright, which starts the real backend and the Vite dev server and walks through an upload, a processing run and the rendering of the tracking overlay. The shared TypeScript types are type-checked with \code{pnpm exec tsc --noEmit} from \code{packages/types/}.
 
-\add{The tests are organised around the layers of the system. The following cases are recommended to be covered and, where not yet automated, are listed here as a test plan:}
+Table~\ref{tab:tests} lists the functional cases the suite is built around.
 
 \begin{table}[htbp]
 \centering\small
@@ -72,7 +88,7 @@ The Python test suite is run with \code{pytest} from the repository root, and th
 \hr T8 & Update settings and read them back & Updated values returned by \code{GET /settings}\\
 \bottomrule
 \end{tabular}
-\caption[Recommended test plan]{\add{Recommended test plan.}}
+\caption[Functional test plan]{Functional cases covered by the automated test suites.}
 \label{tab:tests}
 \end{table}
 
@@ -88,8 +104,8 @@ The Python test suite is run with \code{pytest} from the repository root, and th
   \item \add{\textbf{Start the services.} Start the backend with uvicorn and the frontend with Vite as shown in Section~7.2, and open the web client in a browser.}
   \item \add{\textbf{Review the settings.} Open the settings page and check the confidence threshold, ReID threshold, tracker type, camera-motion mode, memory update rate, tracker match threshold and buffer frames. Save the changes with the update action.}
   \item \add{\textbf{Upload a video.} Choose a video file (up to 2\,GB by default). When the upload completes, the video appears in the list with status \code{uploaded} together with its resolution, frame rate and frame count.}
-  \item \add{\textbf{Start processing.} Select the video and start a processing job. The job moves from \code{QUEUED} to \code{RUNNING}; the current stage (frame extraction, detection, tracking, ReID, analytics) and progress are shown until the status becomes \code{COMPLETED}.}
-  \item \add{\textbf{Inspect the results.} Open the tracks to see trajectories and visibility states, the identities to see prototypes, quality and observation counts, the identity projection to see how identities cluster, the ReID events to see where identities were lost and found again, and the analytics to read IDF1, HOTA and ID switches.}
+  \item \add{\textbf{Start processing.} Select the video, choose the inference mode, the camera-motion mode and the tracker, and start a processing job. The job moves from \code{queued} to \code{running}; the current stage (frame extraction, detection, tracking, embedding, identity memory, re-identification, analytics) and the progress percentage are shown until the status becomes \code{completed}.}
+  \item \add{\textbf{Inspect the results.} Open the tracks to see trajectories and visibility states, the identities to see prototypes, quality and observation counts, the identity projection to see how identities cluster, and the re-identification events to see where an identity was lost and found again. The analytics panel summarises the counts, confidence distribution and detection sizes for the video; the IDF1, HOTA and ID-switch figures are produced by the experiment harness of the evaluation page rather than by the per-video analytics, which currently reports zero for the two tracking-quality fields.}
   \item \add{\textbf{Run an experiment.} Create an experiment by choosing a tracker, a scenario and a number of frames, and wait for its status to change from \code{RUNNING}. Compare the metrics of several experiments and download them as JSON or CSV.}
   \item \add{\textbf{Clean up.} Delete videos and experiments that are no longer needed. Deleting a video removes all of its tracks, identities and other records.}
 \end{enumerate}
@@ -126,11 +142,11 @@ The Python test suite is run with \code{pytest} from the repository root, and th
 \toprule
 \hr \textbf{Risk} & \textbf{Effect} & \textbf{Mitigation}\\
 \midrule
-\hr Very large uploads & Slow requests, disk pressure & 2\,GB limit (\code{MAX_UPLOAD_BYTES}); object storage\\
-\hr Long-running processing & Blocked API workers & Background task or Celery queue; job polling\\
+\hr Very large uploads & Slow requests, memory pressure & 2\,GB limit (\code{MAX_UPLOAD_BYTES}); reverse-proxy limit; streaming to disk\\
+\hr Long-running processing & Blocked API workers & Celery queue with Redis; job polling\\
 \hr Identity merges or fragmentation & Wrong fruit counts & Tunable ReID threshold; experiment harness\\
 \hr Camera motion & Tracking drift & Camera-motion estimation and compensation\\
-\hr Database growth & Slower queries & PostgreSQL in production; per-video deletion\\
+\hr Database growth & Slower queries & Per-video deletion of all child rows; SQLite file maintenance in the container volume\\
 \bottomrule
 \end{tabular}
 \caption[Risk analysis]{\add{Risks and mitigations.}}
