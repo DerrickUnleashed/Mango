@@ -77,9 +77,8 @@ No measured numbers exist yet. Every value below is `\pp{XX}` / `\pp{XX.X}` / `\
 
 ## 6. Build hygiene
 
-- [x] Yellow highlighting disabled — `\showhlfalse` (`main.tex:49`)
-- [ ] Remove now-dead highlight machinery (`\hlword`, `\hlgap`, `\hlloop`, `hlcolor`)
-      from `main.tex:47-73` if the file will be handed in as source
+- [x] Highlighting machinery removed (`\hlword`, `\hlgap`, `\hlloop`, `\hlcolor`,
+      `\showhl`) — `\add`, `\ph`, `\hr`, `\emphon` now plain pass-throughs (`main.tex:47-56`)
 - [x] LaTeX build artifacts gitignored (`*.aux`, `*.fls`, `*.fdb_latexmk`, `*.lof`, `*.lot`, `*.out`, `*.toc`)
 - [ ] Final `latexmk -pdf main.tex` clean run — 60 pages, no warnings that matter
 - [ ] Page count and formatting match department norms
