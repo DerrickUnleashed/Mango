@@ -2,7 +2,7 @@
 
 \section{Introduction}
 
-All functionality of OrchardVision is exposed through a REST API under the \code{/api/v1/} prefix. The same API is used by the React client and can be called directly by scripts. This chapter lists the endpoints, explains the request flows, and describes error handling and the shared TypeScript types.
+All functionality of OrchardVision is exposed through a REST API mounted under the \code{/api} prefix. The same API is used by the React client and can be called directly by scripts. This chapter lists the endpoints, explains the request flows, and describes error handling and the shared TypeScript types.
 
 \section{Endpoint Summary}
 
@@ -26,12 +26,15 @@ POST & \code{/videos} & Upload video\\
 GET & \code{/videos} & List videos\\
 GET & \code{/videos/{id}} & Video metadata\\
 GET & \code{/videos/{id}/tracks} & Track trajectories\\
+GET & \code{/videos/{id}/tracks/{track_id}} & A single track\\
+GET & \code{/videos/{id}/frames/{frame_id}} & Extracted frame as JPEG\\
+GET & \code{/videos/{id}/file} & Stream the source video (range requests)\\
 GET & \code{/videos/{id}/identities} & Identity prototypes\\
-GET & \code{/videos/{id}/identities/projection} & 2D coordinates for visualisation\\
+GET & \code{/videos/{id}/identities/projection} & 2D coordinates for visualisation (\code{tsne} or \code{pca})\\
 GET & \code{/videos/{id}/identities/{identity_id}} & Specific identity\\
 GET & \code{/videos/{id}/identities/{identity_id}/observations} & Per-frame observations\\
 GET & \code{/videos/{id}/reid-events} & Re-identification events\\
-GET & \code{/videos/{id}/detections} & Persisted detections\\
+GET & \code{/videos/{id}/detections} & Persisted detections (optional \code{frame_id} filter)\\
 GET & \code{/videos/{id}/per-frame} & Per-frame timing telemetry\\
 GET & \code{/videos/{id}/motion} & Camera motion estimate\\
 GET & \code{/videos/{id}/analytics} & Aggregated analytics\\
@@ -39,13 +42,16 @@ DELETE & \code{/videos/{id}} & Delete video and all associated data\\
 POST & \code{/videos/{id}/process} & Start processing job\\
 GET & \code{/jobs/{id}} & Job status\\
 GET & \code{/experiments} & List experiments\\
-POST & \code{/experiments} & Create and run experiment\\
+POST & \code{/experiments} & Create and run experiment (synchronously)\\
 GET & \code{/experiments/{id}} & Experiment detail\\
 GET & \code{/experiments/{id}/export} & Download results (JSON/CSV)\\
 DELETE & \code{/experiments/{id}} & Delete experiment (cannot be \code{RUNNING})\\
 GET & \code{/settings} & Pipeline defaults\\
 PUT & \code{/settings} & Update pipeline defaults\\
+GET & \code{/} & Service banner with documentation URL\\
 \end{longtable}}
+
+\add{The table lists the 28 routes of the API. They are implemented by five routers (\code{health}, \code{videos}, \code{jobs}, \code{experiments} and \code{settings}), which \code{app/main.py} mounts under an \code{/api} prefix, together with a root banner route. In production (\code{ENVIRONMENT=production}) the interactive documentation and the generated OpenAPI schema are switched off, so introspection is available in development only.}
 
 \section{Resource-to-Model Mapping}
 
@@ -81,19 +87,25 @@ Each read endpoint returns data that the pipeline persisted in one of the models
 
 \subsection{Video Upload}
 
-\code{POST /videos} saves the upload through \code{storage_service.save_upload}, extracts metadata with \code{extract_video_metadata} and creates the \code{Video} row with status \code{uploaded}. The maximum upload size is 2\,GB by default and can be changed through \code{MAX_UPLOAD_BYTES}.
+\code{POST /videos} validates the declared MIME type and the file extension, saves the upload through \code{storage_service.save_upload} under a generated UUID filename, extracts metadata with \code{extract_video_metadata} (resolution, frame rate, frame count, duration and FOURCC codec) and creates the \code{Video} row with status \code{uploaded}. A file that cannot be decoded is deleted and the request is rejected with a validation error. The maximum upload size is 2\,GB by default and can be changed through \code{MAX_UPLOAD_BYTES}.
 
 \subsection{Starting a Processing Job}
 
-\code{POST /videos/{id}/process} validates that no job is active for the video, creates a \code{ProcessingJob} with status \code{QUEUED}, and then enqueues it with Celery or runs it synchronously as a background task. The client polls \code{GET /jobs/{id}} to read the job's \code{status}, \code{stage} and \code{progress}.
+\code{POST /videos/{id}/process} validates that no job is active for the video, resolves the effective configuration, creates a \code{ProcessingJob} with status \code{queued} and then dispatches it. If a Celery broker is configured (\code{CELERY_BROKER_URL}) the task is enqueued for the worker; otherwise FastAPI runs it as a background task in the web worker process. Both paths execute the same \code{run\_processing\_sync} entry point. The client polls \code{GET /jobs/{id}} to read the job's \code{status}, \code{stage}, \code{progress} and \code{message}.
+
+\add{Configuration is resolved per request in the following order: a non-empty value in the request body wins, otherwise the value stored in \code{AppSettings} is used, otherwise the environment default from \code{app/core/config.py}. A consequence of this rule is that a request cannot set a setting to exactly zero, because zero is falsy; the stored value is used instead.}
 
 \subsection{Reading Results}
 
-After a video is \code{processed}, its tracks, identities, observations, ReID events, detections, per-frame timing, camera motion and analytics are retrieved with the GET endpoints in Table~\ref{tab:api}. The identity projection endpoint returns two-dimensional coordinates computed by the \code{EmbeddingProjection} service for plotting.
+After a video is \code{processed}, its tracks, identities, observations, ReID events, detections, per-frame timing, camera motion and analytics are retrieved with the GET endpoints in Table~\ref{tab:api}. The identity projection endpoint returns two-dimensional coordinates computed by the \code{EmbeddingProjection} service (t-SNE, falling back to a PCA/SVD projection and a ring layout) for plotting in the \code{EmbeddingMap} component. Individual frames are served as JPEG by \code{GET /videos/{id}/frames/{frame\_id}}, optionally downscaled with the \code{width} query parameter, and are used by the identity panel and the frame viewer.
+
+\add{The job response also carries the stage a video passes through. The pipeline reports \code{uploaded}, \code{extracting\_frames}, \code{detecting}, \code{tracking}, \code{embedding}, \code{memory}, \code{reid}, \code{analytics} and finally \code{completed} or \code{failed}; job status is one of \code{queued}, \code{running}, \code{completed}, \code{failed} and \code{cancelled}.}
 
 \subsection{Experiments}
 
-\code{POST /experiments} creates and runs an experiment described by a name, a tracker, a scenario and a number of frames. Its results can be read with \code{GET /experiments/{id}} and downloaded as JSON or CSV with \code{GET /experiments/{id}/export}. An experiment that is \code{RUNNING} cannot be deleted.
+\code{POST /experiments} creates and runs an experiment described by a name, a tracker (\code{mock} or \code{bytetrack}), the \code{orchard} scenario and a number of frames (10 to 1000, default 310). The experiment is executed synchronously inside the request by the evaluation harness, which runs the scenario through the chosen tracker and compares the result with the ground truth of the synthetic scenario. Its results can be read with \code{GET /experiments/{id}} and downloaded as JSON or CSV with \code{GET /experiments/{id}/export}. An experiment that is \code{RUNNING} cannot be deleted.
+
+\add{The metrics reported are IDF1, HOTA, the number of ID switches, track fragmentation, the mean absolute and percentage error of the fruit count and the identity recovery rate. Because the harness evaluates the synthetic \code{orchard} scenario with the mock detector, the experiment path exercises the tracking and evaluation code rather than real fruit detection; the TAPNext tracker is available in the processing pipeline but is not selectable in the experiment request.}
 
 \subsection{Settings}
 
@@ -101,13 +113,13 @@ After a video is \code{processed}, its tracks, identities, observations, ReID ev
 
 \section{Error Handling}
 
-All errors are returned in a single format:
+All domain errors are returned in a single format:
 
 \begin{lstlisting}[style=plain]
-{"detail": "...", "code": "...", "status": ...}
+{"code": "...", "detail": "...", "details": {...}}
 \end{lstlisting}
 
-The API defines a base \code{ApiError} and the custom exceptions \code{NotFoundError}, \code{ConflictError} and \code{ValidationFailError}. A global exception handler in \code{apps/api/app/main.py} converts them into the response format above.
+The API defines a base \code{ApiError} carrying a machine-readable \code{code}, a human-readable \code{message} and an HTTP status, and the subclasses \code{NotFoundError} (404), \code{ConflictError} (409) and \code{ValidationFailError} (422). Global exception handlers registered in \code{apps/api/app/main.py} convert them into the response format above; FastAPI request-validation errors are converted as well. The optional \code{details} object carries additional structured context and is omitted when empty.
 
 \section{Shared TypeScript Types}
 
@@ -115,12 +127,15 @@ Common interfaces are defined in \code{packages/types/src/common.ts} and are use
 
 \begin{itemize}
   \item \code{BoundingBox}: \code{{ x: number, y: number, width: number, height: number }};
-  \item \code{VisibilityState}: \code{'visible' | 'occluded' | 'lost'};
-  \item \code{JobStatus}: \code{'uploaded' | 'processing' | 'processed' | 'error'};
-  \item \code{ProcessingStage}: \code{'frame_extraction'}, \code{'detection'}, \code{'tracking'}, \code{'reid'}, \code{'analytics'};
-  \item \code{ProcessingStatus}: \code{'QUEUED'}, \code{'RUNNING'}, \code{'COMPLETED'}, \code{'FAILED'};
-  \item response wrappers such as \code{MultiVideoResponse}, \code{MultiTrackResponse} and \code{MultiIdentityResponse}.
+  \item \code{VisibilityState}: \code{'visible' | 'partial' | 'occluded' | 'lost' | 'reidentified'};
+  \item \code{JobStatus}: \code{'queued' | 'running' | 'completed' | 'failed' | 'cancelled'};
+  \item \code{InferenceMode}: \code{'mock' | 'real'};
+  \item \code{ProcessingStage}: \code{'uploaded'}, \code{'extracting\_frames'}, \code{'detecting'}, \code{'tracking'}, \code{'embedding'}, \code{'memory'}, \code{'reid'}, \code{'analytics'}, \code{'completed'}, \code{'failed'};
+  \item \code{CameraMotionMode}: \code{'static' | 'slow' | 'fast' | 'handheld'};
+  \item resource types such as \code{Video}, \code{ProcessingJob}, \code{PersistedTrack}, \code{PersistedIdentity}, \code{AnalyticsSummary} and \code{ExperimentMetrics}, and the \code{*ListResponse} wrappers that pair them with a \code{total} count.
 \end{itemize}
+
+\add{The persisted types mirror the JSON of the database models exactly, including snake\_case field names and bounding boxes encoded as the tuple \code{[x, y, w, h]}; the pipeline request types use the same snake\_case convention because they are sent to the FastAPI backend unchanged. The types are consumed by path alias (\code{@orchardvision/types}) rather than as a published package.}
 
 The types can be checked with \code{pnpm exec tsc --noEmit} from \code{packages/types/}.
 
@@ -134,13 +149,15 @@ The components in \code{apps/web/src/} use an API client that calls the FastAPI 
 
 \begin{lstlisting}[style=added,language=bash]
 # 1. upload a video
-curl -F "file=@row_03.mp4" http://localhost:8000/api/v1/videos
-# 2. start processing video 1 (tracker chosen in the body)
-curl -X POST http://localhost:8000/api/v1/videos/1/process \
+curl -F "file=@row_03.mp4" http://localhost:8001/api/videos
+# 2. start processing (tracker and thresholds chosen in the body)
+curl -X POST http://localhost:8001/api/videos/1/process \
      -H "Content-Type: application/json" \
      -d '{"tracker": "bytetrack"}'
 # 3. poll the job
-curl http://localhost:8000/api/v1/jobs/1
+curl http://localhost:8001/api/jobs/1
 # 4. read results
-curl http://localhost:8000/api/v1/videos/1/analytics
+curl http://localhost:8001/api/videos/1/analytics
 \end{lstlisting}
+
+\add{Video and job identifiers are UUIDs stored as 32-character hex strings, so the \code{1} in the listing above is an abbreviation.}
