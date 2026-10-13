@@ -131,13 +131,13 @@
 
 % ---------- candidate / guide details (EDIT HERE) ----------
 \newcommand{\projtitle}{Video-Based Fruit Counting with Tracking to Eliminate Double-Counting}
-\newcommand{\candname}{\ph{\pp{DERRICK SAMUEL R.}}}
-\newcommand{\candreg}{\ph{\pp{23BCE1040}}}
-\newcommand{\guidename}{\ph{\pp{Guide Name}}}
-\newcommand{\guidedesig}{\ph{\pp{Designation}}}
-\newcommand{\hodname}{\ph{\pp{HOD NAME}}}
-\newcommand{\specname}{\ph{\pp{SPECIALIZATION NAME}}}
-\newcommand{\submitdate}{\add{November, 2026}}
+\newcommand{\candname}{DERRICK SAMUEL R.}
+\newcommand{\candreg}{23BCE1040}
+\newcommand{\guidename}{\pp{Guide Name}}
+\newcommand{\guidedesig}{\pp{Designation}}
+\newcommand{\hodname}{\pp{HOD NAME}}
+\newcommand{\specname}{\pp{SPECIALIZATION NAME}}
+\newcommand{\submitdate}{November, 2026}
 
 \begin{document}
 
@@ -243,11 +243,11 @@ Date:\\[18pt]
 \fronthead{ABSTRACT}
 OrchardVision is a computer vision system for long-term fruit tracking and counting in mango orchards. It implements identity learning, tracking pipelines, and a full-stack web interface for experiment management and video processing.
 
-\add{Estimating the number of fruit on a tree or across a block is central to yield forecasting, harvest logistics and crop-load management, yet it is still largely done by manual sampling. Counting from orchard video is attractive but difficult: fruit are small, visually similar, frequently hidden by leaves and branches, and the same fruit re-enters the camera view many times as the camera moves along a row or revisits it on later days. A detector-only counter therefore double-counts, and a frame-to-frame tracker alone loses identities whenever a fruit is occluded.}
+Estimating the number of fruit on a tree or across a block is central to yield forecasting, harvest logistics and crop-load management, yet it is still largely done by manual sampling. Counting from orchard video is attractive but difficult: fruit are small, visually similar, frequently hidden by leaves and branches, and the same fruit re-enters the camera view many times as the camera moves along a row or revisits it on later days. A detector-only counter therefore double-counts, and a frame-to-frame tracker alone loses identities whenever a fruit is occluded.
 
 The system developed in this project is built around a processing pipeline that orchestrates frame extraction, object detection, tracking (mock, ByteTrack or TAPNext backends), re-identification embeddings, identity consolidation and analytics. Each fruit is represented by an identity prototype (an embedding vector with quality and observation statistics), so that a fruit that disappears and later reappears can be re-associated with the same identity. Camera motion is estimated and compensated, and tracking quality is reported using IDF1, HOTA and identity-switch metrics. The backend is a FastAPI service with a SQLAlchemy~2.0 data layer (SQLite for development, PostgreSQL for production) and S3-compatible object storage; the frontend is a React and TypeScript application sharing typed contracts with the API. An experiment harness lets users run and compare tracker configurations and export results as JSON or CSV.
 
-\add{The report presents the motivation, related work, requirements, architecture, data model, pipeline design, API design, deployment and testing approach of OrchardVision, followed by an evaluation plan with placeholders for the quantitative results and a discussion of limitations and future work.}
+The report presents the motivation, related work, requirements, architecture, data model, pipeline design, API design, deployment and testing approach of OrchardVision, followed by an evaluation plan with placeholders for the quantitative results and a discussion of limitations and future work.
 
 \vspace{6pt}
 \noindent\textbf{Keywords:} \add{fruit counting; multi-object tracking; re-identification; identity learning; precision agriculture; mango orchard; FastAPI; React.}
