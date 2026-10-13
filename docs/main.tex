@@ -1,0 +1,317 @@
+%% =====================================================================
+%%  BCSE497J Project Report -- OrchardVision
+%%  Built from the VIT Chennai BCSE497J report template.
+%%
+%%  HIGHLIGHT CONVENTION
+%%    Yellow  = content that is NOT in the project documentation
+%%              (added context, literature, placeholders, suggestions).
+%%    No colour = taken directly from the project documentation.
+%%  To remove ALL yellow highlighting before submission, change
+%%  \showhltrue to \showhlfalse below.
+%% =====================================================================
+\documentclass[12pt,a4paper]{report}
+
+% ---------- page geometry (template: L 3.81cm, R/T/B 2.54cm, A4) ----------
+\usepackage[left=3.81cm,right=2.54cm,top=2.54cm,bottom=2.54cm]{geometry}
+
+% ---------- fonts: Times, 12pt ----------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{mathptmx}
+\usepackage{microtype}
+
+% ---------- packages ----------
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage[obeyspaces,spaces]{url}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc}
+\usepackage[hidelinks]{hyperref}
+\urlstyle{tt}
+\def\UrlBreaks{\do\/\do\_\do\-\do\.\do\{\do\}}
+
+% ---------- yellow-highlight machinery (no 'soul' package needed) ----------
+\newif\ifshowhl
+\showhltrue
+\definecolor{hlcolor}{RGB}{255,255,0}
+\newcommand{\hlstrut}{\vrule width 0pt height 0.78em depth 0.27em\relax}
+\newif\ifhlit
+\newcommand{\hlword}[1]{{\setlength{\fboxsep}{0pt}\colorbox{hlcolor}{\ifhlit\itshape\fi\hlstrut#1}}}
+% italic spanning several words inside \add: \emphon{}first ... last\emphoff{}
+\ifshowhl
+  \newcommand{\emphon}{\global\hlittrue\itshape}
+  \newcommand{\emphoff}{\global\hlitfalse}
+\else
+  \newcommand{\emphon}{\itshape}
+  \newcommand{\emphoff}{\upshape}
+\fi
+\newcommand{\hlgap}{{\color{hlcolor}\leaders\vrule height 0.78em depth 0.27em\hskip 0.25em plus 0.12em minus 0.08em\relax}}
+\def\hlloop#1 #2\hlsentinel{\hlword{#1}\if\relax\detokenize{#2}\relax\else\hlgap\expandafter\hlloop\expandafter#2\hlsentinel\fi}
+% \add{...}  : highlighted text (one paragraph at a time, no blank lines inside)
+\newcommand{\add}[1]{\ifshowhl\hlloop#1 \hlsentinel\else#1\fi}
+% \ph{...}   : highlighted placeholder (same look, different meaning)
+\newcommand{\ph}[1]{\add{#1}}
+% \hr        : highlight a table row (put first in the row)
+\newcommand{\hr}{\ifshowhl\rowcolor{hlcolor}\fi}
+\newcommand{\pp}[1]{\textless\kern0pt\textless{}#1\textgreater\kern0pt\textgreater{}}
+% code / path in text
+\newcommand{\code}[1]{\path{#1}}
+\ifshowhl\def\phcol{hlcolor}\else\def\phcol{white}\fi
+
+% image placeholder: label, short caption, long caption, description, height
+\newcommand{\figph}[5]{%
+  \begin{figure}[htbp]
+    \centering
+    \fcolorbox{black}{\phcol}{\parbox[c][#5][c]{0.92\linewidth}{\centering\small
+      \textbf{[IMAGE PLACEHOLDER]}\\[3pt]#4}}
+    \caption[#2]{\add{#3}}\label{#1}
+  \end{figure}}
+
+% ---------- spacing ----------
+\onehalfspacing
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 1pt}
+\tolerance=2500
+\emergencystretch=3em
+\widowpenalty=10000
+\clubpenalty=10000
+\setlist{itemsep=2pt,topsep=4pt,parsep=0pt}
+
+% ---------- headings (template: chapter 16 bold; section 14 CAPS; subsection 12 CAPS) ----------
+\titleformat{\chapter}[display]
+  {\centering\bfseries\fontsize{16}{20}\selectfont}
+  {\MakeUppercase{\chaptername}\ \thechapter}{8pt}{\MakeUppercase}
+\titleformat{name=\chapter,numberless}[display]
+  {\centering\bfseries\fontsize{16}{20}\selectfont}{}{0pt}{\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{0pt}{18pt}
+\titleformat{\section}
+  {\bfseries\fontsize{14}{17}\selectfont}{\thesection}{0.8em}{\MakeUppercase}
+\titleformat{\subsection}
+  {\bfseries\fontsize{12}{15}\selectfont}{\thesubsection}{0.8em}{\MakeUppercase}
+\titleformat{\subsubsection}
+  {\bfseries\fontsize{12}{15}\selectfont}{\thesubsubsection}{0.8em}{}
+\titlespacing*{\section}{0pt}{14pt plus 2pt}{6pt}
+\titlespacing*{\subsection}{0pt}{10pt plus 2pt}{4pt}
+\titlespacing*{\subsubsection}{0pt}{8pt plus 2pt}{3pt}
+
+% ---------- page numbers: bottom centre ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+% ---------- captions (>= 10pt) ----------
+\captionsetup{font=small,labelfont=bf,skip=6pt}
+\renewcommand{\arraystretch}{1.15}
+
+% ---------- code listings ----------
+\lstdefinestyle{plain}{basicstyle=\ttfamily\footnotesize,breaklines=true,frame=single,
+  columns=fullflexible,keepspaces=true,xleftmargin=4pt,xrightmargin=4pt,
+  showstringspaces=false,aboveskip=6pt,belowskip=6pt}
+\lstdefinestyle{added}{style=plain,backgroundcolor=\color{\phcol}}
+
+% ---------- headings for front matter ----------
+\newcommand{\fronthead}[1]{%
+  \begin{center}\underline{\textbf{\fontsize{14}{17}\selectfont #1}}\end{center}\vspace{6pt}}
+
+% ---------- candidate / guide details (EDIT HERE) ----------
+\newcommand{\projtitle}{\add{OrchardVision: Long-Term Fruit Tracking and Counting in Mango Orchards Using Identity Learning}}
+\newcommand{\candname}{\ph{\pp{NAME OF THE CANDIDATE}}}
+\newcommand{\candreg}{\ph{\pp{REG. NO.}}}
+\newcommand{\guidename}{\ph{\pp{Guide Name}}}
+\newcommand{\guidedesig}{\ph{\pp{Designation}}}
+\newcommand{\hodname}{\ph{\pp{HOD NAME}}}
+\newcommand{\specname}{\ph{\pp{SPECIALIZATION NAME}}}
+\newcommand{\submitdate}{\add{November, 2026}}
+
+\begin{document}
+
+%% ====================== 1. COVER PAGE ======================
+\pagestyle{empty}
+\begin{titlepage}
+\centering\singlespacing
+{\itshape\fontsize{12}{15}\selectfont A project report on\par}
+\vspace{16pt}
+{\bfseries\fontsize{20}{26}\selectfont \projtitle\par}
+\vspace{16pt}
+{\itshape\fontsize{14}{18}\selectfont Submitted in partial fulfillment for the award of the degree of\par}
+\vspace{12pt}
+{\bfseries\fontsize{22}{27}\selectfont Bachelor of Technology in\\ Computer Science and Engineering\\
+ with specialization in \specname\par}
+\vspace{14pt}
+{\itshape\fontsize{14}{18}\selectfont by\par}
+\vspace{10pt}
+{\bfseries\fontsize{16}{20}\selectfont \candname\ (\candreg)\par}
+\vspace{4pt}
+{\bfseries\itshape\fontsize{12}{15}\selectfont \ph{(IF TEAM PROJECT, LIST ALL MEMBERS WITH REG. NOS.)}\par}
+\vfill
+\includegraphics[width=3.26in]{vit_logo.png}\par
+\vspace{14pt}
+{\bfseries\fontsize{16}{20}\selectfont SCHOOL OF COMPUTER SCIENCE AND ENGINEERING\par}
+\vspace{6pt}
+{\fontsize{12}{15}\selectfont \submitdate\par}
+\end{titlepage}
+
+%% ====================== 2. TITLE PAGE ======================
+\begin{titlepage}
+\centering\singlespacing
+{\itshape\fontsize{12}{15}\selectfont A project report on\par}
+\vspace{16pt}
+{\bfseries\fontsize{20}{26}\selectfont \projtitle\par}
+\vspace{16pt}
+{\itshape\fontsize{14}{18}\selectfont Submitted in partial fulfillment for the award of the degree of\par}
+\vspace{12pt}
+{\bfseries\fontsize{22}{27}\selectfont Bachelor of Technology in\\ Computer Science and Engineering\\
+ with specialization in \specname\par}
+\vspace{14pt}
+{\itshape\fontsize{14}{18}\selectfont by\par}
+\vspace{10pt}
+{\bfseries\fontsize{16}{20}\selectfont \candname\ (\candreg)\par}
+\vspace{4pt}
+{\bfseries\itshape\fontsize{12}{15}\selectfont \ph{(IF TEAM PROJECT, LIST ALL MEMBERS WITH REG. NOS.)}\par}
+\vfill
+\includegraphics[width=3.26in]{vit_logo.png}\par
+\vspace{14pt}
+{\bfseries\fontsize{16}{20}\selectfont SCHOOL OF COMPUTER SCIENCE AND ENGINEERING\par}
+\vspace{6pt}
+{\fontsize{12}{15}\selectfont \submitdate\par}
+\end{titlepage}
+
+%% ====================== 3. DECLARATION ======================
+\newpage
+\begin{center}\includegraphics[width=3.26in]{vit_logo.png}\end{center}
+\fronthead{DECLARATION}
+I hereby declare that the thesis entitled ``\projtitle'' submitted by \candname\ (\candreg), for the award of the degree of Bachelor of Technology in Computer Science and Engineering, Vellore Institute of Technology, Chennai is a record of bonafide work carried out by me under the supervision of \guidename.
+
+I further declare that the work reported in this thesis has not been submitted and will not be submitted, either in part or in full, for the award of any other degree or diploma in this institute or any other institute or university.
+
+\vspace{30pt}
+\noindent Place: Chennai\hfill\textbf{Signature of the Candidate}\\[6pt]
+Date:
+
+%% ====================== 4. CERTIFICATE ======================
+\newpage
+\begin{center}\includegraphics[width=3.26in]{vit_logo.png}\\[4pt]
+{\bfseries School of Computer Science and Engineering}\end{center}
+\fronthead{CERTIFICATE}
+This is to certify that the report entitled \textbf{``\projtitle''} is prepared and submitted by \candname\ (\candreg) to Vellore Institute of Technology, Chennai, in partial fulfillment of the requirement for the award of the degree of \textbf{Bachelor of Technology in Computer Science and Engineering with specialization in} \specname\ is a bonafide record carried out under my guidance. The project fulfills the requirements as per the regulations of this University and in my opinion meets the necessary standards for submission. The contents of this report have not been submitted and will not be submitted either in part or in full, for the award of any other degree or diploma and the same is certified.
+
+\vspace{18pt}
+\noindent Signature of the Guide:\\[6pt]
+Name: Dr./Prof.\ \guidename\\[6pt]
+Date:
+
+\vspace{22pt}
+\noindent\begin{tabular}{@{}p{0.48\textwidth}p{0.48\textwidth}@{}}
+Signature of the Examiner & Signature of the Examiner\\[8pt]
+Name: & Name:\\[8pt]
+Date: & Date:
+\end{tabular}
+
+\vspace{20pt}
+\begin{center}
+Approved by the Head of Department,\\
+\textbf{B.Tech.\ Computer Science and Engineering (\specname)}\\[10pt]
+Name: \textbf{\hodname}\\[6pt]
+Date:\\[18pt]
+\textbf{(Seal of SCHOOL OF COMPUTER SCIENCE AND ENGINEERING)}
+\end{center}
+
+%% (Certificate by External Guide -- only for PAT-discontinued students -- omitted;
+%%  insert here if applicable.)
+
+%% ====================== FRONT MATTER (roman numerals) ======================
+\clearpage
+\pagestyle{fancy}
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+%% ====================== ABSTRACT ======================
+\fronthead{ABSTRACT}
+OrchardVision is a computer vision system for long-term fruit tracking and counting in mango orchards. It implements identity learning, tracking pipelines, and a full-stack web interface for experiment management and video processing.
+
+\add{Estimating the number of fruit on a tree or across a block is central to yield forecasting, harvest logistics and crop-load management, yet it is still largely done by manual sampling. Counting from orchard video is attractive but difficult: fruit are small, visually similar, frequently hidden by leaves and branches, and the same fruit re-enters the camera view many times as the camera moves along a row or revisits it on later days. A detector-only counter therefore double-counts, and a frame-to-frame tracker alone loses identities whenever a fruit is occluded.}
+
+The system developed in this project is built around a processing pipeline that orchestrates frame extraction, object detection, tracking (mock, ByteTrack or TAPNext backends), re-identification embeddings, identity consolidation and analytics. Each fruit is represented by an identity prototype (an embedding vector with quality and observation statistics), so that a fruit that disappears and later reappears can be re-associated with the same identity. Camera motion is estimated and compensated, and tracking quality is reported using IDF1, HOTA and identity-switch metrics. The backend is a FastAPI service with a SQLAlchemy~2.0 data layer (SQLite for development, PostgreSQL for production) and S3-compatible object storage; the frontend is a React and TypeScript application sharing typed contracts with the API. An experiment harness lets users run and compare tracker configurations and export results as JSON or CSV.
+
+\add{The report presents the motivation, related work, requirements, architecture, data model, pipeline design, API design, deployment and testing approach of OrchardVision, followed by an evaluation plan with placeholders for the quantitative results and a discussion of limitations and future work.}
+
+\vspace{6pt}
+\noindent\textbf{Keywords:} \add{fruit counting; multi-object tracking; re-identification; identity learning; precision agriculture; mango orchard; FastAPI; React.}
+
+%% ====================== ACKNOWLEDGEMENT ======================
+\clearpage
+\fronthead{ACKNOWLEDGEMENT}
+It is my pleasure to express with deep sense of gratitude to \guidename, \guidedesig, School of Computer Science and Engineering, Vellore Institute of Technology, Chennai, for \ph{\pp{his/her}} constant guidance, continual encouragement, understanding; more than all, \ph{\pp{he/she}} taught me patience in my endeavor. My association with \ph{\pp{him/her}} is not confined to academics only, but it is a great opportunity on my part of work with an intellectual and expert in the field of \add{computer vision and machine learning}.
+
+It is with gratitude that I would like to extend my thanks to the visionary leader Dr. G. Viswanathan our Honorable Chancellor, Mr. Sankar Viswanathan, Dr. Sekar Viswanathan, Dr. G V Selvam Vice Presidents, Dr. Sandhya Pentareddy, Executive Director, Ms. Kadhambari S. Viswanathan, Assistant Vice-President, Dr. V. S. Kanchana Bhaaskaran Vice-Chancellor, Dr. T. Thyagarajan Pro-Vice Chancellor, VIT Chennai and Dr. P. K. Manoharan, Additional Registrar for providing an exceptional working environment and inspiring all of us during the tenure of the course.
+
+Special mention to Dr. Viswanathan V, Dean, Dr. Nithyanandam P, Associate Dean, Dr. Suganya G, Associate Dean, Dr. Sweetlin Hemalatha C, Associate Dean, School of Computer Science and Engineering, Vellore Institute of Technology, Chennai for spending their valuable time and efforts in sharing their knowledge and for helping us in every aspect.
+
+In jubilant state, I express ingeniously my whole-hearted thanks to \textbf{\hodname}, Head of the Department, B.Tech.\ \textbf{Computer Science and Engineering (\specname)} and the Project Coordinators for their valuable support and encouragement to take up and complete the thesis.
+
+My sincere thanks to all the faculties and staffs at Vellore Institute of Technology, Chennai who helped me acquire the requisite knowledge. I would like to thank my parents for their support. It is indeed a pleasure to thank my friends who encouraged me to take up and complete this task.
+
+\vspace{18pt}
+\noindent Place: Chennai\hfill\textbf{\candname}\\
+Date:
+
+%% ====================== CONTENTS, LISTS ======================
+\clearpage
+\renewcommand{\contentsname}{CONTENTS}
+\renewcommand{\listfigurename}{LIST OF FIGURES}
+\renewcommand{\listtablename}{LIST OF TABLES}
+\renewcommand{\cftchapfont}{\bfseries}
+\renewcommand{\cftchappagefont}{\bfseries}
+\renewcommand{\cftchappresnum}{\MakeUppercase{\chaptername}\ }
+\setlength{\cftchapnumwidth}{6.6em}
+\setlength{\cftsecindent}{1.5em}
+\setlength{\cftsecnumwidth}{2.5em}
+\setlength{\cftsubsecindent}{4em}
+\setlength{\cftsubsecnumwidth}{3.2em}
+\setlength{\cftfignumwidth}{2.6em}
+\setlength{\cfttabnumwidth}{2.6em}
+{\singlespacing
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\listoftables
+\clearpage
+}
+
+\input{acronyms}
+
+%% ====================== MAIN MATTER (arabic) ======================
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{ch1_introduction}
+\input{ch2_literature}
+\input{ch3_architecture}
+\input{ch4_datamodel}
+\input{ch5_pipeline}
+\input{ch6_api}
+\input{ch7_deployment}
+\input{ch8_results}
+\input{ch9_conclusion}
+\input{references}
+\input{appendices}
+
+\end{document}
