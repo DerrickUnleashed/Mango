@@ -1,0 +1,102 @@
+\chapter{Background and Literature Survey}
+
+\section{Introduction}
+
+\add{This chapter reviews the techniques on which OrchardVision builds: deep-learning-based fruit detection, tracking-by-detection, appearance-based re-identification, point tracking, camera-motion compensation and the metrics used to judge tracking quality. The chapter closes with a comparison table and the research gap that motivates the project.}
+
+\section{Fruit Detection in Orchards}
+
+\add{Deep convolutional detectors have replaced hand-crafted colour and shape features for fruit detection. Bargoti and Underwood (2017) showed that a Faster R-CNN detector trained on a few hundred annotated images could detect mangoes, apples and almonds in orchard imagery with high F1 scores, and Koirala et al. (2019) surveyed deep-learning methods for fruit detection and yield estimation, concluding that single-stage detectors from the YOLO family (Redmon et al., 2016) give the best trade-off between accuracy and speed for field deployment. In OrchardVision the detector is a pluggable component: the model is selected through a \code{model_path} setting, and detections are filtered by a configurable confidence threshold.}
+
+\section{Tracking-by-Detection}
+
+\subsection{SORT and DeepSORT}
+
+\add{SORT (Bewley et al., 2016) links detections across frames with a Kalman filter (Kalman, 1960) for motion prediction and the Hungarian algorithm (Kuhn, 1955) for assignment on an intersection-over-union cost. It is fast but suffers many identity switches under occlusion. DeepSORT (Wojke et al., 2017) adds a learned appearance embedding to the association cost, which substantially reduces identity switches at the price of an extra network evaluation per detection.}
+
+\subsection{ByteTrack}
+
+\add{ByteTrack (Zhang et al., 2022) observes that low-confidence detections are often occluded objects rather than noise. It associates high-confidence detections first and then uses the low-confidence ones to recover tracks that would otherwise be lost. This is particularly relevant for fruit, where partial occlusion lowers detector confidence. ByteTrack is one of the tracker back-ends supported by OrchardVision.}
+
+\subsection{BoT-SORT and Camera Motion Compensation}
+
+\add{BoT-SORT (Aharon et al., 2022) combines motion and appearance information and introduces camera-motion compensation, in which the global image motion between frames is estimated and used to correct the Kalman-filter predictions. Because orchard video is almost always recorded from a moving platform, compensating for camera motion is expected to matter more than in fixed-camera surveillance. OrchardVision records the estimated motion type and whether compensation was applied for every processed video.}
+
+\section{Re-Identification and Identity Learning}
+
+\add{Re-identification originates in person re-identification, where a network maps an image crop to an embedding such that crops of the same identity are close and crops of different identities are far apart. Hermans et al. (2017) showed that a carefully mined triplet loss is a strong baseline for this task. For tracking, an identity can be summarised by a \emph{prototype} embedding obtained by aggregating the embeddings of its observations; new detections are compared with prototypes, and a similarity above a threshold triggers re-association. This is the approach followed by OrchardVision: each identity stores a prototype vector, a quality score, an observation count and a flag indicating whether the identity is confident.}
+
+\section{Tracking Any Point}
+
+\add{Point-tracking methods follow an arbitrary query point through a video, even through occlusion. TAP-Vid (Doersch et al., 2022) introduced a benchmark for this task, and TAPNext (Zholus et al., 2025) formulates point tracking as next-token prediction in a sequence model. Because fruit are small and lack distinctive texture, tracking a point on the fruit surface can be more stable under occlusion than tracking a bounding box. TAPNext is available in OrchardVision as one of the tracker options.}
+
+\section{Evaluation Metrics for Tracking}
+
+\add{Three families of metrics are used in this work. The CLEAR~MOT metrics (Bernardin and Stiefelhagen, 2008) count identity switches (IDSW), false positives and misses. IDF1 (Ristani et al., 2016) measures how long identities are correctly maintained and is defined as}
+
+\begin{equation}
+\colorbox{\phcol}{$\displaystyle \mathrm{IDF1} = \frac{2\,\mathrm{IDTP}}{2\,\mathrm{IDTP} + \mathrm{IDFP} + \mathrm{IDFN}}$}
+\end{equation}
+
+\add{where IDTP, IDFP and IDFN are identity-level true positives, false positives and false negatives obtained from a global one-to-one matching between ground-truth and predicted trajectories. HOTA (Luiten et al., 2021) balances detection and association quality:}
+
+\begin{equation}
+\colorbox{\phcol}{$\displaystyle \mathrm{HOTA}_\beta = \sqrt{\mathrm{DetA}_\beta \cdot \mathrm{AssA}_\beta}$}
+\end{equation}
+
+\add{and is usually reported as the average over a range of localisation thresholds $\beta$. For fruit counting, IDF1 and the number of identity switches are especially informative, because every identity switch changes the count.}
+
+\section{Fruit Counting and Yield Estimation from Video}
+
+\add{Liu et al. (2019) proposed monocular-camera fruit counting with semantic data association, where fruit are tracked across frames and associated with a 3-D map to avoid double counting. Their work demonstrates the value of explicit data association but relies on structure-from-motion, which is expensive and brittle in foliage-rich scenes. OrchardVision pursues a complementary, appearance-based route: identities are maintained by learned embeddings and can be evaluated through the same experiment harness as any other tracker.}
+
+\section{Datasets and Benchmarks}
+
+\add{Tracking research is usually benchmarked on pedestrian and vehicle datasets, in which the metrics above were defined, whereas orchard datasets for tracking are scarce. Point-tracking has its own benchmark in TAP-Vid (Doersch et al., 2022). Because public orchard-tracking benchmarks with persistent fruit identities are limited, a practical evaluation of OrchardVision requires manually annotated orchard videos in which each fruit is assigned a persistent identifier. The experiment harness of the system is designed to run the same configurations on any such video and to export the metrics for comparison.}
+
+\section{Learning Objectives for Embeddings}
+
+\add{Embedding networks for re-identification are commonly trained with classification losses, with metric-learning losses such as the triplet loss (Hermans et al., 2017), or with a combination of both. For fruit, the main difficulty is that different instances look alike, so metric-learning losses with hard-example mining are attractive: they explicitly push embeddings of different fruit apart and pull embeddings of the same fruit together across viewpoints and lighting. The quality of the embedding determines how reliably identity matching can bridge long gaps, which is why the identity prototype in OrchardVision stores a quality score and an observation count along with the embedding.}
+
+\section{Summary of Related Work}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{3.7cm}>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{3.2cm}@{}}
+\toprule
+\hr \textbf{Work} & \textbf{Technique} & \textbf{Strength} & \textbf{Limitation}\\
+\midrule
+\hr Bargoti \& Underwood (2017) & Faster R-CNN fruit detection & Accurate per-frame detection & No temporal identity\\
+\hr Bewley et al. (2016) & SORT: Kalman + Hungarian & Very fast & Many ID switches under occlusion\\
+\hr Wojke et al. (2017) & DeepSORT: adds appearance embedding & Fewer ID switches & Extra embedding cost; limited long gaps\\
+\hr Zhang et al. (2022) & ByteTrack: uses low-score boxes & Recovers occluded objects & Motion-based; no learned identity memory\\
+\hr Aharon et al. (2022) & BoT-SORT: motion + appearance + camera compensation & Robust to ego-motion & Designed for pedestrians\\
+\hr Liu et al. (2019) & Fruit counting with semantic data association & Avoids double counting through 3-D map & Requires structure from motion\\
+\hr Zholus et al. (2025) & TAPNext point tracking & Tracks through occlusion & Point-based; needs query points\\
+\bottomrule
+\end{tabular}
+\caption[Summary of related work]{\add{Summary of related work on detection, tracking and fruit counting.}}
+\label{tab:related}
+\end{table}
+
+\section{Comparison of Tracker Families}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.4cm}@{}}
+\toprule
+\hr \textbf{Family} & \textbf{Association cue} & \textbf{Handles long occlusion} & \textbf{Typical cost}\\
+\midrule
+\hr Motion only (SORT, ByteTrack) & Kalman prediction and IoU & Poorly beyond the track buffer & Low\\
+\hr Motion + appearance (DeepSORT, BoT-SORT) & Embedding distance combined with motion & Moderately & Medium (embedding per detection)\\
+\hr Point tracking (TAPNext) & Point trajectories through the video & Well, if the point remains trackable & Higher (sequence model)\\
+\hr Identity memory (this work) & Prototype embeddings with ReID threshold & Designed for long gaps & Medium (embedding and matching)\\
+\bottomrule
+\end{tabular}
+\caption[Comparison of tracker families]{\add{Qualitative comparison of tracker families.}}
+\label{tab:families}
+\end{table}
+
+\section{Research Gap}
+
+\add{Existing fruit-counting work either focuses on single-frame detection or on short-term tracking, and rarely exposes the intermediate artefacts (tracks, identity prototypes, ReID events, per-frame timing, camera motion) needed to understand \emph{why} a count is wrong. There is also little tooling for repeatable comparison of tracker configurations on the same orchard video. OrchardVision addresses both gaps by combining identity learning with a persistent, queryable data model and an experiment harness.}
