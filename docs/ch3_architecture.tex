@@ -1,0 +1,142 @@
+\chapter{System Requirements and Architecture}
+
+\section{Introduction}
+
+OrchardVision is a full-stack system consisting of a FastAPI backend, a React~+~TypeScript frontend and a set of core services that implement the computer vision pipeline. This chapter states the requirements that the system satisfies and describes its architecture and technology stack.
+
+\section{Requirements}
+
+\subsection{Functional Requirements}
+
+\add{The functional requirements below were derived from the capabilities of the implemented system:}
+
+\begin{itemize}
+  \item \add{FR1: upload a video, store it, and extract its metadata (width, height, frame rate and frame count).}
+  \item \add{FR2: start, monitor and complete a processing job for an uploaded video, and reject a new job while another is active.}
+  \item \add{FR3: persist tracks, detections, identities, ReID events, camera-motion estimates and per-frame timing for each processed video.}
+  \item \add{FR4: retrieve every persisted artefact through the REST API, including a two-dimensional projection of identity prototypes.}
+  \item \add{FR5: create, run, list, export and delete evaluation experiments for different trackers and scenarios.}
+  \item \add{FR6: read and update the default pipeline settings.}
+  \item \add{FR7: delete a video together with all associated data.}
+\end{itemize}
+
+\subsection{Non-Functional Requirements}
+
+\begin{itemize}
+  \item \add{\textbf{Portability.} Run with SQLite on a laptop and with PostgreSQL in production without code changes.}
+  \item \add{\textbf{Responsiveness.} Long-running processing must not block API requests; it is executed as a background task or through a Celery queue.}
+  \item \add{\textbf{Consistency.} All errors use a single JSON structure and the frontend and backend share type definitions.}
+  \item \add{\textbf{Extensibility.} New models, routers, schemas and services can be added in separate modules without modifying existing ones.}
+  \item \add{\textbf{Scalability of storage.} Videos up to 2\,GB are stored in S3-compatible object storage rather than in the database.}
+\end{itemize}
+
+\section{High-Level Architecture}
+
+Figure~\ref{fig:arch} shows the components of OrchardVision and their interaction. The React client talks to the FastAPI backend over REST under the \code{/api/v1/} prefix; the backend uses the core services to process videos, persists results through SQLAlchemy and stores binary data in MinIO/S3.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  node distance=9mm and 12mm,
+  box/.style={draw,rounded corners=2pt,align=center,minimum height=9mm,font=\small,text width=3.0cm},
+  svc/.style={box,fill=gray!10,text width=2.7cm},
+  arr/.style={-{Stealth[length=2mm]},thick}]
+\node[box] (ui) {React + TypeScript\\web client};
+\node[box,right=of ui] (api) {FastAPI backend\\\code{/api/v1/}};
+\node[box,right=of api,xshift=-2mm] (db) {SQLite (dev)\\PostgreSQL (prod)};
+\node[svc,below=of api] (pipe) {ProcessingPipeline};
+\node[svc,left=of pipe] (emb) {EmbeddingProjection};
+\node[svc,right=of pipe] (ana) {AnalyticsEngine};
+\node[box,below=of pipe,xshift=-18mm] (sto) {StorageService\\MinIO / S3};
+\node[box,below=of pipe,xshift=18mm] (cel) {Celery worker\\(optional queue)};
+\draw[arr,<->] (ui) -- (api);
+\draw[arr,<->] (api) -- (db);
+\draw[arr] (api) -- (pipe);
+\draw[arr] (api.south west) -- (emb.north);
+\draw[arr] (api.south east) -- (ana.north);
+\draw[arr] (pipe) -- (sto);
+\draw[arr,<->] (pipe) -- (cel);
+\end{tikzpicture}
+\caption[High-level architecture of OrchardVision]{High-level architecture of OrchardVision showing the web client, FastAPI backend, core services, relational database, object storage and optional Celery worker.}
+\label{fig:arch}
+\end{figure}
+
+\section{Backend}
+
+The backend is implemented with the following choices:
+
+\begin{itemize}
+  \item \textbf{Framework:} FastAPI with the SQLAlchemy~2.0 ORM.
+  \item \textbf{Database:} SQLite for development and PostgreSQL for production, selected through the \code{DATABASE_URL} environment variable.
+  \item \textbf{API:} REST under \code{/api/v1/}, organised in router prefixes for health (\code{GET /health}), videos (\code{POST/GET/DELETE /videos}), tracks (\code{GET /videos/{id}/tracks}), identities (\code{GET /videos/{id}/identities}), processing (\code{POST /videos/{id}/process}), jobs (\code{GET /jobs/{id}}), experiments (\code{GET/POST/DELETE /experiments}) and settings (\code{GET/PUT /settings}).
+\end{itemize}
+
+\section{Frontend}
+
+The frontend is a React and TypeScript application. Types shared with the API are defined once in \code{packages/types/src/}, the components live in \code{apps/web/src/}, and an API client calls the FastAPI backend. During development the Vite server proxies requests under \code{/api/} to the backend.
+
+\section{Core Services}
+
+\begin{itemize}
+  \item \textbf{ProcessingPipeline.} Orchestrates frame extraction $\rightarrow$ detection $\rightarrow$ tracking $\rightarrow$ embedding $\rightarrow$ analytics.
+  \item \textbf{EmbeddingProjection.} Produces t-SNE / PCA visualisations of identity prototypes, served as two-dimensional coordinates.
+  \item \textbf{AnalyticsEngine.} Computes IDF1, HOTA and ID-switch metrics.
+  \item \textbf{StorageService.} Provides MinIO/S3-backed file management for uploads and frames.
+\end{itemize}
+
+\section{Configuration}
+
+Configuration is loaded through \code{pydantic_settings} from an \code{.env} file. The key settings are the confidence threshold, the ReID threshold, the tracker type, the camera-motion mode, the memory update rate, the tracker match threshold and the number of buffer frames. The defaults are persisted in the \code{AppSettings} table, which holds a single row identified by \code{GLOBAL_SETTINGS_ID}, and can be read and updated through \code{GET /settings} and \code{PUT /settings}.
+
+\section{Actors and Use Cases}
+
+\add{Two kinds of users interact with the system. An \emph{analyst} (for example an agronomist or a student researcher) uploads videos, starts processing, inspects tracks and identities and reads analytics. An \emph{experimenter} additionally creates and compares experiments and edits the pipeline defaults. The main use cases are: upload video, process video, view tracks, view identities and their projection, view ReID events, view analytics, manage experiments, export results, edit settings and delete video.}
+
+\figph{fig:usecase}{Use-case diagram}{Use-case diagram of OrchardVision.}{UML use-case diagram. Two actors on the left (Analyst, Experimenter) and the system boundary ``OrchardVision'' containing the ten use cases listed above. Draw Experimenter as a specialisation of Analyst, and connect ``Process video'' with an \texttt{include} relationship to ``Upload video''.}{6cm}
+
+\section{Hardware and Software Requirements}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{10.2cm}@{}}
+\toprule
+\hr \textbf{Item} & \textbf{Requirement}\\
+\midrule
+\hr Operating system & Linux, macOS or Windows capable of running Python, Node.js and Docker\\
+\hr Python & Python environment with FastAPI, SQLAlchemy 2.0, pydantic-settings, uvicorn/gunicorn, Celery and the detection/tracking libraries used by the pipeline\\
+\hr Node.js & Node.js with npm and pnpm for the frontend and the shared types package\\
+\hr Database & SQLite (development) or PostgreSQL (production)\\
+\hr Object storage & MinIO or any S3-compatible service\\
+\hr Compute & \pp{CPU / GPU model and memory used for the experiments}\\
+\hr Browser & A current desktop browser (the frontend is served by Vite in development)\\
+\bottomrule
+\end{tabular}
+\caption[Hardware and software requirements]{\add{Hardware and software requirements.}}
+\label{tab:reqs}
+\end{table}
+
+\section{Technology Stack}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}p{4.2cm}p{9.6cm}@{}}
+\toprule
+\textbf{Layer} & \textbf{Technology}\\
+\midrule
+Web framework & FastAPI served by uvicorn (gunicorn/uvicorn in production)\\
+ORM / database & SQLAlchemy 2.0; SQLite (development), PostgreSQL (production)\\
+Settings & \code{pydantic_settings} loading \code{.env}\\
+Background work & FastAPI background task, or Celery when a queue is configured\\
+Object storage & MinIO / S3\\
+Frontend & React, TypeScript, Vite\\
+Shared contracts & TypeScript package in \code{packages/types/src/}\\
+Testing / checks & \code{pytest}; \code{pnpm exec tsc --noEmit}\\
+\bottomrule
+\end{tabular}
+\caption{Technology stack of OrchardVision.}
+\label{tab:stack}
+\end{table}
+
+\section{Repository Organisation}
+
+New models and migrations are added as SQLAlchemy~2.0 model definitions. New API routes live in \code{apps/api/app/routers/}, schemas in \code{apps/api/app/schemas/} and services in \code{apps/api/app/services/}. The application entry point and the global exception handler are in \code{apps/api/app/main.py}. The complete layout is given in Appendix~A.
