@@ -1,0 +1,84 @@
+\clearpage
+\chapter*{Appendix 1: Repository Layout}
+\addcontentsline{toc}{chapter}{APPENDIX 1: REPOSITORY LAYOUT}
+
+The directories referred to in the project documentation are shown below.
+
+\begin{lstlisting}[style=plain]
+apps/
+  api/
+    app/
+      main.py          # FastAPI app and global exception handler
+      routers/         # API routes
+      schemas/         # request / response schemas
+      services/        # ProcessingPipeline, EmbeddingProjection,
+                       # AnalyticsEngine, StorageService
+  web/
+    src/               # React components and API client
+packages/
+  types/
+    src/
+      common.ts        # shared TypeScript types
+data/
+  app.db               # SQLite database (development)
+\end{lstlisting}
+
+\chapter*{Appendix 2: Run Commands}
+\addcontentsline{toc}{chapter}{APPENDIX 2: RUN COMMANDS}
+
+\begin{lstlisting}[style=plain]
+# backend (development, SQLite at ./data/app.db)
+uvicorn apps.api.app.main:app --reload
+
+# frontend (Vite dev server, proxies /api/ to the backend)
+npm run dev
+
+# tests
+pytest
+
+# type-check the shared types (from packages/types/)
+pnpm exec tsc --noEmit
+\end{lstlisting}
+
+\chapter*{Appendix 3: Illustrative API Responses}
+\addcontentsline{toc}{chapter}{APPENDIX 3: ILLUSTRATIVE API RESPONSES}
+
+\add{The following responses are illustrative: the field names follow the data model in Chapter~4, while the values and the exact response envelope are examples and should be replaced with real output from the running system.}
+
+\textbf{GET /api/v1/jobs/1}
+\begin{lstlisting}[style=added]
+{
+  "id": 1,
+  "video_id": 1,
+  "status": "RUNNING",
+  "stage": "tracking",
+  "progress": 0.45,
+  "config": {"tracker": "bytetrack"}
+}
+\end{lstlisting}
+
+\textbf{GET /api/v1/videos/1/identities/7}
+\begin{lstlisting}[style=added]
+{
+  "id": 7,
+  "video_id": 1,
+  "identity_id": 7,
+  "prototype": [0.021, -0.113, "..."],
+  "quality": 0.82,
+  "observation_count": 143,
+  "is_confident": true
+}
+\end{lstlisting}
+
+\textbf{GET /api/v1/videos/1/reid-events}
+\begin{lstlisting}[style=added]
+[
+  {"id": 3, "video_id": 1,
+   "lost_frame_id": 412, "reappearance_frame_id": 466}
+]
+\end{lstlisting}
+
+\textbf{Error response (404)}
+\begin{lstlisting}[style=added]
+{"detail": "Video 99 not found", "code": "not_found", "status": 404}
+\end{lstlisting}
