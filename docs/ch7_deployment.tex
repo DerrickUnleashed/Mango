@@ -1,0 +1,138 @@
+\chapter{Deployment, Testing and Extension}
+
+\section{Introduction}
+
+This chapter describes how OrchardVision is run in development and production, how it is tested, and how developers extend it.
+
+\section{Development Environment}
+
+\begin{itemize}
+  \item \textbf{Backend:} \code{uvicorn apps.api.app.main:app --reload}, with SQLite stored at \code{./data/app.db}.
+  \item \textbf{Frontend:} \code{npm run dev} starts the Vite dev server, which proxies \code{/api/} to the backend.
+  \item \textbf{CORS:} \code{localhost:5173} is configured as an allowed origin.
+\end{itemize}
+
+\section{Production Deployment}
+
+In production the database is PostgreSQL, selected through \code{DATABASE_URL}. The API is served by gunicorn with uvicorn workers behind a reverse proxy. Uploads are limited to 2\,GB by default, configurable with the \code{MAX_UPLOAD_BYTES} environment variable. Videos and frames are stored through the \code{StorageService} in MinIO/S3.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  node distance=8mm and 9mm,
+  b/.style={draw,rounded corners=2pt,align=center,font=\small,minimum height=9mm,text width=2.4cm},
+  arr/.style={-{Stealth[length=2mm]},thick}]
+\node[b] (c) {Browser};
+\node[b,right=of c] (p) {Reverse proxy};
+\node[b,right=of p] (g) {gunicorn / uvicorn\\FastAPI};
+\node[b,below=16mm of p] (pg) {PostgreSQL};
+\node[b,left=of pg] (w) {Celery worker};
+\node[b,right=of pg] (s3) {MinIO / S3};
+\draw[arr,<->] (c) -- (p);\draw[arr,<->] (p) -- (g);
+\draw[arr,<->] (g.south) -- (pg.north east);
+\draw[arr,<->] (g.south) -- (s3.north);
+\draw[arr,<->] (g.south west) -- (w.north);
+\end{tikzpicture}
+\caption{Production deployment topology.}
+\label{fig:deploy}
+\end{figure}
+
+\section{Configuration}
+
+Settings are loaded with \code{pydantic_settings} from the \code{.env} file. The environment variables referred to in this report are \code{DATABASE_URL} (database selection) and \code{MAX_UPLOAD_BYTES} (upload limit). The pipeline defaults themselves are stored in the database and edited through the settings endpoints.
+
+\section{Extending the System}
+
+\begin{itemize}
+  \item add new models and migrations as SQLAlchemy~2.0 model definitions;
+  \item add new API routes in \code{apps/api/app/routers/};
+  \item add new schemas in \code{apps/api/app/schemas/};
+  \item add new services in \code{apps/api/app/services/}.
+\end{itemize}
+
+\section{Testing}
+
+The Python test suite is run with \code{pytest} from the repository root, and the shared TypeScript types are type-checked with \code{pnpm exec tsc --noEmit} from \code{packages/types/}.
+
+\add{The tests are organised around the layers of the system. The following cases are recommended to be covered and, where not yet automated, are listed here as a test plan:}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{5.7cm}>{\raggedright\arraybackslash}p{6.7cm}@{}}
+\toprule
+\hr \textbf{ID} & \textbf{Test case} & \textbf{Expected result}\\
+\midrule
+\hr T1 & Upload a valid video & \code{Video} row created with status \code{uploaded} and correct metadata\\
+\hr T2 & Start processing twice on the same video & Second request rejected while the first job is active\\
+\hr T3 & Run a job with the \code{mock} tracker & Job moves \code{QUEUED}, \code{RUNNING}, \code{COMPLETED}; video becomes \code{processed}\\
+\hr T4 & Request a non-existent video & Error JSON with \code{detail}, \code{code} and \code{status}\\
+\hr T5 & Delete a video & Associated tracks, identities and detections are removed\\
+\hr T6 & Delete a \code{RUNNING} experiment & Request rejected\\
+\hr T7 & Export an experiment as CSV and JSON & Downloaded file contains the stored metrics\\
+\hr T8 & Update settings and read them back & Updated values returned by \code{GET /settings}\\
+\bottomrule
+\end{tabular}
+\caption[Recommended test plan]{\add{Recommended test plan.}}
+\label{tab:tests}
+\end{table}
+
+\section{Security and Robustness Considerations}
+
+\add{Because the system accepts large file uploads, deployments should enforce the upload limit at the reverse proxy as well as in the application, restrict the allowed CORS origins to the production front-end, and keep the object-store credentials in the environment rather than in the repository. Deleting a video removes all associated data, so the delete endpoint should be protected by authentication in multi-user deployments.}
+
+\section{User Guide}
+
+\add{This section describes the typical workflow of a user of the web interface. Screenshots of the relevant screens are in Chapter~8.}
+
+\begin{enumerate}
+  \item \add{\textbf{Start the services.} Start the backend with uvicorn and the frontend with Vite as shown in Section~7.2, and open the web client in a browser.}
+  \item \add{\textbf{Review the settings.} Open the settings page and check the confidence threshold, ReID threshold, tracker type, camera-motion mode, memory update rate, tracker match threshold and buffer frames. Save the changes with the update action.}
+  \item \add{\textbf{Upload a video.} Choose a video file (up to 2\,GB by default). When the upload completes, the video appears in the list with status \code{uploaded} together with its resolution, frame rate and frame count.}
+  \item \add{\textbf{Start processing.} Select the video and start a processing job. The job moves from \code{QUEUED} to \code{RUNNING}; the current stage (frame extraction, detection, tracking, ReID, analytics) and progress are shown until the status becomes \code{COMPLETED}.}
+  \item \add{\textbf{Inspect the results.} Open the tracks to see trajectories and visibility states, the identities to see prototypes, quality and observation counts, the identity projection to see how identities cluster, the ReID events to see where identities were lost and found again, and the analytics to read IDF1, HOTA and ID switches.}
+  \item \add{\textbf{Run an experiment.} Create an experiment by choosing a tracker, a scenario and a number of frames, and wait for its status to change from \code{RUNNING}. Compare the metrics of several experiments and download them as JSON or CSV.}
+  \item \add{\textbf{Clean up.} Delete videos and experiments that are no longer needed. Deleting a video removes all of its tracks, identities and other records.}
+\end{enumerate}
+
+\figph{fig:flow}{User workflow}{Flowchart of the user workflow.}{Flowchart with the seven steps above as boxes connected by arrows: Start services $\rightarrow$ Review settings $\rightarrow$ Upload video $\rightarrow$ Start processing $\rightarrow$ Inspect results $\rightarrow$ Run experiment $\rightarrow$ Clean up. Add a feedback arrow from Inspect results back to Review settings (``adjust thresholds'').}{4.5cm}
+
+\section{Project Plan}
+
+\add{Table~\ref{tab:plan} lists the phases of the project. The durations and dates are to be completed by the candidate.}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.1cm}>{\raggedright\arraybackslash}p{7.2cm}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{2.6cm}@{}}
+\toprule
+\hr \textbf{Phase} & \textbf{Activity} & \textbf{Start} & \textbf{End}\\
+\midrule
+\hr 1 & Literature survey and problem definition & \pp{date} & \pp{date}\\
+\hr 2 & Data model and API design & \pp{date} & \pp{date}\\
+\hr 3 & Processing pipeline and trackers & \pp{date} & \pp{date}\\
+\hr 4 & Identity learning and analytics & \pp{date} & \pp{date}\\
+\hr 5 & Web interface and experiment harness & \pp{date} & \pp{date}\\
+\hr 6 & Testing, evaluation and report writing & \pp{date} & \pp{date}\\
+\bottomrule
+\end{tabular}
+\caption[Project plan]{\add{Project plan (to be completed).}}
+\label{tab:plan}
+\end{table}
+
+\section{Risk Analysis}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{4.9cm}@{}}
+\toprule
+\hr \textbf{Risk} & \textbf{Effect} & \textbf{Mitigation}\\
+\midrule
+\hr Very large uploads & Slow requests, disk pressure & 2\,GB limit (\code{MAX_UPLOAD_BYTES}); object storage\\
+\hr Long-running processing & Blocked API workers & Background task or Celery queue; job polling\\
+\hr Identity merges or fragmentation & Wrong fruit counts & Tunable ReID threshold; experiment harness\\
+\hr Camera motion & Tracking drift & Camera-motion estimation and compensation\\
+\hr Database growth & Slower queries & PostgreSQL in production; per-video deletion\\
+\bottomrule
+\end{tabular}
+\caption[Risk analysis]{\add{Risks and mitigations.}}
+\label{tab:risk}
+\end{table}
