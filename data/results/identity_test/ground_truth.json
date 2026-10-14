@@ -1,0 +1,23 @@
+{
+  "Test3": {
+    "video": "Test3",
+    "gt_boxes": 197,
+    "gt_frames": 34,
+    "gt_identities": 14,
+    "boxes_per_identity": 14.1
+  },
+  "test": {
+    "video": "test",
+    "gt_boxes": 299,
+    "gt_frames": 48,
+    "gt_identities": 9,
+    "boxes_per_identity": 33.2
+  },
+  "test4": {
+    "video": "test4",
+    "gt_boxes": 90,
+    "gt_frames": 15,
+    "gt_identities": 7,
+    "boxes_per_identity": 12.9
+  }
+}
