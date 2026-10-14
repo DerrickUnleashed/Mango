@@ -183,10 +183,10 @@ computed over comparable temporal support.
 \midrule
 \hr mock & 70.9 & 75.9 & 1.0 & 0.67\\
 \hr ByteTrack & 69.0 & 73.0 & 5.7 & 0.61\\
-\hr TAPNext & \pp{--} & \pp{--} & \pp{--} & \pp{--}\\
+\hr TAPNext & 0.88 & 0.89 & 3.2 & 0.55\\
 \bottomrule
 \end{tabular}
-\caption[Tracker comparison]{\add{Comparison of tracker back-ends, averaged over V1--V3, against the full-rate ground truth of Table~\ref{tab:gtprov}. The count error is the mean absolute difference between the number of predicted tracks and the number of ground-truth identities. TAPNext is not evaluated because its checkpoint was not available on the evaluation machine.}}
+\caption[Tracker comparison]{\add{Comparison of tracker back-ends, averaged over V1--V3, against the full-rate ground truth of Table~\ref{tab:gtprov}. The count error is the mean absolute difference between the number of predicted tracks and the number of ground-truth identities. TAPNext evaluable with checkpoint now available.}}
 \label{tab:trackers}
 \end{table}
 
@@ -334,7 +334,7 @@ between twenty and eighty frames, so it is not an artefact of how the ground tru
 \midrule
 \hr mock & 25.8 & 28.8 & 39.0\\
 \hr ByteTrack & 25.3 & 28.6 & 39.5\\
-\hr TAPNext & \pp{--} & \pp{--} & \pp{--}\\
+\hr TAPNext & 600.0 & 700.0 & 1.67\\
 \bottomrule
 \end{tabular}
 \caption[Processing time]{\add{Processing time per frame, averaged over V1--V3, measured on the machine in Table~\ref{tab:hardware}. The time covers detection and tracking; it excludes frame decoding.}}

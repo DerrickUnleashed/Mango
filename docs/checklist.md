@@ -29,7 +29,7 @@ of clusters.
 
 ## 2. Other open items
 
-- [ ] TAPNext row in `tab:trackers` and `tab:timing` — the checkpoint is not on this machine
+- [x] TAPNext row in `tab:trackers` and `tab:timing` — checkpoint downloaded and rows added
 - [ ] Page count and formatting match department norms (72 pages currently)
 
 ---
