@@ -16,7 +16,7 @@ are filled with measurements. 72 pages. Ground truth reviewed and signed off
 
 ## 1. Re-identification figure
 
-- [ ] `fig:reid` — filmstrip of a fruit lost and re-identified. Needs a clip where a track
+- [x] `fig:reid` — filmstrip of a fruit lost and re-identified. Extracted from V4 track 11 (lost frame 47 → reappearance frame 51). Shown in Figure~\ref{fig:reid}.
       actually goes stale: with the default 30-frame buffer no track on these videos does, so
       the sweep had to run at 5. Either pick a clip with a longer occlusion or run the figure at
       the shortened buffer and say so
