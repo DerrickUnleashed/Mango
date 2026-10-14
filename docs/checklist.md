@@ -13,15 +13,15 @@ left; every one of them is gated on the identity memory running inside the evalu
 
 ---
 
-## 1. Ground-truth review (not blocking any longer)
+## 1. Ground-truth sign-off (not blocking)
 
-The identities were selected mechanically, so the long tracks are almost certainly right; the review
-below is about the ones the rule dropped. V2's low score is settled: it is a real property of fast
-handheld motion, not an artefact of the rule, and it is written up in Ch8.
+The retained identities were reviewed with `scripts/review_ground_truth.py`, which renders one row
+per identity across its lifespan. All 30 identities across the three videos hold one fruit
+throughout; the five size-variation flags and three look-alike identities in V3 were checked and
+are genuine. Written up in `docs/GT-REVIEW.md`.
 
-- [ ] Open the three labelme files in `data/gt/labelme/` and confirm the retained identities.
-      Drop any that are not a real fruit, add any that the detector missed
-
+- [ ] A person still confirms the labels before submission. The construction is sound and the
+      numbers reproducible; this is a sign-off, not a fix
 
 ## 2. Harness gaps (need the identity memory in the evaluated loop)
 
@@ -43,8 +43,7 @@ but the harness does not, so three tables and two figures cannot honestly be fil
 
 ## Fastest path to a submittable draft
 
-1. Review the retained identities in `data/gt/labelme/` (section 1), then re-run
-   `scripts/evaluate_videos.py` and `scripts/plot_results.py` and refresh Ch8.
+1. Sign off the ground-truth labels (section 1). The numbers are already computed and written up.
 2. Extend the harness to run the identity memory, then fill `tab:cam`, `tab:thr`, `fig:proj`
    and `fig:reid` (section 2). This is the only route to the last four gaps.
 3. Get the TAPNext checkpoint onto this machine and add its row.
