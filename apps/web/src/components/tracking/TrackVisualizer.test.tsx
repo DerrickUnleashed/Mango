@@ -9,11 +9,12 @@ const tracks = {
       videoId: 'v1',
       jobId: 'j1',
       trackId: 1,
-      firstFrame: 0,
-      lastFrame: 2,
+      identityId: null,
+      status: 'active',
+      createdAt: null,
       points: [
-        { frameId: 0, bbox: [10, 10, 20, 20], confidence: 0.9, visibility: 'visible' },
-        { frameId: 1, bbox: [12, 12, 20, 20], confidence: 0.8, visibility: 'visible' },
+        { frameId: 0, bbox: [10, 10, 20, 20], confidence: 0.9, isOccluded: false },
+        { frameId: 1, bbox: [12, 12, 20, 20], confidence: 0.8, isOccluded: false },
       ],
     },
   ],
@@ -43,7 +44,9 @@ describe('TrackVisualizer', () => {
         complete = false
         naturalWidth = 320
         naturalHeight = 180
-        constructor(public src: string) {
+        src: string
+        constructor(src: string) {
+          this.src = src
           queueMicrotask(() => {
             this.complete = true
             this.onload?.()
