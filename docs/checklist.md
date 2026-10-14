@@ -1,95 +1,68 @@
 # Submission Checklist — What's Still Missing
 
 Scan of every `.tex` file in `docs/` for placeholders, empty tables and image frames.
-Nothing below ships as-is: `\pp{...}` prints as `<<...>>`, `\figph{...}` prints a
-framed `[IMAGE PLACEHOLDER]` box, and every table row marked `\hr` is an empty shell.
+`\pp{...}` prints as `<<...>>`, `\figph{...}` prints a framed `[IMAGE PLACEHOLDER]` box, and
+every table row marked `\hr` is an empty shell.
 
-Legend: `[ ]` todo · file refs are `docs/<file>`. Completed items are removed as they
-land; the record of what was already fixed lives in `doc.md` and the git history.
+Legend: `[ ]` todo · file refs are `docs/<file>`. Completed items are removed as they land;
+the record of what was already fixed lives in `doc.md` and the git history.
+
+Current state: 6 `\pp{...}` values left in Ch8, all inside three tables; 3 figures left,
+all gated on the identity memory running inside the evaluated loop.
 
 ---
 
-## 1. Diagrams (`\figph` — 9 left; `fig:detmap` is done)
-
-**Definitive generation prompts for all of these are in
-[`image-prompts.md`](./image-prompts.md)** — one prompt per figure, with the
-global style block, the negative prompt, the pixel size and the target filename.
-Four of them (`fig:ui_*`) must be real screenshots of the running system, and
-`fig:bars`, `fig:proj`, `fig:thr` and `fig:timing` are better plotted from the
-experiment export than generated.
-
-Done — reproducible harness and figures. `scripts/evaluate_videos.py` runs the YOLO detector and a
-  tracker over every frame of V1--V3 and scores them with the project's own metrics module;
-  `scripts/plot_results.py` renders the figures. Exports land in `data/results/`.
-
-- [x] `fig:bars` — `ch8_results.tex`. `docs/tracker_comparison.png`, rendered from the export
-- [x] `fig:timing` — `docs/per_frame_timing.png`, per-frame detection + tracking time
-- [x] Threshold sweep, at the detection confidence the harness can actually sweep:
-      `docs/confidence_sweep.png` plus a new subsection in Ch8
-- [x] Tracker comparison table, runtime table, counting-accuracy table and the row counts in
-      `ch4_datamodel.tex` now carry measured values
-- [x] `ch8_results.tex` opening rewritten; it no longer claims the chapter has no results
-
-Still empty, and why:
-
-- [ ] `fig:proj` and `fig:reid` — need the identity memory to run inside the evaluated loop
-- [ ] Camera-motion ablation (`tab:cam`) — same reason; compensation is applied in the API
-      pipeline, not in the offline harness
-- [ ] ReID threshold sweep (`tab:thr`) — same reason
-- [ ] TAPNext row in `tab:trackers` and `tab:timing` — needs the TAPNext checkpoint on this
-      machine
-- [ ] Once the annotations are corrected, re-run the two scripts and the numbers change; the
-      identity-level metrics are currently lower bounds set by annotation fragmentation, which
-      is quantified in the new Ch8 subsection on ground-truth provenance
-
-## 2. Ground-truth annotation (blocking everything else)
+## 1. Ground-truth annotation (blocking)
 
 - [ ] Correct the candidate identities in `data/gt/labelme/test.json` (48 frames, 61 ids),
-      `test4.json` (15 frames, 47 ids) and `Test3.json` (34 frames, 44 ids). One number
-      per physical fruit per video. Instructions in `docs/GT-ANNOTATION.md`; `labelme`
-      7.8.1 is installed. Candidate IDs come from plain greedy IoU, so expect many merges
-- [ ] Then delete this section — everything in section 3 depends on it
+      `test4.json` (15 frames, 47 ids) and `Test3.json` (34 frames, 44 ids). One number per
+      physical fruit per video. Instructions in `docs/GT-ANNOTATION.md`; `labelme` 7.8.1 is
+      installed. Candidate ids come from plain greedy IoU, so expect many merges
+- [ ] Record the corrected fruit count per video in `ch8_results.tex:23-25` (the dataset table)
+- [ ] Re-run `scripts/evaluate_videos.py` and `scripts/plot_results.py`, then update the
+      Ch8 numbers. The identity-level metrics are currently lower bounds: the annotations
+      split each fruit into about four fragments (41 ids against 10 concurrently visible
+      fruit in V1), which is quantified in the Ch8 ground-truth provenance subsection
 
-## 3. Chapter 8 — Results (the big one)
+## 2. Harness gaps (need the identity memory in the evaluated loop)
 
-The detector comparison and the hardware table are measured. The tracking tables are not:
-every value below is still `\pp{XX}` / `\pp{XX.X}` / `\pp{...}`, roughly 40 placeholders
-across lines 55–57, 74–75, 98–101, 118–120 and 137–139, plus the opening paragraph at line 5.
+The offline harness scores detection and tracking only. The ReID threshold and the
+camera-motion compensation both act inside the identity memory, which the API pipeline runs
+but the harness does not, so three tables and two figures cannot honestly be filled yet.
 
-Already fixed — evaluation set: V1 = `videos/test.mp4` (473 frames, 960x506, 29.97fps),
-      V2 = `videos/test4.mp4` (141 frames, 1366x768, 24fps), V3 = `videos/Test3.mp4`
-      (337 frames, 768x432, 24fps). `videos/test2.mp4` (4K, 680 frames) excluded
-Already measured — one real-mode run on `videos/test4.mp4` (yolov8n + ByteTrack):
-796 detections, 15 identities, 7 active tracks, 130 occlusion events, 0 identity
-switches, 13.1 tracking FPS, 10.7 s for 141 frames. This run also supplies the
-per-video row counts for `ch4_datamodel.tex`
-- [ ] Per-video ground-truth fruit counts, once the annotation pass in section 2 is done
-      (`ch8_results.tex:23-25`)
-- [ ] Tracker comparison table — mock, ByteTrack, TAPNext: IDF1, HOTA, ID switches
-      (`ch8_results.tex:50-52`)
-- [ ] Camera-motion compensation on/off: IDF1, HOTA, ID switches (`:69-70`)
-- [ ] Threshold sensitivity study for 0.5 / 0.6 / 0.7 / 0.8 (`:93-96`)
-- [ ] Per-video results table (`:113-115`) and summary (`:132-134`)
-Already fixed — hardware in `ch3_architecture.tex:94` and `tab:hardware` in Ch8: Apple M2 Max,
-      12 CPU / 30 GPU cores, 64 GB, macOS, PyTorch 2.14, Ultralytics 8.4
-- [ ] Rewrite the chapter opening paragraph (`:5`) — states no results exist yet; rewrite
-      after the evaluation runs
-- [ ] Conclusion (`ch9_conclusion.tex`) claims are gated on Chapter 8; update once results land
+- [ ] `tab:cam` — camera-motion compensation on/off: IDF1, HOTA, ID switches
+- [ ] `tab:thr` — ReID threshold sweep at 0.5 / 0.6 / 0.7 / 0.8
+- [ ] `fig:proj` — two-dimensional projection of identity prototypes
+- [ ] `fig:reid` — filmstrip of a fruit lost and re-identified after an occlusion
 
-## 4. Elsewhere in the report
+## 3. Other open items
 
-- [ ] Replace the `F`/`K`/`U` row-count symbols in `ch4_datamodel.tex:52-67` with the
-      measured integers from a real run
+- [ ] TAPNext row in `tab:trackers` and `tab:timing` — the checkpoint is not on this machine
 - [ ] Page count and formatting match department norms (66 pages currently)
+
+---
+
+## Already done
+
+- Detector comparison table and validation curves, from the four real training runs in
+  `models/*/results.csv`, plus measured inference latency (`ch8_results.tex`, `fig:detmap`)
+- Experimental hardware table, and the requirements row in `ch3_architecture.tex`
+- Evaluation set fixed: V1 `videos/test.mp4` (473f, 960x506, 29.97fps), V2 `videos/test4.mp4`
+  (141f, 1366x768, 24fps), V3 `videos/Test3.mp4` (337f, 768x432, 24fps);
+  `videos/test2.mp4` (4K, 680f) excluded
+- `fig:bars`, `fig:timing` and a detection-confidence sweep figure, all rendered by
+  `scripts/plot_results.py` from the export in `data/results/`
+- Tracker comparison, runtime and counting-accuracy tables, and the row counts in
+  `ch4_datamodel.tex` (796 / 141 / 7 / 15 / 714 / 0 / 1 from a real run on V2)
+- The four `fig:ui_*` screenshots, captured from the running system in `docs/screens/`
+- Chapter 8 opening rewritten; it no longer claims the chapter holds no results
 
 ---
 
 ## Fastest path to a submittable draft
 
-1. Correct the three ground-truth files in `data/gt/labelme/` (section 2 above).
-2. Fix the video detail frame rendering, then retake `ui_tracks.png`.
-3. Run the harness on the 3 orchard videos and export the experiment CSV.
-4. Fill every `ch8_results.tex` table from that export, and generate `fig:bars`,
-   `fig:proj`, `fig:reid`, `fig:thr`, `fig:timing` from it.
-5. Replace the `F`/`K`/`U` symbols in `ch4_datamodel.tex` with the measured row counts.
-6. Confirm the page count against the guide's format spec.
+1. Correct the three annotation files in `data/gt/labelme/` (section 1).
+2. Re-run `scripts/evaluate_videos.py`, then `scripts/plot_results.py`, and refresh Ch8.
+3. Extend the harness to run the identity memory, then fill `tab:cam`, `tab:thr`, `fig:proj`
+   and `fig:reid` (section 2).
+4. Confirm the page count against the guide's format spec.
