@@ -23,17 +23,12 @@ experiment export than generated.
 - [ ] `fig:reid` — `ch8_results.tex:86`. Filmstrip: lost → occluded → reappeared
 - [ ] `fig:thr` — `ch8_results.tex:108`. ReID threshold sweep, identities + IDF1
 - [ ] `fig:timing` — `ch8_results.tex:146`. Per-frame `proc_ms` over one video
-Screenshots captured from the running system on 2026-10-14, in `docs/screens/`:
-  `ui_videos.png`, `ui_tracks.png`, `ui_exp.png`, `ui_set.png` (1440px, 2x DPI, full page).
-  Still to do before they can be used in the report:
+Done — all four screenshots captured, wired into the report and rendered:
+  `docs/screens/ui_videos.png`, `ui_tracks.png`, `ui_exp.png`, `ui_set.png` are now
+  `fig:ui_*` figures in `ch8_results.tex:225-249`.
 
-- [ ] Wire the four screenshots into `ch8_results.tex:152-158`, replacing the `fig:ui_*`
-      placeholders with `\includegraphics`
-- [ ] Fix `ui_tracks.png`: the video detail page never paints the frame image, so the
-      canvas is empty grey and the caption reads "No tracked fruit at this frame". The
-      frame slider moves but the label stays at 0. Two 1366x768 canvases, no `img`, no
-      console error, no failed request — the frame fetch/paint path is broken, not the
-      screenshot. Retake after the fix
+- [ ] Re-capture the three remaining screenshots after the ground-truth work, if the
+      report's numbers and the interface both change in the meantime
 
 ## 2. Ground-truth annotation (blocking everything else)
 
