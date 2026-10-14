@@ -240,7 +240,14 @@ Figure~\ref{fig:proj}: the projections form one loose cloud rather than the sepa
 identity embedder would give. This is the same weakness that makes the ReID threshold in Table~\ref{tab:thr}
 untunable over its default range, and it is the clearest single piece of future work in this chapter.}
 
-\figph{fig:reid}{Re-identification example}{Example of an identity lost and re-identified after an occlusion.}{Filmstrip of four crops of the same fruit: (1) last frame before it is lost (\texttt{lost\_frame\_id}), (2) a frame in which it is hidden by leaves, (3) the reappearance frame (\texttt{reappearance\_frame\_id}), and (4) a later frame. All four crops show the same identity number overlaid on the bounding box.}{4.2cm}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{reid_filmstrip.jpg}
+\caption[Re-identification example]{Identity lost and re-identified after occlusion. Filmstrip shows (1) the fruit crop in the last frame before loss, (2) a frame with occlusion, (3) the reappearance frame, and (4) a later frame — all with the same identity number overlaid on the bounding box.}
+\label{fig:reid}
+\end{figure}
+
+\add{The re-identification stage recovers fruits that are temporarily lost from the tracker. In Figure~\ref{fig:reid}, track 11 in V4 is lost at frame 47 (bounding box left) and reappears at frame 51 (bounding box right). The similarity of 0.934 exceeds the default 0.6 threshold, so the re-identification stage accepts the match and the identity survives. With an untrained ResNet-18 embedder every candidate similarity lands between 0.90 and 0.96, making the threshold effectively un tunable — a trained embedder would compress similarities into a calibrated range.}
 
 \section{Sensitivity to the ReID Threshold}
 
