@@ -86,7 +86,10 @@ roughly 40 placeholders across lines 5, 55–57, 74–75, 98–101, 118–120 an
       camera-motion modes and the identity-numbering scheme corrected against the code
 - [x] `appendices.tex` — repository layout, run commands and sample responses match the
       actual tree, scripts and API
-- [ ] `acronyms.tex` — verify each acronym is used at least once in the body
+- [x] `acronyms.tex` — all 18 entries now appear in the body. Removed `CRUD`, `S3` and
+      `UI`, which were never used (the S3/MinIO deployment claims were removed earlier).
+      Introduced `tau_conf`, `tau_match`, `tau_reid` and `alpha` in `ch5_pipeline.tex`
+      so every symbol in the nomenclature list is defined where it is used
 - [x] `references.tex` — all in-text citations resolve; DOI links can still be added
       for the arXiv-only entries [1], [7], [18] if the department requires them
 
