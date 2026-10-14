@@ -36,27 +36,7 @@ Figure~\ref{fig:arch} shows the components of OrchardVision and their interactio
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[
-  node distance=9mm and 12mm,
-  box/.style={draw,rounded corners=2pt,align=center,minimum height=9mm,font=\small,text width=3.0cm},
-  svc/.style={box,fill=gray!10,text width=2.7cm},
-  arr/.style={-{Stealth[length=2mm]},thick}]
-\node[box] (ui) {React + TypeScript\\web client};
-\node[box,right=of ui] (api) {FastAPI backend\\\code{/api/v1/}};
-\node[box,right=of api,xshift=-2mm] (db) {Relational database\\SQLAlchemy 2.0};
-\node[svc,below=of api] (pipe) {ProcessingPipeline};
-\node[svc,left=of pipe] (emb) {EmbeddingProjection};
-\node[svc,right=of pipe] (ana) {AnalyticsEngine};
-\node[box,below=of pipe,xshift=-18mm] (sto) {StorageService\\uploads and frames};
-\node[box,below=of pipe,xshift=18mm] (cel) {Celery worker\\(optional queue)};
-\draw[arr,<->] (ui) -- (api);
-\draw[arr,<->] (api) -- (db);
-\draw[arr] (api) -- (pipe);
-\draw[arr] (api.south west) -- (emb.north);
-\draw[arr] (api.south east) -- (ana.north);
-\draw[arr] (pipe) -- (sto);
-\draw[arr,<->] (pipe) -- (cel);
-\end{tikzpicture}
+\includegraphics[width=0.95\linewidth]{architecture.png}
 \caption[High-level architecture of OrchardVision]{High-level architecture of OrchardVision showing the web client, FastAPI backend, core services, relational database, file storage and optional Celery worker.}
 \label{fig:arch}
 \end{figure}
