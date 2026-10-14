@@ -52,13 +52,12 @@ export function TrackVisualizer({
       const ctx = canvas.getContext('2d')
       if (!ctx) return
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
       const frameImage = frameImageRef.current
-      if (frameImage && frameImage.complete && frameImage.naturalWidth > 0) {
-        ctx.drawImage(frameImage, 0, 0, canvas.width, canvas.height)
-      }
+      const decoded =
+        frameImage && frameImage.complete && frameImage.naturalWidth > 0 ? frameImage : null
 
       drawTrackOverlay(ctx, {
+        frameImage: decoded,
         tracks,
         eventsByTrack,
         frame,
