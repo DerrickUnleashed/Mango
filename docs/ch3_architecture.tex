@@ -46,7 +46,7 @@ Figure~\ref{fig:arch} shows the components of OrchardVision and their interactio
 The backend is implemented with the following choices:
 
 \begin{itemize}
-  \item \textbf{Framework:} FastAPI with the SQLAlchemy~2.0 ORM.
+  \item \textbf{Framework:} FastAPI [13] with the SQLAlchemy~2.0 ORM [3].
   \item \textbf{Database:} SQLite, selected through the \code{DATABASE_URL} environment variable; the ORM layer allows a server database to be substituted without code changes.
   \item \textbf{API:} REST under \code{/api/v1/}, organised in router prefixes for health (\code{GET /health}), videos (\code{POST/GET/DELETE /videos}), tracks (\code{GET /videos/{id}/tracks}), identities (\code{GET /videos/{id}/identities}), processing (\code{POST /videos/{id}/process}), jobs (\code{GET /jobs/{id}}), experiments (\code{GET/POST/DELETE /experiments}) and settings (\code{GET/PUT /settings}).
 \end{itemize}
