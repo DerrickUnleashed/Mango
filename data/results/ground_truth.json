@@ -1,0 +1,20 @@
+{
+  "Test3": {
+    "annotated_frames": 34,
+    "identities": 29,
+    "boxes": 221,
+    "boxes_per_identity": 7.62
+  },
+  "test": {
+    "annotated_frames": 48,
+    "identities": 41,
+    "boxes": 351,
+    "boxes_per_identity": 8.56
+  },
+  "test4": {
+    "annotated_frames": 15,
+    "identities": 20,
+    "boxes": 112,
+    "boxes_per_identity": 5.6
+  }
+}
