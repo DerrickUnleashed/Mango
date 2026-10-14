@@ -72,7 +72,12 @@ Configuration is loaded through \code{pydantic_settings} from an \code{.env} fil
 
 \add{Two kinds of users interact with the system. An \emph{analyst} (for example an agronomist or a student researcher) uploads videos, starts processing, inspects tracks and identities and reads analytics. An \emph{experimenter} additionally creates and compares experiments and edits the pipeline defaults. The main use cases are: upload video, process video, view tracks, view identities and their projection, view ReID events, view analytics, manage experiments, export results, edit settings and delete video.}
 
-\figph{fig:usecase}{Use-case diagram}{Use-case diagram of OrchardVision.}{UML use-case diagram. Two actors on the left (Analyst, Experimenter) and the system boundary ``OrchardVision'' containing the ten use cases listed above. Draw Experimenter as a specialisation of Analyst, and connect ``Process video'' with an \texttt{include} relationship to ``Upload video''.}{6cm}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{usecase.png}
+\caption[Use-case diagram]{Use-case diagram of OrchardVision.}
+\label{fig:usecase}
+\end{figure}
 
 \section{Hardware and Software Requirements}
 
