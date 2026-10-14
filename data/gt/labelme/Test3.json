@@ -24,44 +24,12 @@
     "label": "mango_002",
     "points": [
      [
-      323.4,
-      137.5
-     ],
-     [
-      428.0,
-      288.6
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_003",
-    "points": [
-     [
       264.5,
       0.6
      ],
      [
       357.4,
       101.3
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_004",
-    "points": [
-     [
-      397.3,
-      81.7
-     ],
-     [
-      467.9,
-      183.5
      ]
     ],
     "group_id": null,
@@ -75,38 +43,6 @@
   "imageHeight": 432,
   "imageWidth": 768,
   "shapes": [
-   {
-    "label": "mango_002",
-    "points": [
-     [
-      336.2,
-      190.5
-     ],
-     [
-      439.7,
-      335.1
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_003",
-    "points": [
-     [
-      276.3,
-      31.7
-     ],
-     [
-      365.70000000000005,
-      145.7
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
    {
     "label": "mango_001",
     "points": [
@@ -124,15 +60,15 @@
     "flags": {}
    },
    {
-    "label": "mango_004",
+    "label": "mango_002",
     "points": [
      [
-      401.3,
-      131.4
+      276.3,
+      31.7
      ],
      [
-      473.5,
-      218.0
+      365.70000000000005,
+      145.7
      ]
     ],
     "group_id": null,
@@ -147,39 +83,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_002",
-    "points": [
-     [
-      357.4,
-      283.6
-     ],
-     [
-      459.29999999999995,
-      417.5
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_003",
-    "points": [
-     [
-      297.4,
-      120.5
-     ],
-     [
-      384.9,
-      235.2
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_007",
+    "label": "mango_001",
     "points": [
      [
       381.6,
@@ -195,31 +99,15 @@
     "flags": {}
    },
    {
-    "label": "mango_008",
+    "label": "mango_002",
     "points": [
      [
-      418.9,
-      211.9
+      297.4,
+      120.5
      ],
      [
-      500.29999999999995,
-      317.9
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_006",
-    "points": [
-     [
-      399.3,
-      195.4
-     ],
-     [
-      501.4,
-      316.0
+      384.9,
+      235.2
      ]
     ],
     "group_id": null,
@@ -234,23 +122,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_003",
-    "points": [
-     [
-      326.5,
-      206.6
-     ],
-     [
-      412.0,
-      319.7
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_007",
+    "label": "mango_001",
     "points": [
      [
       410.8,
@@ -266,31 +138,15 @@
     "flags": {}
    },
    {
-    "label": "mango_008",
-    "points": [
-     [
-      452.9,
-      303.3
-     ],
-     [
-      517.1,
-      399.0
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
     "label": "mango_002",
     "points": [
      [
-      385.2,
-      367.4
+      326.5,
+      206.6
      ],
      [
-      481.1,
-      431.5
+      412.0,
+      319.7
      ]
     ],
     "group_id": null,
@@ -298,7 +154,7 @@
     "flags": {}
    },
    {
-    "label": "mango_009",
+    "label": "mango_003",
     "points": [
      [
       220.4,
@@ -321,23 +177,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_003",
-    "points": [
-     [
-      333.5,
-      252.0
-     ],
-     [
-      420.0,
-      363.0
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_007",
+    "label": "mango_001",
     "points": [
      [
       416.5,
@@ -353,7 +193,23 @@
     "flags": {}
    },
    {
-    "label": "mango_009",
+    "label": "mango_002",
+    "points": [
+     [
+      333.5,
+      252.0
+     ],
+     [
+      420.0,
+      363.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_003",
     "points": [
      [
       235.3,
@@ -362,38 +218,6 @@
      [
       338.1,
       128.6
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_008",
-    "points": [
-     [
-      451.5,
-      341.4
-     ],
-     [
-      528.0,
-      428.7
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_012",
-    "points": [
-     [
-      433.8,
-      321.5
-     ],
-     [
-      526.9,
-      426.8
      ]
     ],
     "group_id": null,
@@ -408,39 +232,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_003",
-    "points": [
-     [
-      331.7,
-      286.5
-     ],
-     [
-      420.0,
-      397.6
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_009",
-    "points": [
-     [
-      236.2,
-      34.7
-     ],
-     [
-      339.2,
-      161.7
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_007",
+    "label": "mango_001",
     "points": [
      [
       417.4,
@@ -456,15 +248,31 @@
     "flags": {}
    },
    {
-    "label": "mango_008",
+    "label": "mango_002",
     "points": [
      [
-      463.0,
-      378.4
+      331.7,
+      286.5
      ],
      [
-      525.2,
-      430.59999999999997
+      420.0,
+      397.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_003",
+    "points": [
+     [
+      236.2,
+      34.7
+     ],
+     [
+      339.2,
+      161.7
      ]
     ],
     "group_id": null,
@@ -479,39 +287,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_009",
-    "points": [
-     [
-      237.8,
-      74.4
-     ],
-     [
-      340.4,
-      200.2
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_003",
-    "points": [
-     [
-      330.5,
-      322.9
-     ],
-     [
-      421.0,
-      427.7
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_007",
+    "label": "mango_001",
     "points": [
      [
       417.2,
@@ -527,7 +303,39 @@
     "flags": {}
    },
    {
-    "label": "mango_013",
+    "label": "mango_002",
+    "points": [
+     [
+      330.5,
+      322.9
+     ],
+     [
+      421.0,
+      427.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_003",
+    "points": [
+     [
+      237.8,
+      74.4
+     ],
+     [
+      340.4,
+      200.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_004",
     "points": [
      [
       220.9,
@@ -550,7 +358,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_009",
+    "label": "mango_003",
     "points": [
      [
       282.1,
@@ -566,7 +374,7 @@
     "flags": {}
    },
    {
-    "label": "mango_013",
+    "label": "mango_004",
     "points": [
      [
       262.8,
@@ -575,22 +383,6 @@
      [
       358.9,
       104.60000000000001
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_014",
-    "points": [
-     [
-      374.8,
-      365.5
-     ],
-     [
-      468.9,
-      431.9
      ]
     ],
     "group_id": null,
@@ -605,7 +397,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_009",
+    "label": "mango_003",
     "points": [
      [
       315.1,
@@ -621,7 +413,7 @@
     "flags": {}
    },
    {
-    "label": "mango_013",
+    "label": "mango_004",
     "points": [
      [
       294.2,
@@ -637,7 +429,7 @@
     "flags": {}
    },
    {
-    "label": "mango_015",
+    "label": "mango_005",
     "points": [
      [
       0.3,
@@ -660,7 +452,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_009",
+    "label": "mango_003",
     "points": [
      [
       327.6,
@@ -676,7 +468,7 @@
     "flags": {}
    },
    {
-    "label": "mango_013",
+    "label": "mango_004",
     "points": [
      [
       302.8,
@@ -692,7 +484,7 @@
     "flags": {}
    },
    {
-    "label": "mango_015",
+    "label": "mango_005",
     "points": [
      [
       0.2,
@@ -715,7 +507,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_009",
+    "label": "mango_003",
     "points": [
      [
       329.3,
@@ -731,23 +523,7 @@
     "flags": {}
    },
    {
-    "label": "mango_015",
-    "points": [
-     [
-      0.2,
-      83.2
-     ],
-     [
-      54.400000000000006,
-      256.4
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_013",
+    "label": "mango_004",
     "points": [
      [
       306.5,
@@ -756,6 +532,22 @@
      [
       395.3,
       131.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_005",
+    "points": [
+     [
+      0.2,
+      83.2
+     ],
+     [
+      54.400000000000006,
+      256.4
      ]
     ],
     "group_id": null,
@@ -770,7 +562,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_009",
+    "label": "mango_003",
     "points": [
      [
       334.6,
@@ -786,23 +578,7 @@
     "flags": {}
    },
    {
-    "label": "mango_015",
-    "points": [
-     [
-      0.1,
-      84.7
-     ],
-     [
-      60.5,
-      254.0
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_013",
+    "label": "mango_004",
     "points": [
      [
       310.3,
@@ -811,6 +587,22 @@
      [
       399.9,
       131.79999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_005",
+    "points": [
+     [
+      0.1,
+      84.7
+     ],
+     [
+      60.5,
+      254.0
      ]
     ],
     "group_id": null,
@@ -825,7 +617,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_009",
+    "label": "mango_003",
     "points": [
      [
       333.1,
@@ -841,7 +633,7 @@
     "flags": {}
    },
    {
-    "label": "mango_013",
+    "label": "mango_004",
     "points": [
      [
       310.0,
@@ -857,7 +649,7 @@
     "flags": {}
    },
    {
-    "label": "mango_015",
+    "label": "mango_005",
     "points": [
      [
       0.1,
@@ -880,7 +672,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_009",
+    "label": "mango_003",
     "points": [
      [
       324.1,
@@ -896,7 +688,7 @@
     "flags": {}
    },
    {
-    "label": "mango_013",
+    "label": "mango_004",
     "points": [
      [
       302.6,
@@ -912,7 +704,7 @@
     "flags": {}
    },
    {
-    "label": "mango_015",
+    "label": "mango_005",
     "points": [
      [
       0.2,
@@ -935,23 +727,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_013",
-    "points": [
-     [
-      310.2,
-      64.9
-     ],
-     [
-      399.79999999999995,
-      193.70000000000002
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_009",
+    "label": "mango_003",
     "points": [
      [
       333.3,
@@ -967,7 +743,23 @@
     "flags": {}
    },
    {
-    "label": "mango_015",
+    "label": "mango_004",
+    "points": [
+     [
+      310.2,
+      64.9
+     ],
+     [
+      399.79999999999995,
+      193.70000000000002
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_005",
     "points": [
      [
       0.1,
@@ -990,7 +782,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_009",
+    "label": "mango_003",
     "points": [
      [
       346.8,
@@ -1006,23 +798,7 @@
     "flags": {}
    },
    {
-    "label": "mango_015",
-    "points": [
-     [
-      0.0,
-      168.2
-     ],
-     [
-      76.3,
-      333.4
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_013",
+    "label": "mango_004",
     "points": [
      [
       322.7,
@@ -1031,6 +807,22 @@
      [
       410.6,
       207.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_005",
+    "points": [
+     [
+      0.0,
+      168.2
+     ],
+     [
+      76.3,
+      333.4
      ]
     ],
     "group_id": null,
@@ -1045,7 +837,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       325.5,
@@ -1061,7 +853,7 @@
     "flags": {}
    },
    {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       480.4,
@@ -1077,7 +869,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
+    "label": "mango_008",
     "points": [
      [
       227.5,
@@ -1093,7 +885,7 @@
     "flags": {}
    },
    {
-    "label": "mango_020",
+    "label": "mango_009",
     "points": [
      [
       203.1,
@@ -1109,7 +901,7 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_010",
     "points": [
      [
       127.0,
@@ -1125,7 +917,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_011",
     "points": [
      [
       366.4,
@@ -1141,7 +933,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       627.2,
@@ -1157,7 +949,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       653.8,
@@ -1166,38 +958,6 @@
      [
       680.0999999999999,
       193.4
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_025",
-    "points": [
-     [
-      679.6,
-      4.7
-     ],
-     [
-      716.1,
-      56.1
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_026",
-    "points": [
-     [
-      657.8,
-      160.7
-     ],
-     [
-      684.3,
-      203.79999999999998
      ]
     ],
     "group_id": null,
@@ -1212,7 +972,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       327.7,
@@ -1228,39 +988,7 @@
     "flags": {}
    },
    {
-    "label": "mango_020",
-    "points": [
-     [
-      207.5,
-      79.1
-     ],
-     [
-      253.4,
-      136.39999999999998
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_019",
-    "points": [
-     [
-      232.4,
-      294.1
-     ],
-     [
-      287.5,
-      363.70000000000005
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       483.2,
@@ -1276,7 +1004,39 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_008",
+    "points": [
+     [
+      232.4,
+      294.1
+     ],
+     [
+      287.5,
+      363.70000000000005
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      207.5,
+      79.1
+     ],
+     [
+      253.4,
+      136.39999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_010",
     "points": [
      [
       129.9,
@@ -1292,7 +1052,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_011",
     "points": [
      [
       371.5,
@@ -1308,7 +1068,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       628.0,
@@ -1324,7 +1084,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       653.9,
@@ -1333,54 +1093,6 @@
      [
       681.1999999999999,
       195.1
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_028",
-    "points": [
-     [
-      374.8,
-      197.6
-     ],
-     [
-      402.5,
-      225.1
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_027",
-    "points": [
-     [
-      654.2,
-      159.1
-     ],
-     [
-      684.6,
-      203.8
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_025",
-    "points": [
-     [
-      678.4,
-      4.4
-     ],
-     [
-      721.3,
-      57.6
      ]
     ],
     "group_id": null,
@@ -1395,7 +1107,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       328.4,
@@ -1411,39 +1123,7 @@
     "flags": {}
    },
    {
-    "label": "mango_020",
-    "points": [
-     [
-      208.0,
-      79.6
-     ],
-     [
-      254.2,
-      136.6
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_019",
-    "points": [
-     [
-      232.7,
-      295.0
-     ],
-     [
-      287.3,
-      364.4
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       483.5,
@@ -1459,7 +1139,39 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_008",
+    "points": [
+     [
+      232.7,
+      295.0
+     ],
+     [
+      287.3,
+      364.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      208.0,
+      79.6
+     ],
+     [
+      254.2,
+      136.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_010",
     "points": [
      [
       129.8,
@@ -1475,7 +1187,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_011",
     "points": [
      [
       371.2,
@@ -1491,7 +1203,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       627.6,
@@ -1507,7 +1219,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       653.7,
@@ -1516,38 +1228,6 @@
      [
       680.9000000000001,
       195.8
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_030",
-    "points": [
-     [
-      374.0,
-      186.7
-     ],
-     [
-      405.4,
-      225.1
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_029",
-    "points": [
-     [
-      654.4,
-      159.0
-     ],
-     [
-      684.5,
-      203.8
      ]
     ],
     "group_id": null,
@@ -1562,7 +1242,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       325.0,
@@ -1578,39 +1258,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
-    "points": [
-     [
-      229.1,
-      292.1
-     ],
-     [
-      283.5,
-      360.6
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_020",
-    "points": [
-     [
-      205.2,
-      77.0
-     ],
-     [
-      251.2,
-      134.9
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       480.2,
@@ -1626,7 +1274,39 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_008",
+    "points": [
+     [
+      229.1,
+      292.1
+     ],
+     [
+      283.5,
+      360.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      205.2,
+      77.0
+     ],
+     [
+      251.2,
+      134.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_010",
     "points": [
      [
       127.7,
@@ -1642,7 +1322,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_011",
     "points": [
      [
       366.5,
@@ -1658,7 +1338,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       626.5,
@@ -1674,7 +1354,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       653.0,
@@ -1690,7 +1370,7 @@
     "flags": {}
    },
    {
-    "label": "mango_031",
+    "label": "mango_014",
     "points": [
      [
       679.2,
@@ -1713,7 +1393,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       324.2,
@@ -1729,7 +1409,7 @@
     "flags": {}
    },
    {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       479.9,
@@ -1745,7 +1425,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
+    "label": "mango_008",
     "points": [
      [
       226.8,
@@ -1761,7 +1441,7 @@
     "flags": {}
    },
    {
-    "label": "mango_020",
+    "label": "mango_009",
     "points": [
      [
       202.0,
@@ -1777,7 +1457,7 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_010",
     "points": [
      [
       126.1,
@@ -1793,7 +1473,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_011",
     "points": [
      [
       365.0,
@@ -1809,7 +1489,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       626.9,
@@ -1825,7 +1505,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       652.7,
@@ -1841,7 +1521,7 @@
     "flags": {}
    },
    {
-    "label": "mango_031",
+    "label": "mango_014",
     "points": [
      [
       677.6,
@@ -1864,7 +1544,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       322.5,
@@ -1880,23 +1560,7 @@
     "flags": {}
    },
    {
-    "label": "mango_020",
-    "points": [
-     [
-      202.3,
-      82.1
-     ],
-     [
-      247.9,
-      139.6
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       478.6,
@@ -1912,7 +1576,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
+    "label": "mango_008",
     "points": [
      [
       225.9,
@@ -1928,7 +1592,23 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_009",
+    "points": [
+     [
+      202.3,
+      82.1
+     ],
+     [
+      247.9,
+      139.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_010",
     "points": [
      [
       125.3,
@@ -1944,7 +1624,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_011",
     "points": [
      [
       364.5,
@@ -1960,7 +1640,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       626.3,
@@ -1976,7 +1656,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       652.1,
@@ -1992,7 +1672,7 @@
     "flags": {}
    },
    {
-    "label": "mango_031",
+    "label": "mango_014",
     "points": [
      [
       673.2,
@@ -2015,7 +1695,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       324.1,
@@ -2031,55 +1711,7 @@
     "flags": {}
    },
    {
-    "label": "mango_020",
-    "points": [
-     [
-      202.8,
-      83.7
-     ],
-     [
-      249.0,
-      141.4
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_019",
-    "points": [
-     [
-      228.7,
-      296.1
-     ],
-     [
-      283.09999999999997,
-      365.8
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_021",
-    "points": [
-     [
-      125.6,
-      173.9
-     ],
-     [
-      172.5,
-      226.4
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       478.8,
@@ -2095,7 +1727,55 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_008",
+    "points": [
+     [
+      228.7,
+      296.1
+     ],
+     [
+      283.09999999999997,
+      365.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      202.8,
+      83.7
+     ],
+     [
+      249.0,
+      141.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_010",
+    "points": [
+     [
+      125.6,
+      173.9
+     ],
+     [
+      172.5,
+      226.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_011",
     "points": [
      [
       364.7,
@@ -2111,7 +1791,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       625.7,
@@ -2127,7 +1807,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       651.5,
@@ -2143,7 +1823,7 @@
     "flags": {}
    },
    {
-    "label": "mango_031",
+    "label": "mango_014",
     "points": [
      [
       674.2,
@@ -2166,7 +1846,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       329.0,
@@ -2182,23 +1862,7 @@
     "flags": {}
    },
    {
-    "label": "mango_020",
-    "points": [
-     [
-      208.3,
-      82.0
-     ],
-     [
-      254.20000000000002,
-      139.2
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       483.2,
@@ -2214,7 +1878,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
+    "label": "mango_008",
     "points": [
      [
       231.8,
@@ -2230,7 +1894,23 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_009",
+    "points": [
+     [
+      208.3,
+      82.0
+     ],
+     [
+      254.20000000000002,
+      139.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_010",
     "points": [
      [
       131.7,
@@ -2246,7 +1926,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_011",
     "points": [
      [
       373.4,
@@ -2262,7 +1942,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       629.9,
@@ -2278,7 +1958,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       654.6,
@@ -2294,7 +1974,7 @@
     "flags": {}
    },
    {
-    "label": "mango_031",
+    "label": "mango_014",
     "points": [
      [
       680.3,
@@ -2317,7 +1997,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       331.7,
@@ -2333,23 +2013,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
-    "points": [
-     [
-      235.5,
-      296.2
-     ],
-     [
-      290.2,
-      365.7
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       485.8,
@@ -2365,7 +2029,23 @@
     "flags": {}
    },
    {
-    "label": "mango_020",
+    "label": "mango_008",
+    "points": [
+     [
+      235.5,
+      296.2
+     ],
+     [
+      290.2,
+      365.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
     "points": [
      [
       212.0,
@@ -2381,7 +2061,7 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_010",
     "points": [
      [
       132.6,
@@ -2397,7 +2077,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_011",
     "points": [
      [
       374.6,
@@ -2413,7 +2093,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       630.7,
@@ -2429,7 +2109,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       656.7,
@@ -2445,7 +2125,7 @@
     "flags": {}
    },
    {
-    "label": "mango_031",
+    "label": "mango_014",
     "points": [
      [
       681.3,
@@ -2468,7 +2148,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       334.3,
@@ -2484,23 +2164,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
-    "points": [
-     [
-      238.3,
-      285.3
-     ],
-     [
-      291.90000000000003,
-      354.5
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       487.4,
@@ -2516,7 +2180,23 @@
     "flags": {}
    },
    {
-    "label": "mango_020",
+    "label": "mango_008",
+    "points": [
+     [
+      238.3,
+      285.3
+     ],
+     [
+      291.90000000000003,
+      354.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
     "points": [
      [
       211.8,
@@ -2532,7 +2212,7 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_010",
     "points": [
      [
       133.4,
@@ -2548,7 +2228,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_011",
     "points": [
      [
       372.3,
@@ -2564,7 +2244,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       630.3,
@@ -2580,7 +2260,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       657.0,
@@ -2596,7 +2276,7 @@
     "flags": {}
    },
    {
-    "label": "mango_031",
+    "label": "mango_014",
     "points": [
      [
       682.8,
@@ -2619,7 +2299,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       330.0,
@@ -2635,39 +2315,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
-    "points": [
-     [
-      235.2,
-      279.1
-     ],
-     [
-      288.5,
-      347.70000000000005
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_020",
-    "points": [
-     [
-      211.1,
-      64.0
-     ],
-     [
-      257.1,
-      122.0
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       483.3,
@@ -2683,7 +2331,39 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_008",
+    "points": [
+     [
+      235.2,
+      279.1
+     ],
+     [
+      288.5,
+      347.70000000000005
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      211.1,
+      64.0
+     ],
+     [
+      257.1,
+      122.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_010",
     "points": [
      [
       130.8,
@@ -2699,7 +2379,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_011",
     "points": [
      [
       371.6,
@@ -2715,7 +2395,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       629.4,
@@ -2731,7 +2411,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       654.1,
@@ -2747,7 +2427,7 @@
     "flags": {}
    },
    {
-    "label": "mango_031",
+    "label": "mango_014",
     "points": [
      [
       681.3,
@@ -2770,7 +2450,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       324.9,
@@ -2786,23 +2466,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
-    "points": [
-     [
-      227.5,
-      274.7
-     ],
-     [
-      282.6,
-      342.9
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       479.2,
@@ -2818,7 +2482,23 @@
     "flags": {}
    },
    {
-    "label": "mango_020",
+    "label": "mango_008",
+    "points": [
+     [
+      227.5,
+      274.7
+     ],
+     [
+      282.6,
+      342.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
     "points": [
      [
       203.1,
@@ -2834,7 +2514,7 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_010",
     "points": [
      [
       125.6,
@@ -2850,7 +2530,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_011",
     "points": [
      [
       364.3,
@@ -2866,7 +2546,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       625.6,
@@ -2882,7 +2562,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       651.9,
@@ -2905,7 +2585,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       321.7,
@@ -2921,39 +2601,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
-    "points": [
-     [
-      223.1,
-      271.5
-     ],
-     [
-      278.3,
-      341.6
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_020",
-    "points": [
-     [
-      199.6,
-      57.2
-     ],
-     [
-      245.6,
-      115.80000000000001
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       477.3,
@@ -2969,15 +2617,15 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_008",
     "points": [
      [
-      361.8,
-      150.7
+      223.1,
+      271.5
      ],
      [
-      410.2,
-      206.39999999999998
+      278.3,
+      341.6
      ]
     ],
     "group_id": null,
@@ -2985,7 +2633,23 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_009",
+    "points": [
+     [
+      199.6,
+      57.2
+     ],
+     [
+      245.6,
+      115.80000000000001
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_010",
     "points": [
      [
       123.7,
@@ -3001,7 +2665,23 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_011",
+    "points": [
+     [
+      361.8,
+      150.7
+     ],
+     [
+      410.2,
+      206.39999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_012",
     "points": [
      [
       624.3,
@@ -3017,7 +2697,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       650.8,
@@ -3040,7 +2720,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       324.3,
@@ -3056,23 +2736,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
-    "points": [
-     [
-      225.8,
-      277.8
-     ],
-     [
-      278.8,
-      347.1
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       478.8,
@@ -3088,7 +2752,23 @@
     "flags": {}
    },
    {
-    "label": "mango_020",
+    "label": "mango_008",
+    "points": [
+     [
+      225.8,
+      277.8
+     ],
+     [
+      278.8,
+      347.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
     "points": [
      [
       202.1,
@@ -3104,23 +2784,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
-    "points": [
-     [
-      363.9,
-      155.3
-     ],
-     [
-      412.29999999999995,
-      208.4
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_021",
+    "label": "mango_010",
     "points": [
      [
       125.2,
@@ -3136,7 +2800,23 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_011",
+    "points": [
+     [
+      363.9,
+      155.3
+     ],
+     [
+      412.29999999999995,
+      208.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_012",
     "points": [
      [
       626.9,
@@ -3152,7 +2832,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       652.8,
@@ -3175,7 +2855,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       326.3,
@@ -3191,39 +2871,7 @@
     "flags": {}
    },
    {
-    "label": "mango_020",
-    "points": [
-     [
-      206.4,
-      69.0
-     ],
-     [
-      252.4,
-      128.3
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_019",
-    "points": [
-     [
-      229.4,
-      286.5
-     ],
-     [
-      284.1,
-      353.4
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       481.3,
@@ -3239,7 +2887,39 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
+    "label": "mango_008",
+    "points": [
+     [
+      229.4,
+      286.5
+     ],
+     [
+      284.1,
+      353.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      206.4,
+      69.0
+     ],
+     [
+      252.4,
+      128.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_010",
     "points": [
      [
       127.5,
@@ -3255,7 +2935,7 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_011",
     "points": [
      [
       368.2,
@@ -3271,7 +2951,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       629.9,
@@ -3287,7 +2967,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       654.5,
@@ -3296,22 +2976,6 @@
      [
       682.3,
       189.5
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_043",
-    "points": [
-     [
-      678.7,
-      0.3
-     ],
-     [
-      722.4000000000001,
-      52.599999999999994
      ]
     ],
     "group_id": null,
@@ -3326,7 +2990,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       333.2,
@@ -3342,55 +3006,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
-    "points": [
-     [
-      235.0,
-      284.9
-     ],
-     [
-      289.3,
-      352.9
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_021",
-    "points": [
-     [
-      133.3,
-      158.9
-     ],
-     [
-      177.60000000000002,
-      210.8
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_020",
-    "points": [
-     [
-      210.4,
-      69.6
-     ],
-     [
-      257.7,
-      126.39999999999999
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       485.6,
@@ -3406,7 +3022,55 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_008",
+    "points": [
+     [
+      235.0,
+      284.9
+     ],
+     [
+      289.3,
+      352.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      210.4,
+      69.6
+     ],
+     [
+      257.7,
+      126.39999999999999
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_010",
+    "points": [
+     [
+      133.3,
+      158.9
+     ],
+     [
+      177.60000000000002,
+      210.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_011",
     "points": [
      [
       371.6,
@@ -3422,7 +3086,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       631.2,
@@ -3438,7 +3102,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       657.6,
@@ -3447,38 +3111,6 @@
      [
       684.2,
       193.3
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_043",
-    "points": [
-     [
-      682.6,
-      0.8
-     ],
-     [
-      723.3000000000001,
-      55.5
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_044",
-    "points": [
-     [
-      660.7,
-      156.6
-     ],
-     [
-      686.6,
-      202.5
      ]
     ],
     "group_id": null,
@@ -3493,7 +3125,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       335.1,
@@ -3509,71 +3141,7 @@
     "flags": {}
    },
    {
-    "label": "mango_019",
-    "points": [
-     [
-      239.5,
-      279.6
-     ],
-     [
-      293.8,
-      348.70000000000005
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_020",
-    "points": [
-     [
-      217.8,
-      65.4
-     ],
-     [
-      262.90000000000003,
-      122.5
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_022",
-    "points": [
-     [
-      375.8,
-      158.4
-     ],
-     [
-      424.2,
-      211.9
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_021",
-    "points": [
-     [
-      135.7,
-      156.9
-     ],
-     [
-      180.5,
-      207.10000000000002
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       489.1,
@@ -3589,7 +3157,71 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_008",
+    "points": [
+     [
+      239.5,
+      279.6
+     ],
+     [
+      293.8,
+      348.70000000000005
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      217.8,
+      65.4
+     ],
+     [
+      262.90000000000003,
+      122.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_010",
+    "points": [
+     [
+      135.7,
+      156.9
+     ],
+     [
+      180.5,
+      207.10000000000002
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_011",
+    "points": [
+     [
+      375.8,
+      158.4
+     ],
+     [
+      424.2,
+      211.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_012",
     "points": [
      [
       633.0,
@@ -3605,7 +3237,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       658.2,
@@ -3614,22 +3246,6 @@
      [
       685.4000000000001,
       189.10000000000002
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_043",
-    "points": [
-     [
-      684.9,
-      0.8
-     ],
-     [
-      725.4,
-      55.3
      ]
     ],
     "group_id": null,
@@ -3644,23 +3260,7 @@
   "imageWidth": 768,
   "shapes": [
    {
-    "label": "mango_019",
-    "points": [
-     [
-      239.5,
-      277.7
-     ],
-     [
-      293.6,
-      345.6
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_017",
+    "label": "mango_006",
     "points": [
      [
       335.2,
@@ -3676,39 +3276,7 @@
     "flags": {}
    },
    {
-    "label": "mango_021",
-    "points": [
-     [
-      135.3,
-      153.8
-     ],
-     [
-      181.4,
-      204.8
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_020",
-    "points": [
-     [
-      215.3,
-      63.2
-     ],
-     [
-      261.8,
-      121.80000000000001
-     ]
-    ],
-    "group_id": null,
-    "shape_type": "rectangle",
-    "flags": {}
-   },
-   {
-    "label": "mango_018",
+    "label": "mango_007",
     "points": [
      [
       487.8,
@@ -3724,7 +3292,55 @@
     "flags": {}
    },
    {
-    "label": "mango_022",
+    "label": "mango_008",
+    "points": [
+     [
+      239.5,
+      277.7
+     ],
+     [
+      293.6,
+      345.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      215.3,
+      63.2
+     ],
+     [
+      261.8,
+      121.80000000000001
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_010",
+    "points": [
+     [
+      135.3,
+      153.8
+     ],
+     [
+      181.4,
+      204.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_011",
     "points": [
      [
       375.1,
@@ -3740,7 +3356,7 @@
     "flags": {}
    },
    {
-    "label": "mango_023",
+    "label": "mango_012",
     "points": [
      [
       632.4,
@@ -3756,7 +3372,7 @@
     "flags": {}
    },
    {
-    "label": "mango_024",
+    "label": "mango_013",
     "points": [
      [
       658.2,
