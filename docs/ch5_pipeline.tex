@@ -85,17 +85,17 @@ Frames are read from the uploaded video in a single streaming pass: the pipeline
 
 \subsection{Object Detection}
 
-Fruit are detected in each frame by the YOLO detector in \code{real} mode and by the deterministic mock detector otherwise. Detections below the configured confidence threshold are discarded, and the remainder are persisted as \code{DetectionRecord} rows with their bounding box and confidence. A detection whose confidence falls below the occlusion bound (0.45) is additionally flagged \code{is\_occluded}, which is what the interface later draws as a dashed amber box.
+Fruit are detected in each frame by the YOLO detector in \code{real} mode and by the deterministic mock detector otherwise. Detections below the configured confidence threshold $\tau_{\mathrm{conf}}$ are discarded, and the remainder are persisted as \code{DetectionRecord} rows with their bounding box and confidence. A detection whose confidence falls below the occlusion bound (0.45) is additionally flagged \code{is\_occluded}, which is what the interface later draws as a dashed amber box.
 
 \subsection{Tracking}
 
-The tracker links detections across frames into tracks. Three back-ends are available in the processing pipeline and are selected per job: \code{mock}, \code{bytetrack} and \code{tapnext}; the tracker match threshold and the number of buffer frames (how long an unmatched track is kept alive) are configurable. \add{The \code{mock} tracker provides a deterministic centre-distance association for development and tests, ByteTrack is a motion-based tracking-by-detection baseline built on a Kalman filter with two-stage association, and TAPNext follows point queries through the video and is vendored in \code{ml/orchardvision_ml/tracking/tapnext/}.}
+The tracker links detections across frames into tracks. Three back-ends are available in the processing pipeline and are selected per job: \code{mock}, \code{bytetrack} and \code{tapnext}; the tracker match threshold $\tau_{\mathrm{match}}$ and the number of buffer frames (how long an unmatched track is kept alive) are configurable. \add{The \code{mock} tracker provides a deterministic centre-distance association for development and tests, ByteTrack is a motion-based tracking-by-detection baseline built on a Kalman filter with two-stage association, and TAPNext follows point queries through the video and is vendored in \code{ml/orchardvision_ml/tracking/tapnext/}.}
 
 \add{When camera-motion compensation is active, the bounding boxes are translated into a stabilised coordinate system before \code{tracker.update} is called and mapped back to raw image coordinates afterwards, so a moving camera does not appear to the tracker as object motion.}
 
 \subsection{Re-Identification Embeddings}
 
-For each tracked detection the pipeline computes an appearance embedding. In \code{real} mode this is either the configured embedding checkpoint or a ResNet-18 feature extractor; in \code{mock} mode a deterministic synthetic embedding is produced. The embeddings feed the identity memory, which compares them with the stored prototypes using cosine similarity and the ReID threshold.
+For each tracked detection the pipeline computes an appearance embedding. In \code{real} mode this is either the configured embedding checkpoint or a ResNet-18 feature extractor; in \code{mock} mode a deterministic synthetic embedding is produced. The embeddings feed the identity memory, which compares them with the stored prototypes using cosine similarity and the ReID threshold $\tau_{\mathrm{reid}}$.
 
 \subsection{Identity Consolidation}
 
@@ -193,12 +193,12 @@ for track in tracks_sorted_by_first_seen:
 \toprule
 \textbf{Parameter} & \textbf{Purpose}\\
 \midrule
-Confidence threshold & \add{Minimum detector confidence for a detection to be kept}\\
-ReID threshold & \add{Minimum similarity for re-associating an observation with an existing identity}\\
+Confidence threshold $\tau_{\mathrm{conf}}$ & \add{Minimum detector confidence for a detection to be kept}\\
+ReID threshold $\tau_{\mathrm{reid}}$ & \add{Minimum similarity for re-associating an observation with an existing identity}\\
 Tracker type & Selects the tracker: \code{mock}, \code{bytetrack} or \code{tapnext}\\
 Camera motion mode & \add{Selects how camera motion is estimated and compensated}\\
-Memory update rate & \add{Controls how quickly an identity prototype adapts to new observations}\\
-Tracker match threshold & \add{Minimum score for linking a detection to an existing track}\\
+Memory update rate $\alpha$ & \add{Controls how quickly an identity prototype adapts to new observations}\\
+Tracker match threshold $\tau_{\mathrm{match}}$ & \add{Minimum score for linking a detection to an existing track}\\
 Buffer frames & \add{Number of frames an unmatched track is retained before it is considered lost}\\
 \bottomrule
 \end{tabular}
