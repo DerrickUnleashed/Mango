@@ -47,7 +47,7 @@ Figure~\ref{fig:er} gives an overview of how the models relate to each other. \a
 
 \section{Rows Created by One Processing Run}
 
-When a processing job completes, the \code{Video} status becomes \code{processed} and the following rows are created: \code{IdentityRecord}, \code{Track}, \code{DetectionRecord}, \code{FrameTimingRecord} and \code{CameraMotionRecord}; identity sightings and re-identification events are stored as \code{IdentityObservation} and \code{ReidEvent} rows. Table~\ref{tab:rows} gives the template used to report the volume of data produced for a video.
+When a processing job completes, the \code{Video} status becomes \code{processed} and the following rows are created: \code{IdentityRecord}, \code{Track}, \code{DetectionRecord}, \code{FrameTimingRecord} and \code{CameraMotionRecord}; identity sightings and re-identification events are stored as \code{IdentityObservation} and \code{ReidEvent} rows. With $F$ processed frames, $\bar{d}$ mean detections per frame, $K$ tracklets, $U$ distinct identities, $s_i$ sightings of identity $i$, $E$ occlusion or re-appearance events and $M$ motion estimate rows, Table~\ref{tab:rows} gives the template used to report the volume of data produced for a video.
 
 \begin{table}[htbp]
 \centering\small
@@ -55,16 +55,16 @@ When a processing job completes, the \code{Video} status becomes \code{processed
 \toprule
 \hr \textbf{Model} & \textbf{Rows per video} & \textbf{Growth driver}\\
 \midrule
-\hr \code{DetectionRecord} & \pp{XX} & Frames $\times$ detections per frame\\
-\hr \code{FrameTimingRecord} & \pp{XX} & One per processed frame\\
-\hr \code{Track} & \pp{XX} & Number of tracks started\\
-\hr \code{IdentityRecord} & \pp{XX} & Number of distinct fruit\\
-\hr \code{IdentityObservation} & \pp{XX} & Sightings of identities\\
-\hr \code{ReidEvent} & \pp{XX} & Occlusion/re-appearance events\\
-\hr \code{CameraMotionRecord} & \pp{XX} & Motion estimate(s) for the video\\
+\hr \code{DetectionRecord} & $F \times \bar{d}$ & Frames $\times$ detections per frame\\
+\hr \code{FrameTimingRecord} & $F$ & One per processed frame\\
+\hr \code{Track} & $K$ & Number of tracks started\\
+\hr \code{IdentityRecord} & $U$ & Number of distinct fruit\\
+\hr \code{IdentityObservation} & $\sum_{i=1}^{U} s_i$ & Sightings of identities\\
+\hr \code{ReidEvent} & $E$ & Occlusion/re-appearance events\\
+\hr \code{CameraMotionRecord} & $M$ & Motion estimate(s) for the video\\
 \bottomrule
 \end{tabular}
-\caption[Rows per processed video]{\add{Rows created per processed video (counts to be filled in from a real run; the growth drivers are inferred).}}
+\caption[Rows per processed video]{\add{Rows created per processed video, expressed in terms of the frame count, the detection rate and the track and identity counts of a run.}}
 \label{tab:rows}
 \end{table}
 
