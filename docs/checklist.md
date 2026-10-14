@@ -23,10 +23,17 @@ experiment export than generated.
 - [ ] `fig:reid` — `ch8_results.tex:86`. Filmstrip: lost → occluded → reappeared
 - [ ] `fig:thr` — `ch8_results.tex:108`. ReID threshold sweep, identities + IDF1
 - [ ] `fig:timing` — `ch8_results.tex:146`. Per-frame `proc_ms` over one video
-- [ ] `fig:ui_videos` — `ch8_results.tex:152`. Screenshot: video list + upload
-- [ ] `fig:ui_tracks` — `ch8_results.tex:154`. Screenshot: track overlay on a frame
-- [ ] `fig:ui_exp` — `ch8_results.tex:156`. Screenshot: experiments list + metrics
-- [ ] `fig:ui_set` — `ch8_results.tex:158`. Screenshot: pipeline settings page
+Screenshots captured from the running system on 2026-10-14, in `docs/screens/`:
+  `ui_videos.png`, `ui_tracks.png`, `ui_exp.png`, `ui_set.png` (1440px, 2x DPI, full page).
+  Still to do before they can be used in the report:
+
+- [ ] Wire the four screenshots into `ch8_results.tex:152-158`, replacing the `fig:ui_*`
+      placeholders with `\includegraphics`
+- [ ] Fix `ui_tracks.png`: the video detail page never paints the frame image, so the
+      canvas is empty grey and the caption reads "No tracked fruit at this frame". The
+      frame slider moves but the label stays at 0. Two 1366x768 canvases, no `img`, no
+      console error, no failed request — the frame fetch/paint path is broken, not the
+      screenshot. Retake after the fix
 
 ## 2. Ground-truth annotation (blocking everything else)
 
@@ -38,12 +45,17 @@ experiment export than generated.
 
 ## 3. Chapter 8 — Results (the big one)
 
-No measured numbers exist yet. Every value below is `\pp{XX}` / `\pp{XX.X}` / `\pp{...}`:
-roughly 40 placeholders across lines 5, 55–57, 74–75, 98–101, 118–120 and 137–139.
+The detector comparison and the hardware table are measured. The tracking tables are not:
+every value below is still `\pp{XX}` / `\pp{XX.X}` / `\pp{...}`, roughly 40 placeholders
+across lines 55–57, 74–75, 98–101, 118–120 and 137–139, plus the opening paragraph at line 5.
 
 Already fixed — evaluation set: V1 = `videos/test.mp4` (473 frames, 960x506, 29.97fps),
       V2 = `videos/test4.mp4` (141 frames, 1366x768, 24fps), V3 = `videos/Test3.mp4`
       (337 frames, 768x432, 24fps). `videos/test2.mp4` (4K, 680 frames) excluded
+Already measured — one real-mode run on `videos/test4.mp4` (yolov8n + ByteTrack):
+796 detections, 15 identities, 7 active tracks, 130 occlusion events, 0 identity
+switches, 13.1 tracking FPS, 10.7 s for 141 frames. This run also supplies the
+per-video row counts for `ch4_datamodel.tex`
 - [ ] Per-video ground-truth fruit counts, once the annotation pass in section 2 is done
       (`ch8_results.tex:23-25`)
 - [ ] Tracker comparison table — mock, ByteTrack, TAPNext: IDF1, HOTA, ID switches
@@ -68,8 +80,9 @@ Already fixed — hardware in `ch3_architecture.tex:94` and `tab:hardware` in Ch
 ## Fastest path to a submittable draft
 
 1. Correct the three ground-truth files in `data/gt/labelme/` (section 2 above).
-2. Run the pipeline on the 3 orchard videos and export the experiment CSV.
-3. Fill every `ch8_results.tex` table from that export; generate `fig:bars`, `fig:proj`,
-   `fig:reid`, `fig:thr`, `fig:timing` from it and screenshot the four `fig:ui_*` pages.
-4. Replace the `F`/`K`/`U` symbols in `ch4_datamodel.tex` with the measured row counts.
-5. Confirm the page count against the guide's format spec.
+2. Fix the video detail frame rendering, then retake `ui_tracks.png`.
+3. Run the harness on the 3 orchard videos and export the experiment CSV.
+4. Fill every `ch8_results.tex` table from that export, and generate `fig:bars`,
+   `fig:proj`, `fig:reid`, `fig:thr`, `fig:timing` from it.
+5. Replace the `F`/`K`/`U` symbols in `ch4_datamodel.tex` with the measured row counts.
+6. Confirm the page count against the guide's format spec.
