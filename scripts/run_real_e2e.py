@@ -99,7 +99,11 @@ def main() -> int:
             body = res.json()
             if isinstance(body, dict):
                 list_value = next(
-                    (value for key, value in body.items() if key != "total" and isinstance(value, list)),
+                    (
+                        value
+                        for key, value in body.items()
+                        if key != "total" and isinstance(value, list)
+                    ),
                     None,
                 )
                 return list_value if list_value is not None else body

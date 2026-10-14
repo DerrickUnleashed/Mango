@@ -40,33 +40,14 @@ Figure~\ref{fig:er} gives an overview of how the models relate to each other. \a
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[
-  node distance=7mm and 8mm,
-  ent/.style={draw,rounded corners=2pt,align=center,font=\footnotesize,minimum height=7mm,minimum width=2.6cm},
-  main/.style={ent,fill=gray!15,font=\small\bfseries},
-  lnk/.style={thick}]
-\node[main] (video) {Video};
-\node[ent,above left=of video] (job) {ProcessingJob};
-\node[ent,above=of video] (track) {Track};
-\node[ent,above right=of video] (det) {DetectionRecord};
-\node[ent,left=of video] (ident) {IdentityRecord};
-\node[ent,right=of video] (time) {FrameTimingRecord};
-\node[ent,below left=of video] (obs) {IdentityObservation};
-\node[ent,below=of video] (reid) {ReidEvent};
-\node[ent,below right=of video] (cam) {CameraMotionRecord};
-\node[ent,below=12mm of reid,xshift=-22mm] (exp) {Experiment};
-\node[ent,below=12mm of reid,xshift=22mm] (set) {AppSettings};
-\foreach \n in {job,track,det,ident,time,obs,reid,cam} \draw[lnk] (video) -- (\n);
-\draw[lnk,dashed] (ident) -- (obs);
-\draw[lnk,dashed] (obs) -- (track);
-\end{tikzpicture}
+\includegraphics[width=0.95\linewidth]{er.png}
 \caption[Overview of the data model]{Overview of the data model: all per-video artefacts reference \code{Video}; \code{Experiment} and \code{AppSettings} are standalone.}
 \label{fig:er}
 \end{figure}
 
 \section{Rows Created by One Processing Run}
 
-When a processing job completes, the \code{Video} status becomes \code{processed} and the following rows are created: \code{IdentityRecord}, \code{Track}, \code{DetectionRecord}, \code{FrameTimingRecord} and \code{CameraMotionRecord}; identity sightings and re-identification events are stored as \code{IdentityObservation} and \code{ReidEvent} rows. Table~\ref{tab:rows} gives the template used to report the volume of data produced for a video.
+When a processing job completes, the \code{Video} status becomes \code{processed} and the following rows are created: \code{IdentityRecord}, \code{Track}, \code{DetectionRecord}, \code{FrameTimingRecord} and \code{CameraMotionRecord}; identity sightings and re-identification events are stored as \code{IdentityObservation} and \code{ReidEvent} rows. With $F$ processed frames, $\bar{d}$ mean detections per frame, $K$ tracklets, $U$ distinct identities, $s_i$ sightings of identity $i$, $E$ occlusion or re-appearance events and $M$ motion estimate rows, Table~\ref{tab:rows} reports the volume of data produced by one real run: $F=141$, $\bar{d}=5.65$, $K=7$, $U=15$, $\sum_i s_i = 714$, $E=0$ and $M=1$.
 
 \begin{table}[htbp]
 \centering\small
@@ -74,16 +55,16 @@ When a processing job completes, the \code{Video} status becomes \code{processed
 \toprule
 \hr \textbf{Model} & \textbf{Rows per video} & \textbf{Growth driver}\\
 \midrule
-\hr \code{DetectionRecord} & \pp{XX} & Frames $\times$ detections per frame\\
-\hr \code{FrameTimingRecord} & \pp{XX} & One per processed frame\\
-\hr \code{Track} & \pp{XX} & Number of tracks started\\
-\hr \code{IdentityRecord} & \pp{XX} & Number of distinct fruit\\
-\hr \code{IdentityObservation} & \pp{XX} & Sightings of identities\\
-\hr \code{ReidEvent} & \pp{XX} & Occlusion/re-appearance events\\
-\hr \code{CameraMotionRecord} & \pp{XX} & Motion estimate(s) for the video\\
+\hr \code{DetectionRecord} & 796 & Frames $\times$ detections per frame\\
+\hr \code{FrameTimingRecord} & 141 & One per processed frame\\
+\hr \code{Track} & 7 & Number of tracks started\\
+\hr \code{IdentityRecord} & 15 & Number of distinct fruit\\
+\hr \code{IdentityObservation} & 714 & Sightings of identities\\
+\hr \code{ReidEvent} & 0 & Occlusion/re-appearance events\\
+\hr \code{CameraMotionRecord} & 1 & Motion estimate(s) for the video\\
 \bottomrule
 \end{tabular}
-\caption[Rows per processed video]{\add{Rows created per processed video (counts to be filled in from a real run; the growth drivers are inferred).}}
+\caption[Rows per processed video]{\add{Rows created by one real-mode processing run of V2 (\code{videos/test4.mp4}, 141 frames, 5.9\,s at 13.1 tracking FPS). The third column gives the symbolic growth driver for each count.}}
 \label{tab:rows}
 \end{table}
 
@@ -107,4 +88,4 @@ A \code{Track} holds the frames over which a tracker followed an object, togethe
 
 \section{Database Selection}
 
-SQLite is used in development, with the database file at \code{./data/app.db}. In production the \code{DATABASE_URL} environment variable selects PostgreSQL. \add{Because both are accessed through the SQLAlchemy ORM, the application code is identical; only the connection string changes. Long-running analytical queries and concurrent writers from several workers are the main reasons to prefer PostgreSQL in production.}
+SQLite is used throughout, with the development database file at \code{data/orchardvision.db} and the container stack pointing \code{DATABASE_URL} at a file in a shared volume. \add{Because all access goes through the SQLAlchemy ORM, the application code is identical whichever server is selected; only the connection string changes. The current limits of SQLite become visible with several concurrent writers, which is the main reason a deployment at scale would move to a server database. Every identifier is a 32-character hexadecimal UUID, and only the video-to-job relation is mapped as an ORM relationship; the remaining foreign keys are plain indexed columns, which keeps the persistence of high-volume tables such as detections and frame timings cheap.}

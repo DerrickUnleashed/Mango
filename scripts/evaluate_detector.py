@@ -109,18 +109,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--model",
         type=pathlib.Path,
-        default=repo
-        / "models"
-        / "mango_yolov8n-4"
-        / "weights"
-        / "best.pt",
+        default=repo / "models" / "mango_yolov8n-4" / "weights" / "best.pt",
     )
     parser.add_argument("--test-images", type=pathlib.Path, default=None)
     parser.add_argument("--test-labels", type=pathlib.Path, default=None)
     parser.add_argument("--conf", type=float, default=0.25)
     parser.add_argument("--iou", type=float, default=0.50)
     parser.add_argument("--samples", type=int, default=8)
-    parser.add_argument("--outdir", type=pathlib.Path, default=repo / ".tmp" / "detector_eval")
+    parser.add_argument(
+        "--outdir", type=pathlib.Path, default=repo / ".tmp" / "detector_eval"
+    )
     args = parser.parse_args()
 
     data = repo / "data" / "Mango_Dataset2"
@@ -129,7 +127,9 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
-def draw_box(frame: np.ndarray, box: Box, color: tuple[int, int, int], label: str) -> None:
+def draw_box(
+    frame: np.ndarray, box: Box, color: tuple[int, int, int], label: str
+) -> None:
     h, w = frame.shape[:2]
     x1 = int(box.x1 * w)
     y1 = int(box.y1 * h)
@@ -180,9 +180,7 @@ def main() -> None:
                 ),
                 conf,
             )
-            for x, y, w, h, conf in (
-                (*d.bbox, d.confidence) for d in result.detections
-            )
+            for x, y, w, h, conf in ((*d.bbox, d.confidence) for d in result.detections)
         ]
 
         tp, fp, fn, _ = match_predictions(gt, [b for b, _ in pred], args.iou)
@@ -206,11 +204,7 @@ def main() -> None:
     worst.sort(key=lambda item: item[0])
     precision = total_tp / (total_tp + total_fp) if total_tp + total_fp else 0.0
     recall = total_tp / (total_tp + total_fn) if total_tp + total_fn else 0.0
-    f1 = (
-        2 * precision * recall / (precision + recall)
-        if precision + recall
-        else 0.0
-    )
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
 
     print("=" * 60)
     print(f"Model      : {detector.name}")

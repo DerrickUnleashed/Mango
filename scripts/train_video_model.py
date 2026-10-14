@@ -47,7 +47,10 @@ def main() -> int:
 
     data = args.out / "data.yaml"
     if not data.is_file():
-        print(f"data.yaml not found (run export_video_labels.py first): {data}", file=sys.stderr)
+        print(
+            f"data.yaml not found (run export_video_labels.py first): {data}",
+            file=sys.stderr,
+        )
         return 2
     if not args.weights.is_file():
         print(f"start weights not found: {args.weights}", file=sys.stderr)

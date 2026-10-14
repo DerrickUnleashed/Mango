@@ -12,18 +12,18 @@ The user posts a video to \code{POST /videos}. The backend saves the file throug
 
 \subsection{Process}
 
-A request to \code{POST /videos/{id}/process} first validates that there is no active job for the video. It then creates a \code{ProcessingJob} with status \code{QUEUED}, and either enqueues the work (Celery) or runs it synchronously as a background task. The background task performs:
+A request to \code{POST /videos/{id}/process} first validates that there is no active job for the video. It then creates a \code{ProcessingJob} with status \code{queued}, and either enqueues the work (Celery, when a broker is configured) or runs it synchronously as a background task. Both paths execute the same pipeline in \code{app/services/processing.py}, which performs:
 
 \begin{enumerate}
-  \item frame extraction according to the \code{PipelineConfig};
-  \item object detection, using the model specified by \code{model_path};
-  \item tracking, using the \code{mock}, \code{bytetrack} or \code{tapnext} tracker;
-  \item re-identification embeddings;
-  \item identity consolidation;
+  \item frame extraction and object detection in a single streaming pass over the video;
+  \item tracking, with camera-motion compensation applied before association;
+  \item re-identification embeddings and identity consolidation;
   \item analytics computation (\code{compute_video_analytics}).
 \end{enumerate}
 
-When processing finishes, the \code{Video} status becomes \code{processed}, and the \code{IdentityRecord}, \code{Track}, \code{DetectionRecord}, \code{FrameTimingRecord} and \code{CameraMotionRecord} rows are created.
+\add{The detector and the embedding extractor are chosen by the inference mode. In \code{mock} mode a deterministic synthetic detector produces detections for the orchard scenario, which is what makes the development and test runs reproducible. In \code{real} mode the pipeline uses a YOLO detector loaded from \code{YOLO_WEIGHTS_PATH} and, for the embeddings, either the checkpoint at \code{EMBEDDING_MODEL_PATH} or a torchvision ResNet-18 feature extractor as a fallback when that file is absent.}
+
+When processing finishes, the \code{Video} status becomes \code{processed}, and the \code{Track}, \code{DetectionRecord}, \code{FrameTimingRecord}, \code{CameraMotionRecord}, \code{IdentityRecord}, \code{IdentityObservation} and \code{ReidEvent} rows are created.
 
 \subsection{Retrieve}
 
@@ -52,27 +52,28 @@ The GET endpoints return the persisted tracks, identities, analytics, frame timi
 
 \section{Status Models}
 
-The progress of a video and of a processing job is described by the shared TypeScript types in \code{packages/types/src/common.ts}:
+The progress of a video and of a processing job is described by the shared TypeScript types in \code{packages/types/src/common.ts} and mirrored by the constants of \code{app/models/processing_job.py}:
 
 \begin{itemize}
-  \item \code{JobStatus}: \code{uploaded} $\rightarrow$ \code{processing} $\rightarrow$ \code{processed}, or \code{error};
-  \item \code{ProcessingStage}: \code{frame_extraction} $\rightarrow$ \code{detection} $\rightarrow$ \code{tracking} $\rightarrow$ \code{reid} $\rightarrow$ \code{analytics};
-  \item \code{ProcessingStatus}: \code{QUEUED} $\rightarrow$ \code{RUNNING} $\rightarrow$ \code{COMPLETED}, or \code{FAILED}.
+  \item \code{JobStatus} (processing job): \code{queued} $\rightarrow$ \code{running} $\rightarrow$ \code{completed}, or \code{failed} / \code{cancelled};
+  \item \code{ProcessingStage}: \code{uploaded} $\rightarrow$ \code{extracting_frames} $\rightarrow$ \code{detecting} $\rightarrow$ \code{tracking} $\rightarrow$ \code{embedding} $\rightarrow$ \code{memory} $\rightarrow$ \code{reid} $\rightarrow$ \code{analytics} $\rightarrow$ \code{completed} or \code{failed};
+  \item the \code{Video} row carries its own status: \code{uploaded}, \code{processing}, \code{processed} or \code{error}.
 \end{itemize}
 
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
   node distance=14mm,
-  s/.style={draw,rounded corners=6pt,align=center,font=\footnotesize,minimum height=8mm,minimum width=2.2cm},
+  s/.style={draw,rounded corners=6pt,align=center,font=\footnotesize,minimum height=8mm,minimum width=2.4cm},
   arr/.style={-{Stealth[length=2mm]},thick}]
-\node[s] (q) {QUEUED};
-\node[s,right=of q] (r) {RUNNING};
-\node[s,right=of r,yshift=6mm] (c) {COMPLETED};
-\node[s,right=of r,yshift=-6mm] (f) {FAILED};
-\draw[arr] (q) -- (r);\draw[arr] (r) -- (c);\draw[arr] (r) -- (f);
+\node[s] (q) {queued};
+\node[s,right=of q] (r) {running};
+\node[s,right=of r,yshift=6mm] (c) {completed};
+\node[s,right=of r,yshift=-6mm] (f) {failed};
+\node[s,below=of r,yshift=-2mm] (x) {cancelled};
+\draw[arr] (q) -- (r);\draw[arr] (r) -- (c);\draw[arr] (r) -- (f);\draw[arr] (r) -- (x);
 \end{tikzpicture}
-\caption{Life cycle of a \texttt{ProcessingJob} (\texttt{ProcessingStatus}).}
+\caption[Life cycle of a processing job]{Life cycle of a \code{ProcessingJob}.}
 \label{fig:jobstate}
 \end{figure}
 
@@ -80,35 +81,41 @@ The progress of a video and of a processing job is described by the shared TypeS
 
 \subsection{Frame Extraction}
 
-Frames are extracted from the uploaded video according to the \code{PipelineConfig} of the job. The extracted frames are stored through the \code{StorageService} in MinIO/S3, where the video's width, height, frame rate and frame count were recorded at upload time. \add{Sub-sampling the frame rate reduces cost on long videos but increases the displacement of fruit between sampled frames, so it directly affects tracker difficulty.}
+Frames are read from the uploaded video in a single streaming pass: the pipeline opens the file with \code{cv2.VideoCapture}, processes each frame and releases it immediately, so peak memory does not grow with the length of the video. A per-frame timer feeds the \code{FrameTimingRecord} table and the FPS strip of the interface. The resolution, frame rate and frame count were recorded at upload time, and individual frames are rendered on demand from the video file and cached as JPEG under \code{UPLOAD\_DIR/frames/<video\_id>}. \add{Sub-sampling the frame rate reduces cost on long videos but increases the displacement of fruit between sampled frames, so it directly affects tracker difficulty.}
 
 \subsection{Object Detection}
 
-Fruit are detected in each frame by the model specified by \code{model_path}. Detections below the configured confidence threshold are discarded, and the remainder are persisted as \code{DetectionRecord} rows with their bounding box and confidence.
+Fruit are detected in each frame by the YOLO detector in \code{real} mode and by the deterministic mock detector otherwise. Detections below the configured confidence threshold $\tau_{\mathrm{conf}}$ are discarded, and the remainder are persisted as \code{DetectionRecord} rows with their bounding box and confidence. A detection whose confidence falls below the occlusion bound (0.45) is additionally flagged \code{is\_occluded}, which is what the interface later draws as a dashed amber box.
 
 \subsection{Tracking}
 
-The tracker links detections across frames into tracks. The tracker type is selected from \code{mock}, \code{bytetrack} and \code{tapnext}; the tracker match threshold and the number of buffer frames (how long an unmatched track is kept alive) are configurable. \add{The \code{mock} tracker provides a deterministic back-end for development and tests, ByteTrack is a motion-based tracking-by-detection baseline, and TAPNext follows points through the video (see Chapter~2).}
+The tracker links detections across frames into tracks. Three back-ends are available in the processing pipeline and are selected per job: \code{mock}, \code{bytetrack} and \code{tapnext}; the tracker match threshold $\tau_{\mathrm{match}}$ and the number of buffer frames (how long an unmatched track is kept alive) are configurable. \add{The \code{mock} tracker provides a deterministic centre-distance association for development and tests, ByteTrack is a motion-based tracking-by-detection baseline built on a Kalman filter with two-stage association, and TAPNext follows point queries through the video and is vendored in \code{ml/orchardvision_ml/tracking/tapnext/}.}
+
+\add{When camera-motion compensation is active, the bounding boxes are translated into a stabilised coordinate system before \code{tracker.update} is called and mapped back to raw image coordinates afterwards, so a moving camera does not appear to the tracker as object motion.}
 
 \subsection{Re-Identification Embeddings}
 
-For each tracked detection the pipeline computes a ReID embedding. The embeddings are used to compare observations with the prototypes of existing identities, using the ReID threshold to decide whether a match is acceptable.
+For each tracked detection the pipeline computes an appearance embedding. In \code{real} mode this is either the configured embedding checkpoint or a ResNet-18 feature extractor; in \code{mock} mode a deterministic synthetic embedding is produced. The embeddings feed the identity memory, which compares them with the stored prototypes using cosine similarity and the ReID threshold $\tau_{\mathrm{reid}}$.
 
 \subsection{Identity Consolidation}
 
-Identity consolidation turns tracks and embeddings into persistent identities. For each identity the pipeline stores a prototype embedding, a quality score, the observation count and an \code{is_confident} flag; every sighting is recorded as an \code{IdentityObservation}. When an identity is lost and later reappears, a \code{ReidEvent} stores the lost frame and the reappearance frame.
+Identity consolidation turns tracks and embeddings into persistent identities. For each identity the pipeline stores a prototype embedding, a quality score, the observation count, the first and last frame and an \code{is_confident} flag; every sighting is recorded as an \code{IdentityObservation}. When an identity is lost and later reappears, a \code{ReidEvent} stores the lost frame, the reappearance frame, the similarity and whether the link was accepted, together with the candidate scores that were considered.
 
-\add{A common formulation for maintaining the prototype $\mathbf{p}_k$ of identity $k$ is an exponential moving average of the embeddings assigned to it, controlled by the memory update rate $\alpha$:}
+\add{Identity numbers are owned by the re-identifier rather than by clustering. The implementation in \code{ml/orchardvision_ml/reid/mock.py} assigns numbers per track chain: a brand-new track receives the lowest unused identity number, unless it is a motion- and appearance-plausible reappearance of a track that was reported lost, in which case it keeps that identity's number. While a track is live its identity never changes, so two boxes visible at the same instant can never share a number; and the number equals the order in which identities were first seen. Candidates for a reappearance are ranked by cosine similarity and then filtered by a motion gate: the reappearing track must lie inside a radius that grows with the length of the occlusion (120\,px at 45\,px per frame by default), which allows slow drift but rejects teleporting matches.}
+
+\add{The prototype $\mathbf{p}_k$ of identity $k$ is updated as a moving average of the embeddings assigned to it, controlled by the memory update rate $\alpha$ and renormalised to unit length:}
 
 \begin{equation}
 \colorbox{\phcol}{$\displaystyle \mathbf{p}_k \leftarrow \frac{(1-\alpha)\,\mathbf{p}_k + \alpha\,\mathbf{e}_t}{\left\lVert (1-\alpha)\,\mathbf{p}_k + \alpha\,\mathbf{e}_t\right\rVert_2}$}
 \end{equation}
 
-\add{A detection with embedding $\mathbf{e}_t$ is re-associated with identity $k$ when the cosine similarity between $\mathbf{e}_t$ and $\mathbf{p}_k$ exceeds the ReID threshold $\tau_{\mathrm{reid}}$. This equation illustrates the role of the memory update rate; the exact update rule should be confirmed against the implementation before submission.}
+\add{The quality of an observation is the detector confidence, multiplied by 0.55 when the detection is flagged as occluded; observations below a minimum quality (0.3) are dropped before they can influence a prototype. The quality of an identity itself is an exponential moving average of the qualities of its accepted observations, and an identity is marked \code{is_confident} once it has at least three observations and a quality of at least 0.5.}
 
 \subsection{Analytics}
 
-The analytics stage runs \code{compute_video_analytics}, which uses the \code{AnalyticsEngine} to compute IDF1, HOTA and the number of ID switches. The aggregated analytics are served by \code{GET /videos/{id}/analytics}.
+The analytics stage runs \code{compute_video_analytics}, which aggregates the persisted detections, tracks, identities and per-frame timings of one video into the summary served by \code{GET /videos/{id}/analytics}: totals, averages, a count series, a confidence distribution and detection-size bins.
+
+\add{Tracking-quality metrics are computed by a different component. The evaluation harness in \code{ml/orchardvision_ml/evaluation/metrics.py} implements IDF1, HOTA, the number of ID switches, track fragmentation, count error and identity recovery rate against a ground truth, and these are what the experiment endpoints report. The per-video analytics summary currently reports zero for the ID-switch and fragmentation fields, so the interface shows those two as zero for an individual video; the measured values for the experiments are in Chapter~8.}
 
 \section{Stage Inputs and Outputs}
 
@@ -118,13 +125,12 @@ The analytics stage runs \code{compute_video_analytics}, which uses the \code{An
 \toprule
 \textbf{Stage} & \textbf{Input} & \textbf{Output} & \textbf{Persisted as}\\
 \midrule
-Frame extraction & Uploaded video, \code{PipelineConfig} & Frames & Frames in object storage\\
-Detection & Frames, \code{model_path}, confidence threshold & Bounding boxes with confidence & \code{DetectionRecord}\\
+Frame extraction and detection & Uploaded video, confidence threshold & Bounding boxes with confidence & \code{FrameTimingRecord}, \code{DetectionRecord}\\
 Tracking & Detections, tracker type, match threshold, buffer frames & Tracks & \code{Track}\\
-ReID & Tracked detections & Embeddings & (used by next stage)\\
+Embedding & Tracked detections & Appearance embeddings & (used by the next stage)\\
 Identity consolidation & Tracks, embeddings, ReID threshold, memory update rate & Identity prototypes, observations, ReID events & \code{IdentityRecord}, \code{IdentityObservation}, \code{ReidEvent}\\
-Analytics & Tracks, identities & IDF1, HOTA, ID switches, timings, motion & \code{FrameTimingRecord}, \code{CameraMotionRecord}\\
-\bottomrule
+Camera motion & Consecutive frames & Per-frame displacement, mean absolute shift, confidence & \code{CameraMotionRecord}\\
+Analytics & Detections, tracks, identities, timings & Totals, averages, count and confidence series & Aggregated (not persisted)\\\bottomrule
 \end{tabular}
 \caption[Stage inputs and outputs]{Inputs, outputs and persisted records of each pipeline stage. \add{The input and output columns are summarised from the pipeline description; they are not an exhaustive interface specification.}}
 \label{tab:stages}
@@ -132,7 +138,9 @@ Analytics & Tracks, identities & IDF1, HOTA, ID switches, timings, motion & \cod
 
 \section{Camera Motion}
 
-The camera motion of each video is estimated and stored in a \code{CameraMotionRecord} with its motion type and whether compensation was applied. The camera-motion mode is one of the pipeline settings. \add{Compensating for ego-motion before association keeps motion predictions meaningful when the camera moves along an orchard row.}
+The camera motion of each video is estimated and stored in a single \code{CameraMotionRecord} row per video, holding the motion source, the per-frame displacement, the mean absolute shift, the number of frames analysed, a confidence and whether compensation was applied. The mode is one of the pipeline settings: \code{static} uses the identity transform, \code{drift} simulates a constant handheld translation of half a pixel horizontally and a fifth of a pixel vertically.
+
+\add{Compensating for ego-motion before association keeps motion predictions meaningful when the camera moves along an orchard row. The current estimator is a synthetic model chosen from the setting, so the compensation path is exercised deterministically; a motion estimator computed from optical flow would replace it without changing the interface.}
 
 \section{Identity-Space Visualisation}
 
@@ -140,24 +148,28 @@ The \code{EmbeddingProjection} service reduces identity prototypes to two dimens
 
 \section{Identity Consolidation Procedure}
 
-\add{The listing below gives a simplified, illustrative description of how tracks and embeddings can be consolidated into identities. It is provided to explain the idea and does not reproduce the source code of the implementation.}
+\add{The listing below restates the consolidation procedure in the order in which the pipeline performs it. It explains the idea rather than reproducing the source.}
 
 \begin{lstlisting}[style=added,language=Python,mathescape=false]
 for track in tracks_sorted_by_first_seen:
-    e = mean_embedding(track)
-    k, sim = nearest_identity(e, identities)   # cosine similarity
-    if k is not None and sim >= reid_threshold:
-        assign(track, identities[k])
-        record_reid_event_if_gap(track, identities[k])
-        update_prototype(identities[k], e, alpha)
+    if track is a plausible reappearance of a lost identity:
+        identity = that_identity            # keep the identity number
+        record_reid_event(lost_frame, reappearance_frame,
+                          similarity, accepted=True)
     else:
-        identities.append(new_identity(track, e))
-for k in identities:
-    k.quality = mean_quality(k.observations)
-    k.is_confident = k.observation_count >= min_obs
+        identity = new_identity(track)       # lowest unused number
+    for observation in track.observations:
+        if quality(observation) < min_quality: continue   # drop noisy ones
+        identity.observation_count += 1
+        identity.prototype = moving_average(identity.prototype,
+                                            observation.embedding,
+                                            memory_update_rate)
+        record_identity_observation(identity, observation)
+    identity.is_confident = (identity.observation_count >= 3
+                             and identity.quality >= 0.5)
 \end{lstlisting}
 
-\add{In this scheme a track that begins after another has ended is compared with all existing prototypes; if the similarity exceeds the ReID threshold it inherits the identity and a ReID event (lost frame, reappearance frame) is stored. Otherwise a new identity is created. Tracks that overlap in time must not be merged into the same identity, which acts as a simple constraint against merging two different fruit.}
+\add{Identity numbers are therefore stable for the whole video and follow first-appearance order. A track that begins after another has ended is compared with the identities that still have an unrecovered lost track; if appearance and motion both permit it, it inherits the identity number and a ReID event is stored. Otherwise a new identity is created. Tracks that overlap in time can never share a number, which is a structural guarantee against merging two simultaneously visible fruit.}
 
 \section{Design Considerations}
 
@@ -166,6 +178,7 @@ for k in identities:
   \item \add{\textbf{Prototype memory.} A small memory update rate makes prototypes stable but slow to adapt to lighting changes; a large one adapts quickly but can drift towards a neighbouring fruit.}
   \item \add{\textbf{Separation of stages.} Persisting detections, tracks, embeddings-derived identities and timings separately makes it possible to diagnose in which stage a counting error originated.}
   \item \add{\textbf{Tracker as a plug-in.} Because the mock, ByteTrack and TAPNext trackers are selected by a setting, a new tracker can be compared with the existing ones using the same video, detector and metrics.}
+  \item \add{\textbf{Structural numbering.} Because identity numbers come from track chains rather than from clustering, the over-counting failure mode is excluded by construction; the remaining errors are under-counting from missed re-appearances and false links across long gaps.}
 \end{itemize}
 
 \section{Computational Considerations}
@@ -180,12 +193,12 @@ for k in identities:
 \toprule
 \textbf{Parameter} & \textbf{Purpose}\\
 \midrule
-Confidence threshold & \add{Minimum detector confidence for a detection to be kept}\\
-ReID threshold & \add{Minimum similarity for re-associating an observation with an existing identity}\\
+Confidence threshold $\tau_{\mathrm{conf}}$ & \add{Minimum detector confidence for a detection to be kept}\\
+ReID threshold $\tau_{\mathrm{reid}}$ & \add{Minimum similarity for re-associating an observation with an existing identity}\\
 Tracker type & Selects the tracker: \code{mock}, \code{bytetrack} or \code{tapnext}\\
 Camera motion mode & \add{Selects how camera motion is estimated and compensated}\\
-Memory update rate & \add{Controls how quickly an identity prototype adapts to new observations}\\
-Tracker match threshold & \add{Minimum score for linking a detection to an existing track}\\
+Memory update rate $\alpha$ & \add{Controls how quickly an identity prototype adapts to new observations}\\
+Tracker match threshold $\tau_{\mathrm{match}}$ & \add{Minimum score for linking a detection to an existing track}\\
 Buffer frames & \add{Number of frames an unmatched track is retained before it is considered lost}\\
 \bottomrule
 \end{tabular}

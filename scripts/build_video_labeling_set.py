@@ -69,7 +69,13 @@ def _suggest(
             if area > SUGGEST_MAX_AREA_RATIO * tile.shape[0] * tile.shape[1]:
                 continue
             model_boxes.setdefault((gx, gy, (x0, y0, x1, y1)), []).append(
-                [float(xl) + x0, float(yl) + y0, float(xr) + x0, float(yr) + y0, float(confs[i])]
+                [
+                    float(xl) + x0,
+                    float(yl) + y0,
+                    float(xr) + x0,
+                    float(yr) + y0,
+                    float(confs[i]),
+                ]
             )
     # merge overlapping suggestions across adjacent tiles back to frame coords
     hits: list[tuple[float, float, float, float, float]] = []
@@ -106,7 +112,10 @@ def _iou(a, b):
 def _intersects(a, tile):
     ax0, ay0, ax1, ay1, _ = a
     bx0, by0, bx1, by1 = tile
-    return max(0, min(ax1, bx1) - max(ax0, bx0)) > 0 and max(0, min(ay1, by1) - max(ay0, by0)) > 0
+    return (
+        max(0, min(ax1, bx1) - max(ax0, bx0)) > 0
+        and max(0, min(ay1, by1) - max(ay0, by0)) > 0
+    )
 
 
 def _clip_box(a, tile):
@@ -131,7 +140,10 @@ def main() -> int:
     )
     parser.add_argument("--stride", type=int, default=20, help="Sample every Nth frame")
     parser.add_argument(
-        "--max-frames", type=int, default=0, help="Stop after this many sampled frames (0 = all)"
+        "--max-frames",
+        type=int,
+        default=0,
+        help="Stop after this many sampled frames (0 = all)",
     )
     parser.add_argument("--tiles", type=int, default=2, help="Tile grid size (N x N)")
     parser.add_argument(
@@ -140,7 +152,9 @@ def main() -> int:
         default=0.08,
         help="Confidence for the auto-suggestion pass (0 disables)",
     )
-    parser.add_argument("--device", default="0", help="Inference device for suggestions")
+    parser.add_argument(
+        "--device", default="0", help="Inference device for suggestions"
+    )
     args = parser.parse_args()
 
     if not args.video.is_file():
@@ -159,7 +173,9 @@ def main() -> int:
         try:
             from ultralytics import YOLO
         except ModuleNotFoundError:
-            print("ultralytics not installed; skipping suggestion pass", file=sys.stderr)
+            print(
+                "ultralytics not installed; skipping suggestion pass", file=sys.stderr
+            )
         else:
             model = YOLO(
                 os.environ.get("YOLO_WEIGHTS_PATH")
@@ -189,7 +205,11 @@ def main() -> int:
         H, W = frame.shape[:2]
         for gx, gy, (x0, y0, x1, y1) in _tile_layout(W, H, grid, grid, TILE_OVERLAP):
             tile_name = f"{image_stem}_t{gx}_{gy}"
-            cv2.imwrite(str(tiles / f"{tile_name}.jpg"), frame[y0:y1, x0:x1], [cv2.IMWRITE_JPEG_QUALITY, 92])
+            cv2.imwrite(
+                str(tiles / f"{tile_name}.jpg"),
+                frame[y0:y1, x0:x1],
+                [cv2.IMWRITE_JPEG_QUALITY, 92],
+            )
 
         sampled += 1
         frame_index += 1
@@ -223,7 +243,9 @@ def main() -> int:
             sugg = _suggest(frame, tiles_layout, model, args.suggest_conf, args.device)
             total_suggestions += sum(len(b) for b in sugg.values())
             meta = {"suggestions": sugg}
-            (suggestions_dir / f"frame_{frame_index:05d}.json").write_text(json.dumps(meta))
+            (suggestions_dir / f"frame_{frame_index:05d}.json").write_text(
+                json.dumps(meta)
+            )
             if sugg:
                 overlay = frame.copy()
                 for name, boxes in sugg.items():
@@ -231,9 +253,19 @@ def main() -> int:
                         t for t in tiles_layout if f"tile_{t[0]}_{t[1]}" == name
                     )
                     for bx0, by0, bx1, by1 in boxes:
-                        cv2.rectangle(overlay, (int(bx0), int(by0)), (int(bx1), int(by1)), (0, 255, 0), 2)
-                cv2.imwrite(str(suggestions_dir / f"frame_{frame_index:05d}.jpg"), overlay)
-        print(f"suggestion pass: {total_suggestions} candidate boxes across {sampled} frames")
+                        cv2.rectangle(
+                            overlay,
+                            (int(bx0), int(by0)),
+                            (int(bx1), int(by1)),
+                            (0, 255, 0),
+                            2,
+                        )
+                cv2.imwrite(
+                    str(suggestions_dir / f"frame_{frame_index:05d}.jpg"), overlay
+                )
+        print(
+            f"suggestion pass: {total_suggestions} candidate boxes across {sampled} frames"
+        )
 
     (out / "README.md").write_text(
         _readme(grid),

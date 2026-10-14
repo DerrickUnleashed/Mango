@@ -1,0 +1,7 @@
+video,tracker,confidence_threshold,frames,gt_identities,predicted_tracks,idf1,hota,idSwitches,trackFragmentation,countMae,countMape,identityRecoveryRate,mean_ms_per_frame,p95_ms_per_frame,throughput_fps
+Test3,mock,0.35,337,14,20,0.9077,0.9256,2,1.4286,0.4095,13.6045,1.0,26.66,26.5,37.51
+Test3,bytetrack,0.35,337,14,17,0.8743,0.8887,9,1.6429,0.5193,14.8863,1.0,24.83,26.42,40.27
+test,mock,0.35,473,9,14,0.9544,0.96,1,2.4444,0.3573,5.5947,1.0,23.46,25.26,42.62
+test,bytetrack,0.35,473,9,10,0.9697,0.9693,2,2.4444,0.2516,3.7987,1.0,25.23,31.69,39.63
+test4,mock,0.35,141,7,12,0.2648,0.3908,0,0.8571,1.234,20.743,1.0,27.13,34.63,36.86
+test4,bytetrack,0.35,141,7,18,0.2256,0.3325,6,2.1429,1.0567,17.5954,1.0,25.84,27.82,38.71

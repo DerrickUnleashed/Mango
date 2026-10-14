@@ -82,6 +82,8 @@ export interface TrackOverlayState {
   showDetections: boolean
   detections: PersistedDetection[]
   background?: string | null
+  /** Decoded video frame drawn behind the overlay; replaces the background fill. */
+  frameImage?: CanvasImageSource | null
 }
 
 function pointAt(
@@ -112,12 +114,16 @@ export function drawTrackOverlay(ctx: CanvasRenderingContext2D, state: TrackOver
     showDetections,
     detections,
     background = 'rgba(15, 23, 42, 0.25)',
+    frameImage = null,
   } = state
 
   const scale = overlayScale(width, height)
 
   ctx.clearRect(0, 0, width, height)
-  if (background) {
+  if (frameImage) {
+    ctx.drawImage(frameImage, 0, 0, width, height)
+  }
+  if (background && !frameImage) {
     ctx.fillStyle = background
     ctx.fillRect(0, 0, width, height)
   }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { PersistedReidEvent, PersistedTrack } from '@orchardvision/types'
 import { useFrameDetections, useReidEvents, useTracks } from '../../hooks/useVideos'
+import { videoFrameUrl } from '../../api/videos'
 import { trackColor, drawTrackOverlay } from './drawTrackOverlay'
 
 interface TrackVisualizerProps {
@@ -41,21 +42,45 @@ export function TrackVisualizer({
     return map
   }, [events])
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas || !tracks.length) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+  const frameImageRef = useRef<HTMLImageElement | null>(null)
+  const drawRef = useRef<() => void>(() => {})
 
-    drawTrackOverlay(ctx, {
-      tracks,
-      eventsByTrack,
-      frame,
-      width,
-      height,
-      showDetections,
-      detections,
-    })
+  useEffect(() => {
+    drawRef.current = () => {
+      const canvas = canvasRef.current
+      if (!canvas || !tracks.length) return
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+
+      const frameImage = frameImageRef.current
+      const decoded =
+        frameImage && frameImage.complete && frameImage.naturalWidth > 0 ? frameImage : null
+
+      drawTrackOverlay(ctx, {
+        frameImage: decoded,
+        tracks,
+        eventsByTrack,
+        frame,
+        width,
+        height,
+        showDetections,
+        detections,
+      })
+    }
+  })
+
+  useEffect(() => {
+    const image = new Image()
+    frameImageRef.current = image
+    image.onload = () => drawRef.current()
+    image.src = videoFrameUrl(videoId, frame, width)
+    return () => {
+      image.onload = null
+    }
+  }, [videoId, frame, width])
+
+  useEffect(() => {
+    drawRef.current()
   }, [tracks, eventsByTrack, frame, width, height, showDetections, detections])
 
   const highlight = useMemo(() => {

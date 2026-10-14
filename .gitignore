@@ -33,6 +33,16 @@ build/
 .DS_Store
 Thumbs.db
 
+# LaTeX build artifacts
+*.aux
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.toc
+*.synctex.gz
+
 # Logs
 *.log
 npm-debug.log*

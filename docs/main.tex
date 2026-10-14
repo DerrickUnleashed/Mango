@@ -2,12 +2,12 @@
 %%  BCSE497J Project Report -- OrchardVision
 %%  Built from the VIT Chennai BCSE497J report template.
 %%
-%%  HIGHLIGHT CONVENTION
-%%    Yellow  = content that is NOT in the project documentation
-%%              (added context, literature, placeholders, suggestions).
-%%    No colour = taken directly from the project documentation.
-%%  To remove ALL yellow highlighting before submission, change
-%%  \showhltrue to \showhlfalse below.
+%%  MARKER CONVENTION
+%%    \add{...}  = content beyond the project documentation
+%%    \ph{...}   = placeholder to fill before submission
+%%    \pp{...}   = value to fill before submission (prints as <<VALUE>>)
+%%    \hr        = table-row marker (put first in the row)
+%%    No colour is applied to any of these; the macros are pass-through.
 %% =====================================================================
 \documentclass[12pt,a4paper]{report}
 
@@ -44,33 +44,20 @@
 \urlstyle{tt}
 \def\UrlBreaks{\do\/\do\_\do\-\do\.\do\{\do\}}
 
-% ---------- yellow-highlight machinery (no 'soul' package needed) ----------
-\newif\ifshowhl
-\showhltrue
-\definecolor{hlcolor}{RGB}{255,255,0}
-\newcommand{\hlstrut}{\vrule width 0pt height 0.78em depth 0.27em\relax}
-\newif\ifhlit
-\newcommand{\hlword}[1]{{\setlength{\fboxsep}{0pt}\colorbox{hlcolor}{\ifhlit\itshape\fi\hlstrut#1}}}
-% italic spanning several words inside \add: \emphon{}first ... last\emphoff{}
-\ifshowhl
-  \newcommand{\emphon}{\global\hlittrue\itshape}
-  \newcommand{\emphoff}{\global\hlitfalse}
-\else
-  \newcommand{\emphon}{\itshape}
-  \newcommand{\emphoff}{\upshape}
-\fi
-\newcommand{\hlgap}{{\color{hlcolor}\leaders\vrule height 0.78em depth 0.27em\hskip 0.25em plus 0.12em minus 0.08em\relax}}
-\def\hlloop#1 #2\hlsentinel{\hlword{#1}\if\relax\detokenize{#2}\relax\else\hlgap\expandafter\hlloop\expandafter#2\hlsentinel\fi}
-% \add{...}  : highlighted text (one paragraph at a time, no blank lines inside)
-\newcommand{\add}[1]{\ifshowhl\hlloop#1 \hlsentinel\else#1\fi}
-% \ph{...}   : highlighted placeholder (same look, different meaning)
-\newcommand{\ph}[1]{\add{#1}}
-% \hr        : highlight a table row (put first in the row)
-\newcommand{\hr}{\ifshowhl\rowcolor{hlcolor}\fi}
+% ---------- marker macros (no highlighting; kept so chapters compile unchanged) ----------
+% \emphon{} ... \emphoff{}  : italic span inside \add{...}
+\newcommand{\emphon}{\itshape}
+\newcommand{\emphoff}{\upshape}
+% \add{...}  : text contributed beyond the project documentation
+\newcommand{\add}[1]{#1}
+% \ph{...}   : placeholder to fill before submission
+\newcommand{\ph}[1]{#1}
+% \hr        : table-row marker (put first in the row)
+\newcommand{\hr}{}
 \newcommand{\pp}[1]{\textless\kern0pt\textless{}#1\textgreater\kern0pt\textgreater{}}
 % code / path in text
 \newcommand{\code}[1]{\path{#1}}
-\ifshowhl\def\phcol{hlcolor}\else\def\phcol{white}\fi
+\def\phcol{white}
 
 % image placeholder: label, short caption, long caption, description, height
 \newcommand{\figph}[5]{%
@@ -130,14 +117,19 @@
   \begin{center}\underline{\textbf{\fontsize{14}{17}\selectfont #1}}\end{center}\vspace{6pt}}
 
 % ---------- candidate / guide details (EDIT HERE) ----------
-\newcommand{\projtitle}{\add{OrchardVision: Long-Term Fruit Tracking and Counting in Mango Orchards Using Identity Learning}}
-\newcommand{\candname}{\ph{\pp{NAME OF THE CANDIDATE}}}
-\newcommand{\candreg}{\ph{\pp{REG. NO.}}}
-\newcommand{\guidename}{\ph{\pp{Guide Name}}}
-\newcommand{\guidedesig}{\ph{\pp{Designation}}}
-\newcommand{\hodname}{\ph{\pp{HOD NAME}}}
-\newcommand{\specname}{\ph{\pp{SPECIALIZATION NAME}}}
-\newcommand{\submitdate}{\add{November, 2026}}
+\newcommand{\projtitle}{Video-Based Fruit Counting with Tracking to Eliminate Double-Counting}
+\newcommand{\candname}{DERRICK SAMUEL R.}
+\newcommand{\candreg}{23BCE1040}
+\newcommand{\candtwoname}{PRANNAVAKHANTH}
+\newcommand{\candtworeg}{23BCE1869}
+\newcommand{\candthreename}{PRIYANKA KALIRAJ}
+\newcommand{\candthreereg}{23BCE5131}
+\newcommand{\candall}{\candname\ (\candreg),\ \candtwoname\ (\candtworeg), and \candthreename\ (\candthreereg)}
+\newcommand{\guidename}{Dr. Manas Ranjan Prusty}
+\newcommand{\guidedesig}{Associate Professor Grade 2}
+\newcommand{\hodname}{Dr. Prassanna Jayachandran}
+\newcommand{\specname}{Core}
+\newcommand{\submitdate}{November, 2026}
 
 \begin{document}
 
@@ -151,14 +143,15 @@
 \vspace{16pt}
 {\itshape\fontsize{14}{18}\selectfont Submitted in partial fulfillment for the award of the degree of\par}
 \vspace{12pt}
-{\bfseries\fontsize{22}{27}\selectfont Bachelor of Technology in\\ Computer Science and Engineering\\
- with specialization in \specname\par}
+{\bfseries\fontsize{22}{27}\selectfont Bachelor of Technology in\\ Computer Science and Engineering Core\\ \par}
 \vspace{14pt}
 {\itshape\fontsize{14}{18}\selectfont by\par}
 \vspace{10pt}
 {\bfseries\fontsize{16}{20}\selectfont \candname\ (\candreg)\par}
 \vspace{4pt}
-{\bfseries\itshape\fontsize{12}{15}\selectfont \ph{(IF TEAM PROJECT, LIST ALL MEMBERS WITH REG. NOS.)}\par}
+{\bfseries\fontsize{16}{20}\selectfont \candtwoname\ (\candtworeg)\par}
+\vspace{4pt}
+{\bfseries\fontsize{16}{20}\selectfont \candthreename\ (\candthreereg)\par}
 \vfill
 \includegraphics[width=3.26in]{vit_logo.png}\par
 \vspace{14pt}
@@ -176,14 +169,15 @@
 \vspace{16pt}
 {\itshape\fontsize{14}{18}\selectfont Submitted in partial fulfillment for the award of the degree of\par}
 \vspace{12pt}
-{\bfseries\fontsize{22}{27}\selectfont Bachelor of Technology in\\ Computer Science and Engineering\\
- with specialization in \specname\par}
+{\bfseries\fontsize{22}{27}\selectfont Bachelor of Technology in\\ Computer Science and Engineering Core\\ \par}
 \vspace{14pt}
 {\itshape\fontsize{14}{18}\selectfont by\par}
 \vspace{10pt}
 {\bfseries\fontsize{16}{20}\selectfont \candname\ (\candreg)\par}
 \vspace{4pt}
-{\bfseries\itshape\fontsize{12}{15}\selectfont \ph{(IF TEAM PROJECT, LIST ALL MEMBERS WITH REG. NOS.)}\par}
+{\bfseries\fontsize{16}{20}\selectfont \candtwoname\ (\candtworeg)\par}
+\vspace{4pt}
+{\bfseries\fontsize{16}{20}\selectfont \candthreename\ (\candthreereg)\par}
 \vfill
 \includegraphics[width=3.26in]{vit_logo.png}\par
 \vspace{14pt}
@@ -209,28 +203,29 @@ Date:
 \begin{center}\includegraphics[width=3.26in]{vit_logo.png}\\[4pt]
 {\bfseries School of Computer Science and Engineering}\end{center}
 \fronthead{CERTIFICATE}
-This is to certify that the report entitled \textbf{``\projtitle''} is prepared and submitted by \candname\ (\candreg) to Vellore Institute of Technology, Chennai, in partial fulfillment of the requirement for the award of the degree of \textbf{Bachelor of Technology in Computer Science and Engineering with specialization in} \specname\ is a bonafide record carried out under my guidance. The project fulfills the requirements as per the regulations of this University and in my opinion meets the necessary standards for submission. The contents of this report have not been submitted and will not be submitted either in part or in full, for the award of any other degree or diploma and the same is certified.
+This is to certify that the report entitled \textbf{``\projtitle''} is prepared and submitted by \candname\ (\candreg)\ to Vellore Institute of Technology, Chennai, in partial fulfillment of the requirement for the award of the degree of \textbf{Bachelor of Technology in Computer Science and Engineering Core} is a bonafide record carried out under my guidance. The project fulfills the requirements as per the regulations of this University and in my opinion meets the necessary standards for submission. The contents of this report have not been submitted and will not be submitted either in part or in full, for the award of any other degree or diploma and the same is certified.
 
 \vspace{18pt}
 \noindent Signature of the Guide:\\[6pt]
-Name: Dr./Prof.\ \guidename\\[6pt]
+Name: \ \guidename\\[6pt]
 Date:
 
 \vspace{22pt}
 \noindent\begin{tabular}{@{}p{0.48\textwidth}p{0.48\textwidth}@{}}
 Signature of the Examiner & Signature of the Examiner\\[8pt]
-Name: & Name:\\[8pt]
+Name: Dr. Renta Chintala Bhargavi & Name: Dr. Ranjith R\\[8pt]
 Date: & Date:
 \end{tabular}
 
 \vspace{20pt}
-\begin{center}
-Approved by the Head of Department,\\
-\textbf{B.Tech.\ Computer Science and Engineering (\specname)}\\[10pt]
-Name: \textbf{\hodname}\\[6pt]
-Date:\\[18pt]
-\textbf{(Seal of SCHOOL OF COMPUTER SCIENCE AND ENGINEERING)}
-\end{center}
+\noindent\begin{tabular}{@{}p{0.48\textwidth}p{0.48\textwidth}@{}}
+& Approved by the Head of Department, \\[-2pt]
+& \textbf{B.Tech.\ Computer Science and} \\[-2pt]
+& \textbf{Engineering \specname} \\[14pt]
+& Signature\hspace{4cm} \\[6pt]
+& Name: \textbf{\hodname} \\[6pt]
+& Date:
+\end{tabular}
 
 %% (Certificate by External Guide -- only for PAT-discontinued students -- omitted;
 %%  insert here if applicable.)
@@ -245,11 +240,11 @@ Date:\\[18pt]
 \fronthead{ABSTRACT}
 OrchardVision is a computer vision system for long-term fruit tracking and counting in mango orchards. It implements identity learning, tracking pipelines, and a full-stack web interface for experiment management and video processing.
 
-\add{Estimating the number of fruit on a tree or across a block is central to yield forecasting, harvest logistics and crop-load management, yet it is still largely done by manual sampling. Counting from orchard video is attractive but difficult: fruit are small, visually similar, frequently hidden by leaves and branches, and the same fruit re-enters the camera view many times as the camera moves along a row or revisits it on later days. A detector-only counter therefore double-counts, and a frame-to-frame tracker alone loses identities whenever a fruit is occluded.}
+Estimating the number of fruit on a tree or across a block is central to yield forecasting, harvest logistics and crop-load management, yet it is still largely done by manual sampling. Counting from orchard video is attractive but difficult: fruit are small, visually similar, frequently hidden by leaves and branches, and the same fruit re-enters the camera view many times as the camera moves along a row or revisits it on later days. A detector-only counter therefore double-counts, and a frame-to-frame tracker alone loses identities whenever a fruit is occluded.
 
 The system developed in this project is built around a processing pipeline that orchestrates frame extraction, object detection, tracking (mock, ByteTrack or TAPNext backends), re-identification embeddings, identity consolidation and analytics. Each fruit is represented by an identity prototype (an embedding vector with quality and observation statistics), so that a fruit that disappears and later reappears can be re-associated with the same identity. Camera motion is estimated and compensated, and tracking quality is reported using IDF1, HOTA and identity-switch metrics. The backend is a FastAPI service with a SQLAlchemy~2.0 data layer (SQLite for development, PostgreSQL for production) and S3-compatible object storage; the frontend is a React and TypeScript application sharing typed contracts with the API. An experiment harness lets users run and compare tracker configurations and export results as JSON or CSV.
 
-\add{The report presents the motivation, related work, requirements, architecture, data model, pipeline design, API design, deployment and testing approach of OrchardVision, followed by an evaluation plan with placeholders for the quantitative results and a discussion of limitations and future work.}
+The report presents the motivation, related work, requirements, architecture, data model, pipeline design, API design, deployment and testing approach of OrchardVision, followed by an evaluation plan with placeholders for the quantitative results and a discussion of limitations and future work.
 
 \vspace{6pt}
 \noindent\textbf{Keywords:} \add{fruit counting; multi-object tracking; re-identification; identity learning; precision agriculture; mango orchard; FastAPI; React.}
@@ -257,7 +252,7 @@ The system developed in this project is built around a processing pipeline that 
 %% ====================== ACKNOWLEDGEMENT ======================
 \clearpage
 \fronthead{ACKNOWLEDGEMENT}
-It is my pleasure to express with deep sense of gratitude to \guidename, \guidedesig, School of Computer Science and Engineering, Vellore Institute of Technology, Chennai, for \ph{\pp{his/her}} constant guidance, continual encouragement, understanding; more than all, \ph{\pp{he/she}} taught me patience in my endeavor. My association with \ph{\pp{him/her}} is not confined to academics only, but it is a great opportunity on my part of work with an intellectual and expert in the field of \add{computer vision and machine learning}.
+It is my pleasure to express with deep sense of gratitude to \guidename, \guidedesig, School of Computer Science and Engineering, Vellore Institute of Technology, Chennai, for his constant guidance, continual encouragement, understanding; more than all, he taught me patience in my endeavor. My association with him is not confined to academics only, but it is a great opportunity on my part of work with an intellectual and expert in the field of \add{computer vision and machine learning}.
 
 It is with gratitude that I would like to extend my thanks to the visionary leader Dr. G. Viswanathan our Honorable Chancellor, Mr. Sankar Viswanathan, Dr. Sekar Viswanathan, Dr. G V Selvam Vice Presidents, Dr. Sandhya Pentareddy, Executive Director, Ms. Kadhambari S. Viswanathan, Assistant Vice-President, Dr. V. S. Kanchana Bhaaskaran Vice-Chancellor, Dr. T. Thyagarajan Pro-Vice Chancellor, VIT Chennai and Dr. P. K. Manoharan, Additional Registrar for providing an exceptional working environment and inspiring all of us during the tenure of the course.
 

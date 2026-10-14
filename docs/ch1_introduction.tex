@@ -2,7 +2,7 @@
 
 \section{Introduction}
 
-OrchardVision is a computer vision system for long-term fruit tracking and counting in mango orchards. It implements identity learning, tracking pipelines, and a full-stack web interface for experiment management and video processing. A user uploads orchard video through the web interface; the backend extracts frames, detects fruit, tracks each fruit through time, learns a re-identification (ReID) embedding for it, consolidates the observations into persistent identities and finally computes analytics such as IDF1, HOTA and the number of identity switches.
+OrchardVision is a computer vision system for long-term fruit tracking and counting in mango orchards. It implements identity learning, tracking pipelines, and a full-stack web interface for experiment management and video processing. A user uploads orchard video through the web interface; the backend detects fruit frame by frame, tracks each fruit through time, learns a re-identification (ReID) embedding for it, consolidates the observations into persistent identities and finally computes the analytics of the video. Tracking-quality metrics such as IDF1, HOTA and the number of identity switches are produced by the experiment harness that accompanies the system.
 
 \add{Mango is one of the most widely grown tropical fruit crops, and the timing of harvest, labour planning, packing-house capacity and market commitments all depend on how many fruit an orchard will deliver. Growers traditionally estimate this by hand-counting a small sample of trees and extrapolating to the whole block. The process is slow, subjective and statistically weak, because fruit load varies strongly from tree to tree and from row to row.}
 
@@ -44,14 +44,15 @@ The system is organised as a pipeline (frame extraction, detection, tracking, Re
 The objectives of the project are:
 
 \begin{enumerate}
-  \item To implement a processing pipeline that orchestrates frame extraction, detection, tracking, ReID embedding, identity consolidation and analytics for an uploaded video.
+  \item To implement a processing pipeline that orchestrates detection, tracking, camera-motion compensation, ReID embedding, identity consolidation and analytics for an uploaded video.
   \item To support multiple tracker back-ends (mock, ByteTrack and TAPNext) behind a common interface so that they can be compared on the same video.
   \item To learn and persist an identity prototype (embedding vector, quality and observation count) for every fruit and to record ReID events when an identity is lost and later reappears.
   \item To estimate camera motion and record whether compensation was applied.
-  \item To compute IDF1, HOTA and ID-switch metrics and per-frame timing telemetry.
+  \item To compute IDF1, HOTA, ID-switch, fragmentation, count-error and identity-recovery metrics, together with per-frame timing telemetry.
   \item To expose all results through a documented REST API and a React~/~TypeScript web client with shared type definitions.
   \item To provide an experiment harness that runs and stores tracker evaluations and exports them as JSON or CSV.
-  \item \add{To make the system deployable on a developer laptop (SQLite) and in production (PostgreSQL, object storage, background workers).}
+  \item \add{To make the system deployable on a developer laptop and as a container stack (API, queue worker and broker) that runs the same code in both settings.}
+  \item \add{To keep every intermediate result inspectable: detections, tracks, identities, observations, re-identification events and timings are persisted separately so that a counting error can be traced to the stage that produced it.}
 \end{enumerate}
 
 \section{Scope of the Project}

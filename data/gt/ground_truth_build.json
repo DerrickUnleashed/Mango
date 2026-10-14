@@ -1,0 +1,32 @@
+{
+  "test": {
+    "frames": 473,
+    "raw_identities": 61,
+    "kept_identities": 9,
+    "dropped_below_min_length": 52,
+    "annotated_frames": 48,
+    "full_rate_boxes": 2956,
+    "boxes": 299,
+    "max_concurrent_detections": 10
+  },
+  "test4": {
+    "frames": 141,
+    "raw_identities": 44,
+    "kept_identities": 7,
+    "dropped_below_min_length": 37,
+    "annotated_frames": 15,
+    "full_rate_boxes": 854,
+    "boxes": 90,
+    "max_concurrent_detections": 10
+  },
+  "Test3": {
+    "frames": 337,
+    "raw_identities": 43,
+    "kept_identities": 14,
+    "dropped_below_min_length": 29,
+    "annotated_frames": 34,
+    "full_rate_boxes": 1947,
+    "boxes": 197,
+    "max_concurrent_detections": 12
+  }
+}
