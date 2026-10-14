@@ -81,5 +81,6 @@ describe('TrackVisualizer', () => {
     render(<TrackVisualizer videoId="v1" width={320} height={180} frameCount={2} enabled />)
     await waitFor(() => expect(drawImage).toHaveBeenCalled())
     expect(drawImage.mock.calls[0][0]).toMatchObject({ src: '/api/videos/v1/frames/0' })
+    expect(drawImage.mock.calls[0].slice(1)).toEqual([0, 0, 320, 180])
   })
 })
