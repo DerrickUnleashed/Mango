@@ -40,26 +40,7 @@ Figure~\ref{fig:er} gives an overview of how the models relate to each other. \a
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[
-  node distance=7mm and 8mm,
-  ent/.style={draw,rounded corners=2pt,align=center,font=\footnotesize,minimum height=7mm,minimum width=2.6cm},
-  main/.style={ent,fill=gray!15,font=\small\bfseries},
-  lnk/.style={thick}]
-\node[main] (video) {Video};
-\node[ent,above left=of video] (job) {ProcessingJob};
-\node[ent,above=of video] (track) {Track};
-\node[ent,above right=of video] (det) {DetectionRecord};
-\node[ent,left=of video] (ident) {IdentityRecord};
-\node[ent,right=of video] (time) {FrameTimingRecord};
-\node[ent,below left=of video] (obs) {IdentityObservation};
-\node[ent,below=of video] (reid) {ReidEvent};
-\node[ent,below right=of video] (cam) {CameraMotionRecord};
-\node[ent,below=12mm of reid,xshift=-22mm] (exp) {Experiment};
-\node[ent,below=12mm of reid,xshift=22mm] (set) {AppSettings};
-\foreach \n in {job,track,det,ident,time,obs,reid,cam} \draw[lnk] (video) -- (\n);
-\draw[lnk,dashed] (ident) -- (obs);
-\draw[lnk,dashed] (obs) -- (track);
-\end{tikzpicture}
+\includegraphics[width=0.95\linewidth]{er.png}
 \caption[Overview of the data model]{Overview of the data model: all per-video artefacts reference \code{Video}; \code{Experiment} and \code{AppSettings} are standalone.}
 \label{fig:er}
 \end{figure}
