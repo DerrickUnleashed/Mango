@@ -18,17 +18,29 @@ Four of them (`fig:ui_*`) must be real screenshots of the running system, and
 `fig:bars`, `fig:proj`, `fig:thr` and `fig:timing` are better plotted from the
 experiment export than generated.
 
-- [ ] `fig:bars` — `ch8_results.tex:64`. Tracker comparison (IDF1 / HOTA / ID switches)
-- [ ] `fig:proj` — `ch8_results.tex:84`. t-SNE/PCA of identity prototypes
-- [ ] `fig:reid` — `ch8_results.tex:86`. Filmstrip: lost → occluded → reappeared
-- [ ] `fig:thr` — `ch8_results.tex:108`. ReID threshold sweep, identities + IDF1
-- [ ] `fig:timing` — `ch8_results.tex:146`. Per-frame `proc_ms` over one video
-Done — all four screenshots captured, wired into the report and rendered:
-  `docs/screens/ui_videos.png`, `ui_tracks.png`, `ui_exp.png`, `ui_set.png` are now
-  `fig:ui_*` figures in `ch8_results.tex:225-249`.
+Done — reproducible harness and figures. `scripts/evaluate_videos.py` runs the YOLO detector and a
+  tracker over every frame of V1--V3 and scores them with the project's own metrics module;
+  `scripts/plot_results.py` renders the figures. Exports land in `data/results/`.
 
-- [ ] Re-capture the three remaining screenshots after the ground-truth work, if the
-      report's numbers and the interface both change in the meantime
+- [x] `fig:bars` — `ch8_results.tex`. `docs/tracker_comparison.png`, rendered from the export
+- [x] `fig:timing` — `docs/per_frame_timing.png`, per-frame detection + tracking time
+- [x] Threshold sweep, at the detection confidence the harness can actually sweep:
+      `docs/confidence_sweep.png` plus a new subsection in Ch8
+- [x] Tracker comparison table, runtime table, counting-accuracy table and the row counts in
+      `ch4_datamodel.tex` now carry measured values
+- [x] `ch8_results.tex` opening rewritten; it no longer claims the chapter has no results
+
+Still empty, and why:
+
+- [ ] `fig:proj` and `fig:reid` — need the identity memory to run inside the evaluated loop
+- [ ] Camera-motion ablation (`tab:cam`) — same reason; compensation is applied in the API
+      pipeline, not in the offline harness
+- [ ] ReID threshold sweep (`tab:thr`) — same reason
+- [ ] TAPNext row in `tab:trackers` and `tab:timing` — needs the TAPNext checkpoint on this
+      machine
+- [ ] Once the annotations are corrected, re-run the two scripts and the numbers change; the
+      identity-level metrics are currently lower bounds set by annotation fragmentation, which
+      is quantified in the new Ch8 subsection on ground-truth provenance
 
 ## 2. Ground-truth annotation (blocking everything else)
 
