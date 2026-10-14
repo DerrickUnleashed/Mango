@@ -1,0 +1,3776 @@
+[
+ {
+  "imagePath": "Test3_f00000.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_001",
+    "points": [
+     [
+      348.8,
+      36.0
+     ],
+     [
+      416.0,
+      135.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_002",
+    "points": [
+     [
+      323.4,
+      137.5
+     ],
+     [
+      428.0,
+      288.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_003",
+    "points": [
+     [
+      264.5,
+      0.6
+     ],
+     [
+      357.4,
+      101.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_004",
+    "points": [
+     [
+      397.3,
+      81.7
+     ],
+     [
+      467.9,
+      183.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00010.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_002",
+    "points": [
+     [
+      336.2,
+      190.5
+     ],
+     [
+      439.7,
+      335.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_003",
+    "points": [
+     [
+      276.3,
+      31.7
+     ],
+     [
+      365.70000000000005,
+      145.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_001",
+    "points": [
+     [
+      361.6,
+      80.3
+     ],
+     [
+      428.70000000000005,
+      185.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_004",
+    "points": [
+     [
+      401.3,
+      131.4
+     ],
+     [
+      473.5,
+      218.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00020.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_002",
+    "points": [
+     [
+      357.4,
+      283.6
+     ],
+     [
+      459.29999999999995,
+      417.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_003",
+    "points": [
+     [
+      297.4,
+      120.5
+     ],
+     [
+      384.9,
+      235.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_007",
+    "points": [
+     [
+      381.6,
+      171.7
+     ],
+     [
+      450.70000000000005,
+      272.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_008",
+    "points": [
+     [
+      418.9,
+      211.9
+     ],
+     [
+      500.29999999999995,
+      317.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_006",
+    "points": [
+     [
+      399.3,
+      195.4
+     ],
+     [
+      501.4,
+      316.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00030.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_003",
+    "points": [
+     [
+      326.5,
+      206.6
+     ],
+     [
+      412.0,
+      319.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_007",
+    "points": [
+     [
+      410.8,
+      258.8
+     ],
+     [
+      475.70000000000005,
+      355.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_008",
+    "points": [
+     [
+      452.9,
+      303.3
+     ],
+     [
+      517.1,
+      399.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_002",
+    "points": [
+     [
+      385.2,
+      367.4
+     ],
+     [
+      481.1,
+      431.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      220.4,
+      1.2
+     ],
+     [
+      326.3,
+      96.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00040.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_003",
+    "points": [
+     [
+      333.5,
+      252.0
+     ],
+     [
+      420.0,
+      363.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_007",
+    "points": [
+     [
+      416.5,
+      305.5
+     ],
+     [
+      483.2,
+      404.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      235.3,
+      5.1
+     ],
+     [
+      338.1,
+      128.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_008",
+    "points": [
+     [
+      451.5,
+      341.4
+     ],
+     [
+      528.0,
+      428.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_012",
+    "points": [
+     [
+      433.8,
+      321.5
+     ],
+     [
+      526.9,
+      426.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00050.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_003",
+    "points": [
+     [
+      331.7,
+      286.5
+     ],
+     [
+      420.0,
+      397.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      236.2,
+      34.7
+     ],
+     [
+      339.2,
+      161.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_007",
+    "points": [
+     [
+      417.4,
+      340.5
+     ],
+     [
+      484.09999999999997,
+      429.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_008",
+    "points": [
+     [
+      463.0,
+      378.4
+     ],
+     [
+      525.2,
+      430.59999999999997
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00060.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      237.8,
+      74.4
+     ],
+     [
+      340.4,
+      200.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_003",
+    "points": [
+     [
+      330.5,
+      322.9
+     ],
+     [
+      421.0,
+      427.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_007",
+    "points": [
+     [
+      417.2,
+      377.5
+     ],
+     [
+      489.9,
+      429.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_013",
+    "points": [
+     [
+      220.9,
+      0.5
+     ],
+     [
+      311.5,
+      51.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00070.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      282.1,
+      120.8
+     ],
+     [
+      384.0,
+      245.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_013",
+    "points": [
+     [
+      262.8,
+      1.2
+     ],
+     [
+      358.9,
+      104.60000000000001
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_014",
+    "points": [
+     [
+      374.8,
+      365.5
+     ],
+     [
+      468.9,
+      431.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00080.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      315.1,
+      149.9
+     ],
+     [
+      416.5,
+      274.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_013",
+    "points": [
+     [
+      294.2,
+      0.7
+     ],
+     [
+      385.0,
+      120.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_015",
+    "points": [
+     [
+      0.3,
+      70.7
+     ],
+     [
+      40.0,
+      246.89999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00090.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      327.6,
+      157.3
+     ],
+     [
+      424.70000000000005,
+      281.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_013",
+    "points": [
+     [
+      302.8,
+      1.8
+     ],
+     [
+      392.20000000000005,
+      126.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_015",
+    "points": [
+     [
+      0.2,
+      76.9
+     ],
+     [
+      51.900000000000006,
+      251.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00100.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      329.3,
+      164.5
+     ],
+     [
+      426.4,
+      286.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_015",
+    "points": [
+     [
+      0.2,
+      83.2
+     ],
+     [
+      54.400000000000006,
+      256.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_013",
+    "points": [
+     [
+      306.5,
+      5.5
+     ],
+     [
+      395.3,
+      131.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00110.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      334.6,
+      165.4
+     ],
+     [
+      433.8,
+      287.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_015",
+    "points": [
+     [
+      0.1,
+      84.7
+     ],
+     [
+      60.5,
+      254.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_013",
+    "points": [
+     [
+      310.3,
+      6.7
+     ],
+     [
+      399.9,
+      131.79999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00120.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      333.1,
+      173.2
+     ],
+     [
+      432.5,
+      297.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_013",
+    "points": [
+     [
+      310.0,
+      14.9
+     ],
+     [
+      398.9,
+      141.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_015",
+    "points": [
+     [
+      0.1,
+      95.8
+     ],
+     [
+      59.9,
+      263.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00130.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      324.1,
+      196.7
+     ],
+     [
+      422.3,
+      320.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_013",
+    "points": [
+     [
+      302.6,
+      35.6
+     ],
+     [
+      392.20000000000005,
+      164.29999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_015",
+    "points": [
+     [
+      0.2,
+      117.3
+     ],
+     [
+      51.900000000000006,
+      289.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00140.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_013",
+    "points": [
+     [
+      310.2,
+      64.9
+     ],
+     [
+      399.79999999999995,
+      193.70000000000002
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      333.3,
+      225.9
+     ],
+     [
+      432.20000000000005,
+      350.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_015",
+    "points": [
+     [
+      0.1,
+      149.0
+     ],
+     [
+      60.2,
+      316.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00150.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_009",
+    "points": [
+     [
+      346.8,
+      243.7
+     ],
+     [
+      444.9,
+      369.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_015",
+    "points": [
+     [
+      0.0,
+      168.2
+     ],
+     [
+      76.3,
+      333.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_013",
+    "points": [
+     [
+      322.7,
+      82.3
+     ],
+     [
+      410.6,
+      207.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00160.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      325.5,
+      132.7
+     ],
+     [
+      375.4,
+      184.89999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      480.4,
+      225.7
+     ],
+     [
+      525.6999999999999,
+      272.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      227.5,
+      293.8
+     ],
+     [
+      282.7,
+      363.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      203.1,
+      78.7
+     ],
+     [
+      250.3,
+      137.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      127.0,
+      170.0
+     ],
+     [
+      171.3,
+      222.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      366.4,
+      169.0
+     ],
+     [
+      414.2,
+      223.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      627.2,
+      169.9
+     ],
+     [
+      654.9000000000001,
+      202.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      653.8,
+      161.0
+     ],
+     [
+      680.0999999999999,
+      193.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_025",
+    "points": [
+     [
+      679.6,
+      4.7
+     ],
+     [
+      716.1,
+      56.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_026",
+    "points": [
+     [
+      657.8,
+      160.7
+     ],
+     [
+      684.3,
+      203.79999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00170.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      327.7,
+      131.7
+     ],
+     [
+      378.59999999999997,
+      185.89999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      207.5,
+      79.1
+     ],
+     [
+      253.4,
+      136.39999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      232.4,
+      294.1
+     ],
+     [
+      287.5,
+      363.70000000000005
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      483.2,
+      224.5
+     ],
+     [
+      528.3,
+      271.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      129.9,
+      169.9
+     ],
+     [
+      174.3,
+      220.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      371.5,
+      168.8
+     ],
+     [
+      416.5,
+      226.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      628.0,
+      169.3
+     ],
+     [
+      654.6,
+      201.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      653.9,
+      160.6
+     ],
+     [
+      681.1999999999999,
+      195.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_028",
+    "points": [
+     [
+      374.8,
+      197.6
+     ],
+     [
+      402.5,
+      225.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_027",
+    "points": [
+     [
+      654.2,
+      159.1
+     ],
+     [
+      684.6,
+      203.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_025",
+    "points": [
+     [
+      678.4,
+      4.4
+     ],
+     [
+      721.3,
+      57.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00180.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      328.4,
+      132.6
+     ],
+     [
+      379.0,
+      186.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      208.0,
+      79.6
+     ],
+     [
+      254.2,
+      136.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      232.7,
+      295.0
+     ],
+     [
+      287.3,
+      364.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      483.5,
+      225.5
+     ],
+     [
+      527.9,
+      271.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      129.8,
+      169.9
+     ],
+     [
+      174.5,
+      220.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      371.2,
+      169.6
+     ],
+     [
+      416.8,
+      226.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      627.6,
+      169.1
+     ],
+     [
+      654.4,
+      201.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      653.7,
+      160.6
+     ],
+     [
+      680.9000000000001,
+      195.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_030",
+    "points": [
+     [
+      374.0,
+      186.7
+     ],
+     [
+      405.4,
+      225.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_029",
+    "points": [
+     [
+      654.4,
+      159.0
+     ],
+     [
+      684.5,
+      203.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00190.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      325.0,
+      129.8
+     ],
+     [
+      376.0,
+      184.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      229.1,
+      292.1
+     ],
+     [
+      283.5,
+      360.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      205.2,
+      77.0
+     ],
+     [
+      251.2,
+      134.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      480.2,
+      222.3
+     ],
+     [
+      526.6,
+      270.90000000000003
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      127.7,
+      167.7
+     ],
+     [
+      171.9,
+      218.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      366.5,
+      167.6
+     ],
+     [
+      414.5,
+      222.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      626.5,
+      167.5
+     ],
+     [
+      653.8,
+      200.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      653.0,
+      160.1
+     ],
+     [
+      680.7,
+      192.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_031",
+    "points": [
+     [
+      679.2,
+      1.9
+     ],
+     [
+      716.6,
+      54.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00200.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      324.2,
+      131.9
+     ],
+     [
+      375.5,
+      185.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      479.9,
+      225.0
+     ],
+     [
+      524.6,
+      271.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      226.8,
+      293.1
+     ],
+     [
+      282.0,
+      361.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      202.0,
+      78.2
+     ],
+     [
+      248.3,
+      136.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      126.1,
+      169.5
+     ],
+     [
+      171.0,
+      220.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      365.0,
+      169.2
+     ],
+     [
+      412.7,
+      224.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      626.9,
+      169.3
+     ],
+     [
+      653.4,
+      201.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      652.7,
+      161.0
+     ],
+     [
+      679.6,
+      194.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_031",
+    "points": [
+     [
+      677.6,
+      3.4
+     ],
+     [
+      715.6,
+      54.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00210.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      322.5,
+      135.1
+     ],
+     [
+      372.1,
+      190.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      202.3,
+      82.1
+     ],
+     [
+      247.9,
+      139.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      478.6,
+      227.1
+     ],
+     [
+      522.7,
+      275.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      225.9,
+      296.0
+     ],
+     [
+      280.5,
+      364.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      125.3,
+      171.7
+     ],
+     [
+      171.1,
+      226.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      364.5,
+      170.9
+     ],
+     [
+      411.9,
+      228.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      626.3,
+      171.7
+     ],
+     [
+      653.5,
+      203.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      652.1,
+      162.7
+     ],
+     [
+      679.2,
+      193.89999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_031",
+    "points": [
+     [
+      673.2,
+      5.8
+     ],
+     [
+      714.0,
+      48.099999999999994
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00220.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      324.1,
+      136.6
+     ],
+     [
+      373.3,
+      190.89999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      202.8,
+      83.7
+     ],
+     [
+      249.0,
+      141.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      228.7,
+      296.1
+     ],
+     [
+      283.09999999999997,
+      365.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      125.6,
+      173.9
+     ],
+     [
+      172.5,
+      226.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      478.8,
+      228.7
+     ],
+     [
+      523.5,
+      277.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      364.7,
+      172.5
+     ],
+     [
+      413.4,
+      228.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      625.7,
+      172.8
+     ],
+     [
+      653.2,
+      205.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      651.5,
+      163.8
+     ],
+     [
+      678.6,
+      197.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_031",
+    "points": [
+     [
+      674.2,
+      8.4
+     ],
+     [
+      714.7,
+      55.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00230.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      329.0,
+      135.9
+     ],
+     [
+      377.8,
+      190.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      208.3,
+      82.0
+     ],
+     [
+      254.20000000000002,
+      139.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      483.2,
+      227.8
+     ],
+     [
+      527.8,
+      276.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      231.8,
+      295.9
+     ],
+     [
+      286.5,
+      365.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      131.7,
+      173.0
+     ],
+     [
+      175.89999999999998,
+      222.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      373.4,
+      172.0
+     ],
+     [
+      416.59999999999997,
+      230.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      629.9,
+      173.9
+     ],
+     [
+      655.6999999999999,
+      204.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      654.6,
+      164.2
+     ],
+     [
+      682.2,
+      197.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_031",
+    "points": [
+     [
+      680.3,
+      7.6
+     ],
+     [
+      718.4,
+      60.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00240.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      331.7,
+      135.9
+     ],
+     [
+      380.0,
+      190.10000000000002
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      235.5,
+      296.2
+     ],
+     [
+      290.2,
+      365.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      485.8,
+      228.4
+     ],
+     [
+      530.2,
+      275.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      212.0,
+      81.9
+     ],
+     [
+      257.2,
+      139.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      132.6,
+      171.9
+     ],
+     [
+      178.0,
+      222.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      374.6,
+      172.7
+     ],
+     [
+      419.40000000000003,
+      231.29999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      630.7,
+      173.4
+     ],
+     [
+      658.0,
+      207.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      656.7,
+      165.3
+     ],
+     [
+      683.6,
+      200.70000000000002
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_031",
+    "points": [
+     [
+      681.3,
+      8.6
+     ],
+     [
+      721.0999999999999,
+      58.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00250.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      334.3,
+      127.6
+     ],
+     [
+      384.3,
+      179.39999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      238.3,
+      285.3
+     ],
+     [
+      291.90000000000003,
+      354.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      487.4,
+      221.2
+     ],
+     [
+      531.6,
+      268.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      211.8,
+      71.7
+     ],
+     [
+      260.3,
+      131.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      133.4,
+      162.1
+     ],
+     [
+      177.5,
+      213.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      372.3,
+      162.9
+     ],
+     [
+      420.1,
+      220.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      630.3,
+      168.2
+     ],
+     [
+      659.9,
+      204.89999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      657.0,
+      159.9
+     ],
+     [
+      681.6,
+      192.60000000000002
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_031",
+    "points": [
+     [
+      682.8,
+      4.3
+     ],
+     [
+      722.8,
+      54.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00260.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      330.0,
+      120.1
+     ],
+     [
+      379.5,
+      172.39999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      235.2,
+      279.1
+     ],
+     [
+      288.5,
+      347.70000000000005
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      211.1,
+      64.0
+     ],
+     [
+      257.1,
+      122.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      483.3,
+      214.6
+     ],
+     [
+      527.7,
+      262.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      130.8,
+      155.4
+     ],
+     [
+      174.70000000000002,
+      206.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      371.6,
+      158.4
+     ],
+     [
+      418.20000000000005,
+      208.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      629.4,
+      163.0
+     ],
+     [
+      656.0,
+      196.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      654.1,
+      154.0
+     ],
+     [
+      681.0,
+      185.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_031",
+    "points": [
+     [
+      681.3,
+      0.5
+     ],
+     [
+      722.6999999999999,
+      58.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00270.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      324.9,
+      115.0
+     ],
+     [
+      375.29999999999995,
+      168.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      227.5,
+      274.7
+     ],
+     [
+      282.6,
+      342.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      479.2,
+      209.6
+     ],
+     [
+      524.4,
+      256.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      203.1,
+      58.5
+     ],
+     [
+      250.8,
+      118.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      125.6,
+      151.1
+     ],
+     [
+      170.1,
+      200.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      364.3,
+      152.8
+     ],
+     [
+      413.5,
+      208.20000000000002
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      625.6,
+      159.6
+     ],
+     [
+      652.9,
+      192.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      651.9,
+      151.8
+     ],
+     [
+      678.1,
+      183.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00280.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      321.7,
+      113.4
+     ],
+     [
+      371.8,
+      166.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      223.1,
+      271.5
+     ],
+     [
+      278.3,
+      341.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      199.6,
+      57.2
+     ],
+     [
+      245.6,
+      115.80000000000001
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      477.3,
+      207.6
+     ],
+     [
+      522.1,
+      256.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      361.8,
+      150.7
+     ],
+     [
+      410.2,
+      206.39999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      123.7,
+      150.2
+     ],
+     [
+      167.4,
+      200.29999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      624.3,
+      156.0
+     ],
+     [
+      652.4,
+      190.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      650.8,
+      146.5
+     ],
+     [
+      678.0999999999999,
+      181.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00290.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      324.3,
+      117.3
+     ],
+     [
+      374.40000000000003,
+      171.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      225.8,
+      277.8
+     ],
+     [
+      278.8,
+      347.1
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      478.8,
+      211.2
+     ],
+     [
+      524.9,
+      259.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      202.1,
+      62.1
+     ],
+     [
+      249.2,
+      121.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      363.9,
+      155.3
+     ],
+     [
+      412.29999999999995,
+      208.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      125.2,
+      153.5
+     ],
+     [
+      170.4,
+      206.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      626.9,
+      159.6
+     ],
+     [
+      653.3,
+      191.29999999999998
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      652.8,
+      151.1
+     ],
+     [
+      679.0,
+      182.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00300.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      326.3,
+      124.9
+     ],
+     [
+      377.0,
+      177.10000000000002
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      206.4,
+      69.0
+     ],
+     [
+      252.4,
+      128.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      229.4,
+      286.5
+     ],
+     [
+      284.1,
+      353.4
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      481.3,
+      218.2
+     ],
+     [
+      526.9,
+      267.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      127.5,
+      160.5
+     ],
+     [
+      173.6,
+      212.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      368.2,
+      162.0
+     ],
+     [
+      416.09999999999997,
+      215.2
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      629.9,
+      163.9
+     ],
+     [
+      656.3,
+      197.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      654.5,
+      154.5
+     ],
+     [
+      682.3,
+      189.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_043",
+    "points": [
+     [
+      678.7,
+      0.3
+     ],
+     [
+      722.4000000000001,
+      52.599999999999994
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00310.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      333.2,
+      124.4
+     ],
+     [
+      382.5,
+      176.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      235.0,
+      284.9
+     ],
+     [
+      289.3,
+      352.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      133.3,
+      158.9
+     ],
+     [
+      177.60000000000002,
+      210.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      210.4,
+      69.6
+     ],
+     [
+      257.7,
+      126.39999999999999
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      485.6,
+      217.8
+     ],
+     [
+      530.4,
+      265.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      371.6,
+      160.8
+     ],
+     [
+      419.6,
+      216.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      631.2,
+      164.0
+     ],
+     [
+      658.6,
+      199.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      657.6,
+      155.8
+     ],
+     [
+      684.2,
+      193.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_043",
+    "points": [
+     [
+      682.6,
+      0.8
+     ],
+     [
+      723.3000000000001,
+      55.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_044",
+    "points": [
+     [
+      660.7,
+      156.6
+     ],
+     [
+      686.6,
+      202.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00320.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      335.1,
+      120.3
+     ],
+     [
+      386.90000000000003,
+      173.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      239.5,
+      279.6
+     ],
+     [
+      293.8,
+      348.70000000000005
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      217.8,
+      65.4
+     ],
+     [
+      262.90000000000003,
+      122.5
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      375.8,
+      158.4
+     ],
+     [
+      424.2,
+      211.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      135.7,
+      156.9
+     ],
+     [
+      180.5,
+      207.10000000000002
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      489.1,
+      216.3
+     ],
+     [
+      534.2,
+      262.7
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      633.0,
+      162.5
+     ],
+     [
+      660.9,
+      198.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      658.2,
+      154.8
+     ],
+     [
+      685.4000000000001,
+      189.10000000000002
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_043",
+    "points": [
+     [
+      684.9,
+      0.8
+     ],
+     [
+      725.4,
+      55.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ },
+ {
+  "imagePath": "Test3_f00330.jpg",
+  "imageHeight": 432,
+  "imageWidth": 768,
+  "shapes": [
+   {
+    "label": "mango_019",
+    "points": [
+     [
+      239.5,
+      277.7
+     ],
+     [
+      293.6,
+      345.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_017",
+    "points": [
+     [
+      335.2,
+      118.7
+     ],
+     [
+      385.09999999999997,
+      172.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_021",
+    "points": [
+     [
+      135.3,
+      153.8
+     ],
+     [
+      181.4,
+      204.8
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_020",
+    "points": [
+     [
+      215.3,
+      63.2
+     ],
+     [
+      261.8,
+      121.80000000000001
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_018",
+    "points": [
+     [
+      487.8,
+      212.0
+     ],
+     [
+      532.9,
+      259.6
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_022",
+    "points": [
+     [
+      375.1,
+      157.9
+     ],
+     [
+      422.70000000000005,
+      206.9
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_023",
+    "points": [
+     [
+      632.4,
+      160.4
+     ],
+     [
+      660.5,
+      196.3
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   },
+   {
+    "label": "mango_024",
+    "points": [
+     [
+      658.2,
+      151.2
+     ],
+     [
+      683.9000000000001,
+      183.0
+     ]
+    ],
+    "group_id": null,
+    "shape_type": "rectangle",
+    "flags": {}
+   }
+  ]
+ }
+]
