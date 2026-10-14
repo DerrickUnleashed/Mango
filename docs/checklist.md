@@ -77,14 +77,18 @@ roughly 40 placeholders across lines 5, 55–57, 74–75, 98–101, 118–120 an
 ## 5. Content to write or verify
 
 - [x] `ch1_introduction.tex` — objectives and pipeline description corrected against the code
-- [ ] `ch2_literature.tex` — verify every cited claim against the papers in
-      `references.tex`; add any source you consulted but is missing (23 entries exist)
+- [x] `ch2_literature.tex` — every in-text claim checked against its source; each
+      author-year citation now carries its reference number. Added 5 sources that were
+      used but uncited: InfoNCE [22], DBSCAN [19], t-SNE [21], PCA [20], Ultralytics [23],
+      with a paragraph on contrastive training, pseudo-labelling and the 2-D projection.
+      Softened the Koirala et al. claim to what the review actually reports. 23 entries
 - [x] `ch5_pipeline.tex` — stage names, status models, thresholds, prototype update rule,
       camera-motion modes and the identity-numbering scheme corrected against the code
 - [x] `appendices.tex` — repository layout, run commands and sample responses match the
       actual tree, scripts and API
 - [ ] `acronyms.tex` — verify each acronym is used at least once in the body
-- [ ] `references.tex` — add BibTeX/DOI for anything cited in-text but absent
+- [x] `references.tex` — all in-text citations resolve; DOI links can still be added
+      for the arXiv-only entries [1], [7], [18] if the department requires them
 
 ## 6. Build hygiene
 
