@@ -29,24 +29,7 @@ This chapter describes how OrchardVision is run in development and production, h
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[
-  node distance=8mm and 9mm,
-  b/.style={draw,rounded corners=2pt,align=center,font=\small,minimum height=9mm,text width=2.4cm},
-  arr/.style={-{Stealth[length=2mm]},thick}]
-\node[b] (c) {Browser};
-\node[b,right=of c] (p) {Reverse proxy};
-\node[b,right=of p] (g) {uvicorn\\FastAPI};
-\node[b,below=16mm of p] (r) {Redis\\broker};
-\node[b,left=of r] (w) {Celery worker};
-\node[b,below=of r] (v) {Shared volume\\SQLite + media};
-\node[b,right=of r] (m) {models/\\read-only};
-\draw[arr,<->] (c) -- (p);\draw[arr,<->] (p) -- (g);
-\draw[arr,<->] (g.south) -- (v.north);
-\draw[arr,<->] (g.south) -- (r.north);
-\draw[arr,<->] (g.south west) -- (w.north);
-\draw[arr,<->] (w.south) -- (v.north);
-\draw[arr,<->] (g.south east) -- (m.west);
-\end{tikzpicture}
+\includegraphics[width=0.95\linewidth]{deploy.png}
 \caption{Container deployment topology.}
 \label{fig:deploy}
 \end{figure}
