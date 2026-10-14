@@ -46,7 +46,9 @@ def main() -> int:
         default=Path("data/video_dataset"),
         help="Dataset root (contains tiles/ and images/)",
     )
-    parser.add_argument("--include-base", action="store_true", help="Merge Mango_Dataset2 into train")
+    parser.add_argument(
+        "--include-base", action="store_true", help="Merge Mango_Dataset2 into train"
+    )
     args = parser.parse_args()
 
     tiles = args.out / "tiles"
@@ -103,7 +105,10 @@ def main() -> int:
             target = imgs / image_path.name
             target.write_bytes(image_path.read_bytes())
             (lbls / image_path.with_suffix(".txt").name).write_text(
-                "".join(f"{CLASS_ID} {x0:.6f} {y0:.6f} {x1:.6f} {y1:.6f}\n" for x0, y0, x1, y1 in boxes)
+                "".join(
+                    f"{CLASS_ID} {x0:.6f} {y0:.6f} {x1:.6f} {y1:.6f}\n"
+                    for x0, y0, x1, y1 in boxes
+                )
             )
             objects += len(boxes)
         return objects
@@ -113,15 +118,23 @@ def main() -> int:
 
     if args.include_base:
         base_dir = Path("data/Mango_Dataset2")
-        train_items = train_items + _base_items(base_dir, "train") + _base_items(base_dir, "valid")
+        train_items = (
+            train_items
+            + _base_items(base_dir, "train")
+            + _base_items(base_dir, "valid")
+        )
         val_items = val_items + _base_items(base_dir, "test")
-        print(f"base dataset merged: train {len(train_items)} imgs, val {len(val_items)} imgs")
+        print(
+            f"base dataset merged: train {len(train_items)} imgs, val {len(val_items)} imgs"
+        )
 
     write_split(args.out / "train", train_items)
     val_objects = write_split(args.out / "val", val_items)
     train_objects = sum(len(b) for _, b in train_items)
-    print(f"train: {len(train_items)} images ({train_objects} objects), "
-          f"val: {len(val_items)} images ({val_objects} objects)")
+    print(
+        f"train: {len(train_items)} images ({train_objects} objects), "
+        f"val: {len(val_items)} images ({val_objects} objects)"
+    )
 
     # support images that reference the base splits without copying when present
     (args.out / "data.yaml").write_text(
@@ -135,7 +148,9 @@ def main() -> int:
     return 0
 
 
-def _base_items(base_dir: Path, split: str) -> list[tuple[Path, list[tuple[float, float, float, float]]]]:
+def _base_items(
+    base_dir: Path, split: str
+) -> list[tuple[Path, list[tuple[float, float, float, float]]]]:
     imgs = base_dir / split / "images"
     lbls = base_dir / split / "labels"
     items: list[tuple[Path, list[tuple[float, float, float, float]]]] = []
