@@ -1,0 +1,10 @@
+video,tracker,confidence_threshold,camera_motion,reid_threshold,frames,gt_identities,predicted_tracks,idf1,hota,idSwitches,trackFragmentation,countMae,countMape,identityRecoveryRate,mean_ms_per_frame,p95_ms_per_frame,throughput_fps,identities_found,confident_identities,identity_observations,reid_accepted,reid_events
+Test3,mock,0.35,static,0.5,337,14,20,0.1653,0.2978,2,1.2143,5.4243,538.8106,1.0,25.07,25.28,39.88,12,9,2017,8,8
+Test3,mock,0.35,static,0.6,337,14,20,0.1653,0.2978,2,1.2143,5.4243,538.8106,1.0,28.24,29.63,35.41,12,9,2017,8,8
+Test3,mock,0.35,static,0.7,337,14,20,0.1653,0.2978,2,1.2143,5.4243,538.8106,1.0,23.3,24.4,42.91,12,9,2017,8,8
+test,mock,0.35,static,0.5,473,9,14,0.1739,0.3082,0,1.1111,5.8689,583.6744,1.0,27.02,27.9,37.01,10,6,3071,4,4
+test,mock,0.35,static,0.6,473,9,14,0.1739,0.3082,0,1.1111,5.8689,583.6744,1.0,27.36,27.76,36.55,10,6,3071,4,4
+test,mock,0.35,static,0.7,473,9,14,0.1739,0.3082,0,1.1111,5.8689,583.6744,1.0,28.72,33.57,34.82,10,6,3071,4,4
+test4,mock,0.35,static,0.5,141,7,12,0.0475,0.155,0,0.7143,6.4965,639.6285,1.0,28.86,29.38,34.65,10,6,1004,2,2
+test4,mock,0.35,static,0.6,141,7,12,0.0475,0.155,0,0.7143,6.4965,639.6285,1.0,27.56,28.02,36.28,10,6,1004,2,2
+test4,mock,0.35,static,0.7,141,7,12,0.0475,0.155,0,0.7143,6.4965,639.6285,1.0,27.19,27.14,36.78,10,6,1004,2,2
