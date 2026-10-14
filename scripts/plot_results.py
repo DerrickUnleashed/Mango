@@ -20,7 +20,7 @@ from pathlib import Path
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
+import matplotlib.pyplot as plt
 
 VIDEO_ORDER = ["test", "test4", "Test3"]
 VIDEO_LABEL = {"test": "V1 test.mp4", "test4": "V2 test4.mp4", "Test3": "V3 Test3.mp4"}
@@ -57,15 +57,16 @@ def plot_tracker_comparison(rows: list[dict], out: Path) -> None:
             ]
             positions = [i + index * width for i in range(len(videos))]
             axis.bar(positions, values, width=width, label=tracker)
-        axis.set_xticks([i + width * (len(trackers) - 1) / 2 for i in range(len(videos))])
+        axis.set_xticks(
+            [i + width * (len(trackers) - 1) / 2 for i in range(len(videos))]
+        )
         axis.set_xticklabels([VIDEO_LABEL.get(v, v) for v in videos], fontsize=8)
         axis.set_title(title, fontsize=10)
         axis.grid(axis="y", alpha=0.3)
         axis.set_axisbelow(True)
     axes[0].legend(fontsize=8)
     fig.suptitle(
-        "Tracker comparison against the current ground-truth annotations "
-        "(identity-level metrics are dominated by ground-truth fragmentation)",
+        "Tracker comparison against full-rate ground truth built by scripts/build_ground_truth.py",
         fontsize=9,
     )
     fig.tight_layout()
@@ -80,15 +81,15 @@ def plot_confidence_sweep(rows: list[dict], out: Path) -> None:
     trackers = list(dict.fromkeys(r["tracker"] for r in rows))
     colors = {"mock": "#f59e0b", "bytetrack": "#22d3ee"}
     for tracker in trackers:
-        for axis, key, title in zip(axes, ("predicted_tracks", "countMae"), ("Predicted tracks", "Count MAE")):
+        for axis, key, title in zip(
+            axes, ("predicted_tracks", "countMae"), ("Predicted tracks", "Count MAE")
+        ):
             series = []
             for video in videos:
                 points = sorted(
-                    (
-                        (float(r["confidence_threshold"]), float(r[key]))
-                        for r in rows
-                        if r["video"] == video and r["tracker"] == tracker
-                    )
+                    (float(r["confidence_threshold"]), float(r[key]))
+                    for r in rows
+                    if r["video"] == video and r["tracker"] == tracker
                 )
                 if points:
                     xs, ys = zip(*points)
@@ -119,7 +120,12 @@ def plot_timing(timings_path: Path, out: Path) -> None:
     fig, axis = plt.subplots(figsize=(9.0, 3.2))
     for label, values in data.items():
         video, tracker, *_ = label.split("|")
-        axis.plot(values, lw=0.9, alpha=0.85, label=f"{VIDEO_LABEL.get(video, video)} · {tracker}")
+        axis.plot(
+            values,
+            lw=0.9,
+            alpha=0.85,
+            label=f"{VIDEO_LABEL.get(video, video)} · {tracker}",
+        )
     axis.set_xlabel("frame index")
     axis.set_ylabel("processing time (ms)")
     axis.set_title("Per-frame detection + tracking time", fontsize=10)
@@ -148,13 +154,15 @@ def main() -> int:
     if not sweep_dir.exists():
         sweep_dir = args.results / "sweep"
     if (sweep_dir / "metrics.csv").is_file():
-        plot_confidence_sweep(read_rows(sweep_dir / "metrics.csv"), args.out / "confidence_sweep.png")
+        plot_confidence_sweep(
+            read_rows(sweep_dir / "metrics.csv"), args.out / "confidence_sweep.png"
+        )
 
     print("\nGround truth used for these figures:")
     for video, meta in ground_truth.items():
         print(
-            f"  {video}: {meta['identities']} identities over {meta['annotated_frames']} frames, "
-            f"{meta['boxes_per_identity']} boxes per identity"
+            f"  {video}: {meta['gt_identities']} identities over {meta['gt_frames']} frames, "
+            f"{meta['gt_boxes']} boxes ({meta['boxes_per_identity']} per identity)"
         )
     return 0
 
