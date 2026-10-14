@@ -61,13 +61,51 @@ def build_tracker(name: str, match_threshold: float, buffer_frames: int):
 
 
 def load_ground_truth(path: Path) -> tuple[list[Tracklet], dict]:
-    """Read a full-rate ground-truth file into tracklets.
+    """Read a ground-truth file into tracklets.
 
-    The files are written by ``scripts/build_ground_truth.py``. Each key is one fruit
-    identity and each observation is one frame, so two boxes of the same fruit in
-    different frames collapse into a single tracklet.
+    Supports two formats:
+    1. ``scripts/build_ground_truth.py`` format: ``payload["identities"]`` is a dict
+       of identity name -> list of ``{"frame": ..., "bbox": [...]}``.
+    2. Labelme format: JSON list of dicts with ``"shapes"``, each shape has ``"label"``
+       (e.g. ``"mango_001"``) and ``"points"`` (``[x1, y1, x2, y2]``).
     """
     payload = json.loads(path.read_text())
+    
+    # Format 1: build_ground_truth.py output (payload["identities"] is a dict)
+    if isinstance(payload, dict) and isinstance(payload.get("identities"), dict):
+        identities = payload["identities"]
+# Format 2: Labelme format (payload is a list of frame dicts with "shapes")
+    elif isinstance(payload, list) and payload and "shapes" in payload[0]:
+        identities: dict[str, list[dict]] = {}
+        for frame_entry in payload:
+            image_path = frame_entry.get("imagePath", "")
+            # Extract frame number from imagePath like "test_f00000.jpg"
+            frame_id = 0
+            if "_f" in image_path:
+                try:
+                    frame_id = int(image_path.rsplit("_f", 1)[1].rsplit(".", 1)[0])
+                except ValueError:
+                    frame_id = 0
+            for shape in frame_entry.get("shapes", []):
+                label = shape.get("label", "")
+                if not label:
+                    continue
+                box = shape.get("points", [])
+                # Labelme rectangle points: [[x1, y1], [x2, y2]]
+                if isinstance(box, list) and len(box) == 2 and all(isinstance(p, list) and len(p) >= 2 for p in box):
+                    bbox = [float(box[0][0]), float(box[0][1]), float(box[1][0])-float(box[0][0]), float(box[1][1])-float(box[0][1])]
+                elif isinstance(box, list) and len(box) >= 4:
+                    bbox = [float(box[0]), float(box[1]), float(box[2])-float(box[0]), float(box[3])-float(box[1])]
+                else:
+                    continue
+                identities.setdefault(label, []).append({
+                    "frame": frame_id,
+                    "bbox": bbox,
+                })
+        identities = identities if identities else {}
+    else:
+        raise ValueError(f"Unsupported ground-truth format in {path}")
+    
     tracklets = [
         Tracklet(
             object_id=index,
@@ -78,7 +116,7 @@ def load_ground_truth(path: Path) -> tuple[list[Tracklet], dict]:
         )
         for index, (_, observations) in enumerate(
             sorted(
-                payload["identities"].items(),
+                identities.items(),
                 key=lambda kv: min(o["frame"] for o in kv[1]),
             ),
             start=1,
@@ -86,7 +124,7 @@ def load_ground_truth(path: Path) -> tuple[list[Tracklet], dict]:
     ]
     frames_seen = {f for tracklet in tracklets for f, _ in tracklet.observations}
     meta = {
-        "video": payload.get("video", path.stem),
+        "video": payload.get("video", path.stem) if isinstance(payload, dict) else path.stem,
         "gt_boxes": sum(len(t.observations) for t in tracklets),
         "gt_frames": len(frames_seen),
         "gt_identities": len(tracklets),
