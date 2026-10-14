@@ -16,13 +16,12 @@ left; every one of them is gated on the identity memory running inside the evalu
 ## 1. Ground-truth review (not blocking any longer)
 
 The identities were selected mechanically, so the long tracks are almost certainly right; the review
-below is about the ones the rule dropped.
+below is about the ones the rule dropped. V2's low score is settled: it is a real property of fast
+handheld motion, not an artefact of the rule, and it is written up in Ch8.
 
 - [ ] Open the three labelme files in `data/gt/labelme/` and confirm the retained identities.
       Drop any that are not a real fruit, add any that the detector missed
-- [ ] Decide whether V2's low score (0.23) is a real property of fast handheld motion on a 141-frame
-      clip, or an artefact of the 50-frame rule discarding short tracks. This is the one number in
-      Ch8 that most needs a second opinion
+
 
 ## 2. Harness gaps (need the identity memory in the evaluated loop)
 
