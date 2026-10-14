@@ -7,9 +7,10 @@ const track: PersistedTrack = {
   videoId: 'v',
   jobId: 'j',
   trackId: 1,
-  firstFrame: 0,
-  lastFrame: 0,
-  points: [{ frameId: 0, bbox: [10, 10, 20, 20], confidence: 0.9, visibility: 'visible' }],
+  identityId: null,
+  status: 'active',
+  createdAt: null,
+  points: [{ frameId: 0, bbox: [10, 10, 20, 20], confidence: 0.9, isOccluded: false }],
 }
 
 function makeCtx() {
