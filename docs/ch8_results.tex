@@ -279,6 +279,14 @@ trades recall for track continuity, and the identity metrics are insensitive to 
 \label{tab:count}
 \end{table}
 
+\add{V2 is the interesting failure. The three videos differ sharply in how long a
+tracked fruit survives: on V1 the median track lasts 377 frames, against 37 frames on V2, on a clip
+that is itself only 141 frames long and whose global camera motion is an order of magnitude larger
+(median shift 4.5\,px against 0.3\,px, with a 95th percentile of 44.7\,px). V2 is therefore where
+identity continuity is genuinely hard, and the low scores there reflect that rather than a defect
+in the metric: the score is unchanged when the minimum track length of the ground truth is varied
+between twenty and eighty frames, so it is not an artefact of how the ground truth was cleaned up.}
+
 \section{Runtime Performance}
 
 \add{Per-frame processing times are stored as \code{FrameTimingRecord} rows and returned by \code{GET /videos/{id}/per-frame}. Table~\ref{tab:timing} summarises them per tracker.}
