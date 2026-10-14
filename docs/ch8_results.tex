@@ -221,15 +221,35 @@ therefore tied to the machine below.
 
 \section{Web Interface}
 
-\add{The following screenshots document the web interface and should be captured from the running application.}
+\add{The following screenshots document the web interface. They were captured from the running application at 1440\,px with a 2x device pixel ratio; the processed video behind them is \code{videos/test4.mp4}, run through the pipeline in \code{real} inference mode with the YOLOv8n detector and the ByteTrack tracker.}
 
-\figph{fig:ui_videos}{Video list and upload screen}{Video list and upload screen.}{Screenshot of the page that lists uploaded videos with their status (\texttt{uploaded}, \texttt{processing}, \texttt{processed}, \texttt{error}) and the upload control.}{4.5cm}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{screens/ui_videos.png}
+\caption[Video list and upload screen]{Video list and upload screen.}
+\label{fig:ui_videos}
+\end{figure}
 
-\figph{fig:ui_tracks}{Track visualisation}{Track overlay on a processed video.}{Screenshot of a processed video with bounding boxes and track trails drawn over a frame. Visible, occluded and lost states should be distinguishable (for example by solid, dashed and faded outlines).}{5cm}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{screens/ui_tracks.png}
+\caption[Track visualisation]{Track overlay on a processed video.}
+\label{fig:ui_tracks}
+\end{figure}
 
-\figph{fig:ui_exp}{Experiment management screen}{Experiment list and metrics view.}{Screenshot of the experiments page showing the list of experiments, their tracker, scenario, number of frames, status and metrics, together with the export (JSON/CSV) buttons.}{4.5cm}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{screens/ui_exp.png}
+\caption[Experiment management screen]{Experiment list and metrics view.}
+\label{fig:ui_exp}
+\end{figure}
 
-\figph{fig:ui_set}{Settings screen}{Pipeline settings screen.}{Screenshot of the settings page showing the confidence threshold, ReID threshold, tracker type, camera-motion mode, memory update rate, tracker match threshold and buffer frames.}{4.5cm}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{screens/ui_set.png}
+\caption[Settings screen]{Pipeline settings screen.}
+\label{fig:ui_set}
+\end{figure}
 
 \section{Discussion}
 
