@@ -1,4 +1,5 @@
 \chapter{Experimental Evaluation and Results}
+\label{ch:results}
 
 \section{Introduction}
 
@@ -43,6 +44,79 @@ The evaluation is performed with the experiment harness of the system. An experi
 \subsection{Metrics}
 
 \add{IDF1, HOTA and the number of identity switches are reported for each configuration, as computed by the \code{AnalyticsEngine}. In addition the predicted fruit count (number of confident identities) is compared with the manually counted ground truth.}
+
+\section{Detector Selection}
+
+The first experiment measured on real data is the detector itself, because the training
+runs were logged by Ultralytics and their validation metrics are therefore available
+without re-training. Four training runs are recorded in the repository under
+\code{models/}: a YOLOv8n run of 50 epochs, two YOLOv8m runs (10 and 93 epochs) and a
+YOLOv8x run of 40 epochs. Table~\ref{tab:detector} lists, for each run, the epoch with
+the best validation \code{mAP\textsubscript{50-95}}, the precision and recall at that
+epoch, the size of the exported weights and the inference latency measured locally on a
+640-pixel test mosaic. Figure~\ref{fig:detmap} plots the validation
+\code{mAP\textsubscript{50-95}} against the epoch for the two longest runs.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+\hr \textbf{Run} & \textbf{Ep.} & \textbf{P} & \textbf{R} & \textbf{mAP\textsubscript{50}} & \textbf{mAP\textsubscript{50-95}} & \textbf{ms/frame}\\
+\midrule
+\hr \code{mango\_yolov8n-4} & 49 & 0.946 & 0.975 & 0.985 & \textbf{0.827} & \textbf{33.6}\\
+\hr \code{mango\_yolov8m\_exp-2} & 10 & 0.928 & 0.949 & 0.979 & 0.808 & 83.5\\
+\hr \code{mango\_yolov8m\_exp-3} & 73 & 0.958 & 0.971 & 0.987 & 0.789 & 83.5\\
+\hr \code{mango\_yolov8x} & 40 & 0.958 & 0.961 & 0.985 & 0.788 & 173.1\\
+\bottomrule
+\end{tabular}
+\caption[Detector runs]{Detector training runs. P, R and mAP are the validation metrics at
+the best epoch; the latency is the median of ten forward passes of the exported weights at
+640 pixels on the machine described in Table~\ref{tab:hardware}.}
+\label{tab:detector}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\linewidth]{detector_mAP.png}
+\caption[Detector validation curves]{Validation \code{mAP\textsubscript{50-95}} per epoch for
+the two longest detector runs.}
+\label{fig:detmap}
+\end{figure}
+
+The smallest model is the best choice for this system: it reaches the highest
+\code{mAP\textsubscript{50-95}} of all four runs (0.827), it is the fastest at 33.6\,ms per
+frame, and its weights are 6.2\,MB against 52\,MB and 546\,MB for the medium and large
+models. It is therefore the default detector of the deployment. The caveat is that the
+runs are not a controlled ablation: the two YOLOv8m runs and the YOLOv8n run were trained
+on a second, larger annotation set and for different numbers of epochs, and the YOLOv8x
+run was logged only at its final epoch. The comparison therefore mixes architecture,
+dataset and schedule, and it is used here to justify the deployment default, not to make a
+claim about the intrinsic accuracy of the three architectures.
+
+\subsection{Experimental Hardware}
+
+All measurements reported in this chapter were taken on one machine, given in
+Table~\ref{tab:hardware}. The detector training runs recorded in Table~\ref{tab:detector}
+were executed on a separate Windows workstation, whose specification was not logged by
+the training script; only the inference and tracking measurements in this chapter are
+therefore tied to the machine below.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\hr \textbf{Item} & \textbf{Value}\\
+\midrule
+\hr CPU & Apple M2 Max, 12 performance cores\\
+\hr GPU & Apple M2 Max integrated GPU, 30 cores\\
+\hr Memory & 64\,GB unified memory\\
+\hr OS & macOS (Darwin 24), arm64\\
+\hr Software & Python 3.12, PyTorch 2.14, Ultralytics 8.4, OpenCV\\
+\bottomrule
+\end{tabular}
+\caption[Experimental hardware]{Machine used for the inference and tracking measurements.}
+\label{tab:hardware}
+\end{table}
 
 \section{Tracker Comparison}
 
