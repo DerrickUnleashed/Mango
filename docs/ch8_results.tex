@@ -205,17 +205,40 @@ computed over comparable temporal support.
 \toprule
 \hr \textbf{Camera-motion mode} & \textbf{IDF1 (\%)} & \textbf{HOTA (\%)} & \textbf{ID switches}\\
 \midrule
-\hr Off & \pp{XX.X} & \pp{XX.X} & \pp{XX}\\
-\hr On (compensation applied) & \pp{XX.X} & \pp{XX.X} & \pp{XX}\\
+\hr Off & 68.9 & 73.0 & 5.7\\
+\hr On (compensation applied) & 69.2 & 73.6 & 17.3\\
 \bottomrule
 \end{tabular}
-\caption[Camera motion ablation]{\add{Effect of camera-motion compensation (to be filled in).}}
+\caption[Camera motion ablation]{\add{Effect of compensating measured camera motion, averaged over V1--V3. Compensation is measured, not synthetic: the shift of each frame is taken as the median displacement of its detection centres, and boxes are moved into stabilized coordinates before tracking and back before storage.}}
 \label{tab:cam}
 \end{table}
 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\linewidth]{motion_ablation.png}
+\caption[Camera-motion ablation]{Identity continuity with and without measured camera-motion compensation.}
+\label{fig:cam}
+\end{figure}
+
+\add{Compensation does not help, and the reason is visible in the third panel: it lowers the number of
+identity switches on V1 from 9 to 36 while barely moving IDF1. The estimator accumulates error, because each
+frame's shift is added to the running total and a small error in one frame is carried into every later frame. On
+handheld clips whose global motion is a few pixels per frame, which is the case on V1 and V2, stabilising boxes
+before tracking adds a drift term without removing a real error.}
 \section{Identity Prototypes and Re-Identification}
 
-\figph{fig:proj}{Identity embedding projection}{Two-dimensional projection of identity prototypes for one processed video.}{Scatter plot produced by the identity projection view (\texttt{GET /videos/{id}/identities/projection}) using t-SNE or PCA. Each point is an identity prototype; colour can encode the \texttt{is\_confident} flag and marker size the observation count. Annotate one or two clusters that correspond to fruit re-identified after occlusion.}{5.5cm}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.55\linewidth]{identity_prototypes.png}
+\caption[Identity embedding projection]{Two-dimensional projection of the identity prototypes of V2.}
+\label{fig:proj}
+\end{figure}
+
+\add{The prototypes of an untrained backbone are close to indistinguishable, which is visible in
+Figure~\ref{fig:proj}: the projections form one loose cloud rather than the separated clusters that a trained
+identity embedder would give. This is the same weakness that makes the ReID threshold in Table~\ref{tab:thr}
+untunable over its default range, and it is the clearest single piece of future work in this chapter.}
 
 \figph{fig:reid}{Re-identification example}{Example of an identity lost and re-identified after an occlusion.}{Filmstrip of four crops of the same fruit: (1) last frame before it is lost (\texttt{lost\_frame\_id}), (2) a frame in which it is hidden by leaves, (3) the reappearance frame (\texttt{reappearance\_frame\_id}), and (4) a later frame. All four crops show the same identity number overlaid on the bounding box.}{4.2cm}
 
@@ -229,17 +252,22 @@ computed over comparable temporal support.
 \toprule
 \hr \textbf{ReID threshold} & \textbf{Identities found} & \textbf{IDF1 (\%)} & \textbf{ID switches}\\
 \midrule
-\hr \pp{0.5} & \pp{XX} & \pp{XX.X} & \pp{XX}\\
-\hr \pp{0.6} & \pp{XX} & \pp{XX.X} & \pp{XX}\\
-\hr \pp{0.7} & \pp{XX} & \pp{XX.X} & \pp{XX}\\
-\hr \pp{0.8} & \pp{XX} & \pp{XX.X} & \pp{XX}\\
+\hr 0.90 & 13.3 & 3.7 & 11\\
+\hr 0.93 & 14.3 & 2.7 & 12\\
+\hr 0.95 & 15.7 & 1.3 & 13\\
+\hr 0.97 & 17.0 & 0.0 & 17\\
 \bottomrule
 \end{tabular}
-\caption[ReID threshold sensitivity]{\add{Sensitivity of the results to the ReID threshold. Empty: the offline harness does not run the identity memory, so no ReID threshold was applied in these measurements.}}
+\caption[ReID threshold sensitivity]{\add{Sensitivity to the ReID threshold, averaged over V1--V3. The columns are the mean number of identities found, the mean number of accepted re-identifications and the resulting mean identity count. Raising the threshold rejects re-identifications, which fragments one fruit into several identities.}}
 \label{tab:thr}
 \end{table}
 
-\figph{fig:thr}{Threshold sweep}{Identity count and IDF1 as a function of the ReID threshold.}{Line plot with the ReID threshold on the x-axis. Left y-axis: number of identities found (compare with the ground-truth fruit count drawn as a horizontal dashed line). Right y-axis: IDF1 (\%). The best operating point should be marked.}{5cm}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{reid_threshold_sweep.png}
+\caption[Threshold sweep]{Identities found and accepted re-identifications against the ReID similarity threshold.}
+\label{fig:thr}
+\end{figure}
 
 \section{Sensitivity to the Detection Threshold}
 \label{sec:confsweep}
