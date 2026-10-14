@@ -51,31 +51,37 @@ def build_tracker(name: str, match_threshold: float, buffer_frames: int):
 
 
 def load_ground_truth(path: Path) -> tuple[list[Tracklet], dict]:
-    """Read a labelme annotation file into tracklets.
+    """Read a full-rate ground-truth file into tracklets.
 
-    Boxes are grouped by their label, which is what defines a fruit identity, so
-    two boxes of the same fruit in different frames collapse into one tracklet.
+    The files are written by ``scripts/build_ground_truth.py``. Each key is one fruit
+    identity and each observation is one frame, so two boxes of the same fruit in
+    different frames collapse into a single tracklet.
     """
-    items = json.loads(path.read_text())
-    grouped: dict[str, list[tuple[int, tuple[float, float, float, float]]]] = {}
-    for image in items:
-        frame_id = int(image["imagePath"].split("_f")[1].split(".")[0])
-        for shape in image["shapes"]:
-            (x0, y0), (x1, y1) = shape["points"]
-            bbox = (float(x0), float(y0), float(x1 - x0), float(y1 - y0))
-            grouped.setdefault(shape["label"], []).append((frame_id, bbox))
+    payload = json.loads(path.read_text())
     tracklets = [
-        Tracklet(object_id=index, observations=tuple(sorted(obs)))
-        for index, (_, obs) in enumerate(
-            sorted(grouped.items(), key=lambda kv: min(f for f, _ in kv[1])), start=1
+        Tracklet(
+            object_id=index,
+            observations=tuple(
+                (int(o["frame"]), tuple(float(v) for v in o["bbox"]))
+                for o in observations
+            ),
+        )
+        for index, (_, observations) in enumerate(
+            sorted(
+                payload["identities"].items(),
+                key=lambda kv: min(o["frame"] for o in kv[1]),
+            ),
+            start=1,
         )
     ]
+    frames_seen = {f for tracklet in tracklets for f, _ in tracklet.observations}
     meta = {
-        "annotated_frames": len(items),
-        "identities": len(tracklets),
-        "boxes": sum(len(obs) for obs in grouped.values()),
+        "video": payload.get("video", path.stem),
+        "gt_boxes": sum(len(t.observations) for t in tracklets),
+        "gt_frames": len(frames_seen),
+        "gt_identities": len(tracklets),
         "boxes_per_identity": round(
-            sum(len(obs) for obs in grouped.values()) / max(1, len(tracklets)), 2
+            sum(len(t.observations) for t in tracklets) / max(1, len(tracklets)), 1
         ),
     }
     return tracklets, meta
@@ -143,7 +149,12 @@ def percentile(values: list[float], fraction: float) -> float:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--annotations", type=Path, default=Path("data/gt/labelme"))
+    parser.add_argument(
+        "--annotations",
+        type=Path,
+        default=Path("data/gt/ground_truth"),
+        help="full-rate ground truth written by build_ground_truth.py",
+    )
     parser.add_argument("--videos", type=Path, default=Path("videos"))
     parser.add_argument("--out", type=Path, default=Path("data/results"))
     parser.add_argument("--model", default="models/mango_yolov8n-4/weights/best.pt")
@@ -195,7 +206,7 @@ def main() -> int:
                     "tracker": config.tracker,
                     "confidence_threshold": config.confidence_threshold,
                     "frames": outcome["frames"],
-                    "gt_identities": meta["identities"],
+                    "gt_identities": meta["gt_identities"],
                     "predicted_tracks": len(outcome["predicted"]),
                     **report.to_dict(),
                     "mean_ms_per_frame": round(
