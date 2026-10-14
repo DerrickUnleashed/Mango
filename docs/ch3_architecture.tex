@@ -92,7 +92,9 @@ Configuration is loaded through \code{pydantic_settings} from an \code{.env} fil
 \hr Node.js & Node.js with npm and pnpm for the frontend and the shared types package\\
 \hr Database & SQLite\\
 \hr File storage & Local disk through the storage service\\
-\hr Compute & \pp{CPU / GPU model and memory used for the experiments}\\
+\hr Compute & A machine able to run the detector and the trackers; the experiments reported
+in Chapter~\ref{ch:results} were run on an Apple M2 Max (12 CPU cores, 30 GPU cores,
+64\,GB unified memory) with PyTorch 2.14 and Ultralytics 8.4\\
 \hr Browser & A current desktop browser (the frontend is served by Vite in development)\\
 \bottomrule
 \end{tabular}
