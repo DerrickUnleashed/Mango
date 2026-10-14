@@ -12,17 +12,21 @@ all gated on the identity memory running inside the evaluated loop.
 
 ---
 
-## 1. Ground-truth annotation (blocking)
+## 1. Ground-truth review (not blocking any longer)
 
-- [ ] Correct the candidate identities in `data/gt/labelme/test.json` (48 frames, 61 ids),
-      `test4.json` (15 frames, 47 ids) and `Test3.json` (34 frames, 44 ids). One number per
-      physical fruit per video. Instructions in `docs/GT-ANNOTATION.md`; `labelme` 7.8.1 is
-      installed. Candidate ids come from plain greedy IoU, so expect many merges
-- [ ] Record the corrected fruit count per video in `ch8_results.tex:23-25` (the dataset table)
-- [ ] Re-run `scripts/evaluate_videos.py` and `scripts/plot_results.py`, then update the
-      Ch8 numbers. The identity-level metrics are currently lower bounds: the annotations
-      split each fruit into about four fragments (41 ids against 10 concurrently visible
-      fruit in V1), which is quantified in the Ch8 ground-truth provenance subsection
+Ground truth is now built by `scripts/build_ground_truth.py`: full-frame-rate association plus a
+minimum-track-length rule of 50 frames. V1 61 raw ids -> 9 kept, V2 44 -> 7, V3 43 -> 14, all
+consistent with the 10/10/12 concurrency bound. IDF1 on this ground truth is 0.87-0.97 for V1
+and V3 and 0.23-0.27 for V2.
+
+- [ ] Open the three labelme files in `data/gt/labelme/` and confirm the retained identities.
+      Drop any that are not a real fruit, add any that the detector missed. The rule was
+      mechanical, so the long tracks are almost certainly right and the interesting check is
+      whether a real fruit was dropped for being short
+- [ ] Ground truth is derived from the same detector the system runs, so the identity metrics
+      measure identity consistency, not detector accuracy. That limit is stated in Ch8
+- [ ] Decide whether V2's low score (0.23) is a real property of fast handheld motion on a
+      141-frame clip or an artefact of the same rule discarding short tracks
 
 ## 2. Harness gaps (need the identity memory in the evaluated loop)
 
