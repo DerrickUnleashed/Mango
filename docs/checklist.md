@@ -20,7 +20,7 @@ Legend: `[ ]` todo · `[x]` done · file refs are `docs/<file>`.
 - [x] Declaration + certificate wording reviewed
 - [x] Acknowledgement signature line
 
-## 2. Diagrams to draw (`\figph` — 13 total)
+## 2. Diagrams (`\figph` — 13 total, 7 done, 6 left)
 
 Each one replaces a placeholder box with a real figure via `\includegraphics`.
 **Definitive generation prompts for all of these are in
@@ -30,44 +30,49 @@ Four of them (`fig:ui_*`) must be real screenshots of the running system, and
 `fig:bars`, `fig:proj`, `fig:thr` and `fig:timing` are better plotted from the
 experiment export than generated.
 
-- [ ] `fig:usecase` — `ch3_architecture.tex:95`. UML use-case diagram, 2 actors, 10 use cases
-- [ ] `fig:seq` — `ch6_api.tex:78`. Sequence diagram for upload + process + poll
-- [ ] `fig:flow` — `ch7_deployment.tex:97`. 7-step user workflow flowchart
-- [ ] `fig:frames` — `ch8_results.tex:32`. 3–4 sample orchard frames with boxes drawn
-- [ ] `fig:bars` — `ch8_results.tex:59`. Tracker comparison (IDF1 / HOTA / ID switches)
-- [ ] `fig:proj` — `ch8_results.tex:79`. t-SNE/PCA of identity prototypes
-- [ ] `fig:reid` — `ch8_results.tex:81`. Filmstrip: lost → occluded → reappeared
-- [ ] `fig:thr` — `ch8_results.tex:103`. ReID threshold sweep, identities + IDF1
-- [ ] `fig:timing` — `ch8_results.tex:141`. Per-frame `proc_ms` over one video
-- [ ] `fig:ui_videos` — `ch8_results.tex:147`. Screenshot: video list + upload
-- [ ] `fig:ui_tracks` — `ch8_results.tex:149`. Screenshot: track overlay on a frame
-- [ ] `fig:ui_exp` — `ch8_results.tex:151`. Screenshot: experiments list + metrics
-- [ ] `fig:ui_set` — `ch8_results.tex:153`. Screenshot: pipeline settings page
+- [x] `fig:arch` — `ch3_architecture.tex:39`. Architecture diagram (`architecture.png`)
+- [x] `fig:usecase` — `ch3_architecture.tex:77`. UML use-case diagram (`usecase.png`)
+- [x] `fig:er` — `ch4_datamodel.tex:43`. Data-model ER diagram (`er.png`)
+- [x] `fig:seq` — `ch6_api.tex:86`. Sequence diagram for upload + process + poll (`seq.png`)
+- [x] `fig:deploy` — `ch7_deployment.tex:32`. Container topology (`deploy.png`)
+- [x] `fig:flow` — `ch7_deployment.tex:98`. 7-step user workflow flowchart (`flow.png`)
+- [x] `fig:frames` — `ch8_results.tex:34`. Sample orchard frames with boxes (`frames.png`)
+- [ ] `fig:bars` — `ch8_results.tex:64`. Tracker comparison (IDF1 / HOTA / ID switches)
+- [ ] `fig:proj` — `ch8_results.tex:84`. t-SNE/PCA of identity prototypes
+- [ ] `fig:reid` — `ch8_results.tex:86`. Filmstrip: lost → occluded → reappeared
+- [ ] `fig:thr` — `ch8_results.tex:108`. ReID threshold sweep, identities + IDF1
+- [ ] `fig:timing` — `ch8_results.tex:146`. Per-frame `proc_ms` over one video
+- [ ] `fig:ui_videos` — `ch8_results.tex:152`. Screenshot: video list + upload
+- [ ] `fig:ui_tracks` — `ch8_results.tex:154`. Screenshot: track overlay on a frame
+- [ ] `fig:ui_exp` — `ch8_results.tex:156`. Screenshot: experiments list + metrics
+- [ ] `fig:ui_set` — `ch8_results.tex:158`. Screenshot: pipeline settings page
 
 ## 3. Chapter 8 — Results (the big one)
 
-No measured numbers exist yet. Every value below is `\pp{XX}` / `\pp{XX.X}` / `\pp{...}`.
+No measured numbers exist yet. Every value below is `\pp{XX}` / `\pp{XX.X}` / `\pp{...}`:
+roughly 40 placeholders across lines 5, 55–57, 74–75, 98–101, 118–120 and 137–139.
 
 - [ ] Define the evaluation set: videos V1, V2, V3 (what they are, length, fruit count)
 - [ ] Per-video ground truth: fruit counts and frame annotations (`ch8_results.tex:23-25`)
-- [ ] Row counts per processed video (`ch4_datamodel.tex:77-83`)
-      `DetectionRecord`, `FrameTimingRecord`, `Track`, `IdentityRecord`,
-      `IdentityObservation`, `ReidEvent`, `CameraMotionRecord`
+- [x] Row counts per processed video (`ch4_datamodel.tex:52-67`) — expressed symbolically
+      as `F x d`, `F`, `K`, `U`, `Σ s_i`, `E`, `M` with a symbol legend in the text.
+      Swap the symbols for measured integers once a run is available
 - [ ] Tracker comparison table — mock, ByteTrack, TAPNext: IDF1, HOTA, ID switches
       (`ch8_results.tex:50-52`)
 - [ ] Camera-motion compensation on/off: IDF1, HOTA, ID switches (`:69-70`)
 - [ ] Threshold sensitivity study for 0.5 / 0.6 / 0.7 / 0.8 (`:93-96`)
 - [ ] Per-video results table (`:113-115`) and summary (`:132-134`)
-- [ ] Hardware used for the experiments — CPU/GPU model and RAM (`ch3_architecture.tex:110`)
+- [ ] Hardware used for the experiments — CPU/GPU model and RAM
+      (`ch3_architecture.tex:95`, still `\pp{CPU / GPU model and memory used for the experiments}`)
 - [ ] Rewrite the chapter opening paragraph (`:5`) — states no results exist yet; rewrite
       after the evaluation runs
 - [ ] Conclusion (`ch9_conclusion.tex`) claims are gated on Chapter 8; update once results land
 
 ## 4. Gantt chart
 
-- [ ] Phase start/end dates in the schedule table (`ch7_deployment.tex:109-114`)
-      6 phases: literature survey, data model + API, pipeline + trackers,
-      identity learning + analytics, web + experiment harness, testing + report
+- [x] Phase start/end dates in the schedule table (`ch7_deployment.tex:112-119`)
+      6 phases, 2026-09-09 to 2026-10-14, derived from the commit history; the text
+      notes that the phases overlapped
 
 ## 5. Content to write or verify
 
@@ -86,19 +91,19 @@ No measured numbers exist yet. Every value below is `\pp{XX}` / `\pp{XX.X}` / `\
 - [x] Highlighting machinery removed (`\hlword`, `\hlgap`, `\hlloop`, `\hlcolor`,
       `\showhl`) — `\add`, `\ph`, `\hr`, `\emphon` now plain pass-throughs (`main.tex:47-56`)
 - [x] LaTeX build artifacts gitignored (`*.aux`, `*.fls`, `*.fdb_latexmk`, `*.lof`, `*.lot`, `*.out`, `*.toc`)
-- [x] Final `latexmk -pdf main.tex` clean run — 65 pages, exit 0
-- [ ] Page count and formatting match department norms (65 pages after the corrections)
+- [x] Final `latexmk -pdf main.tex` clean run — 66 pages, exit 0, followed by `latexmk -c`
+- [ ] Page count and formatting match department norms (66 pages after the corrections)
 
 ---
 
 ## Fastest path to a submittable draft
 
 1. Run the pipeline on 3 orchard videos and export the experiment CSV.
-3. Fill every `ch8_results.tex` table from that export; generate the charts from it.
-4. Draw the 3 structural diagrams (use-case, sequence, workflow) — the rest are
-   screenshots or plots from step 3.
-5. Fill Gantt dates and the experiment-hardware row, then read Chapter 2 against the
-   papers in `references.tex`.
+2. Fill every `ch8_results.tex` table from that export; generate `fig:bars`, `fig:proj`,
+   `fig:reid`, `fig:thr`, `fig:timing` from it and screenshot the four `fig:ui_*` pages.
+3. Replace the `F`/`K`/`U` symbols in `ch4_datamodel.tex` with the measured row counts.
+4. Fill the experiment-hardware row, then read Chapter 2 against the papers in
+   `references.tex`.
 
 ---
 
@@ -122,3 +127,12 @@ Content in the chapters that was checked against the repository and corrected:
 - Per-video analytics does not compute IDF1/HOTA; the evaluation harness does
 - Detector/embedder selection in `mock` vs `real` mode documented
 - TypeScript types corrected (`VisibilityState` has 5 values, no `ProcessingStatus`)
+
+---
+
+## Last updated
+
+State as of 2026-10-14 on branch `feat/report`: 7 of 13 figures real, Gantt dated,
+datamodel row counts symbolic, 66-page PDF building clean. Everything still open lives
+in Chapter 8 (measured results) plus the experiment-hardware row and the Chapter 2
+citation audit.
