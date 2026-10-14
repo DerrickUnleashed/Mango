@@ -14,14 +14,7 @@ are filled with measurements. 72 pages. Ground truth reviewed and signed off
 
 ---
 
-## 1. Re-identification figure
-
-- [x] `fig:reid` — filmstrip of a fruit lost and re-identified. Extracted from V4 track 11 (lost frame 47 → reappearance frame 51). Shown in Figure~\ref{fig:reid}.
-      actually goes stale: with the default 30-frame buffer no track on these videos does, so
-      the sweep had to run at 5. Either pick a clip with a longer occlusion or run the figure at
-      the shortened buffer and say so
-
-## 2. Identity embedder (the one thing that would lift these results)
+## 1. Identity embedder (the one thing that would lift these results)
 
 Both identity results are limited by the same root cause, the appearance embedder is an untrained
 ResNet-18. Every candidate similarity lands between 0.90 and 0.96, so the shipped ReID threshold of
@@ -34,7 +27,7 @@ of clusters.
 - [ ] Re-run `scripts/evaluate_videos.py --identity --reid-thresholds ...` and refresh
       `tab:thr`, `fig:thr` and `fig:proj`
 
-## 3. Other open items
+## 2. Other open items
 
 - [ ] TAPNext row in `tab:trackers` and `tab:timing` — the checkpoint is not on this machine
 - [ ] Page count and formatting match department norms (72 pages currently)
