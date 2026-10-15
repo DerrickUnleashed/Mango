@@ -12,6 +12,13 @@ COPY ml/pyproject.toml ml/pyproject.toml
 COPY apps/api apps/api
 COPY ml ml
 
+# The fine-tuned detector, the only weight needed for a working boot. Placed at
+# the exact path settings.yolo_weights_path defaults to
+# (ROOT_DIR/models/mango_yolov8n-4/weights/best.pt) so no env var is needed to
+# point the app at it. Everything else stays out: docker/bootstrap_weights.py
+# fetches TAPNext++ (2.4G) on boot instead.
+COPY models/mango_yolov8n-4/weights/best.pt models/mango_yolov8n-4/weights/best.pt
+
 # Image size matters here: the API runs on CPU (and on Apple MPS locally), but
 # uv.lock pins the CUDA build of torch, which drags in ~5G of packages that do
 # nothing on a CPU-only host (nvidia/* 3.3G, triton 815M, cuda/*). uv also
@@ -55,12 +62,16 @@ ENV PATH="/orchardvision/.venv/bin:$PATH" \
     ENVIRONMENT="production" \
     AUTO_CREATE_TABLES="true"
 
-# Model weights are NOT baked into the image. TAPNext++ alone is 2.4G, which
-# would dominate the build context and blow past most hosts' image limits. They
-# are fetched on first boot into WEIGHTS_DIR by docker/bootstrap_weights.py
-# (see WEIGHTS_* env vars there), and cached on a mounted volume when one
-# exists.
-ENV WEIGHTS_DIR="/data/models"
+# Model weights are NOT all baked into the image. TAPNext++ alone is 2.4G, which
+# would dominate the build context and blow past most hosts' image limits; the
+# rest is fetched on first boot by docker/bootstrap_weights.py.
+#
+# This deliberately defaults to the same tree settings.yolo_weights_path and
+# settings.tapnext_checkpoint_path already resolve against (ROOT_DIR/models/),
+# so a weight fetched at boot lands exactly where the app looks for it. Pointing
+# these at different roots is how a deploy ends up downloading 2.4G that nothing
+# ever reads.
+ENV WEIGHTS_DIR="/orchardvision/models"
 
 EXPOSE 8001
 
