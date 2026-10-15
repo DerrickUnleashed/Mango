@@ -1,0 +1,142 @@
+\begin{thebibliography}{10}
+
+\bibitem{aharon2022}
+N.~Aharon, R.~Orfaig, and B.-Z. Bobrovsky.
+\newblock Bot-sort: Robust associations multi-pedestrian tracking.
+\newblock {\em arXiv preprint arXiv:2206.14651}, 2022.
+
+\bibitem{bargoti2017}
+S.~Bargoti and J.~Underwood.
+\newblock Deep fruit detection in orchards.
+\newblock In {\em Proceedings of the IEEE International Conference on Robotics
+  and Automation (ICRA)}, pages 3626--3633. IEEE, 2017.
+
+\bibitem{sqlalchemy}
+M.~Bayer.
+\newblock Sqlalchemy.
+\newblock In A.~Brown and G.~Wilson, editors, {\em The Architecture of Open
+  Source Applications, Volume II}. aosabook.org, 2012.
+
+\bibitem{bernardin2008}
+K.~Bernardin and R.~Stiefelhagen.
+\newblock Evaluating multiple object tracking performance: The clear mot
+  metrics.
+\newblock {\em EURASIP Journal on Image and Video Processing}, 2008:Article
+  246309, 2008.
+
+\bibitem{bewley2016}
+A.~Bewley, Z.~Ge, L.~Ott, F.~Ramos, and B.~Upcroft.
+\newblock Simple online and realtime tracking.
+\newblock In {\em Proceedings of the IEEE International Conference on Image
+  Processing (ICIP)}, pages 3464--3468. IEEE, 2016.
+
+\bibitem{doersch2022}
+C.~Doersch, A.~Gupta, L.~Markeeva, A.~Recasens, L.~Smaira, Y.~Aytar,
+  J.~Carreira, A.~Zisserman, and Y.~Yang.
+\newblock Tap-vid: A benchmark for tracking any point in a video.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS),
+  Datasets and Benchmarks Track}, 2022.
+
+\bibitem{ester1996}
+M.~Ester, H.-P. Kriegel, J.~Sander, and X.~Xu.
+\newblock A density-based algorithm for discovering clusters in large spatial
+  databases with noise.
+\newblock In {\em Proceedings of the Second International Conference on
+  Knowledge Discovery and Data Mining (KDD)}, pages 226--231. ACM, 1996.
+
+\bibitem{hermans2017}
+A.~Hermans, L.~Beyer, and B.~Leibe.
+\newblock In defense of the triplet loss for person re-identification.
+\newblock {\em arXiv preprint arXiv:1703.07737}, 2017.
+
+\bibitem{jolliffe2016}
+I.~T. Jolliffe and J.~Cadima.
+\newblock Principal component analysis: A review and recent developments.
+\newblock {\em Philosophical Transactions of the Royal Society A},
+  374(2015.02052), 2016.
+
+\bibitem{kalman1960}
+R.~E. Kalman.
+\newblock A new approach to linear filtering and prediction problems.
+\newblock {\em Journal of Basic Engineering}, 82(1):35--45, 1960.
+
+\bibitem{koirala2019}
+A.~Koirala, K.~B. Walsh, Z.~Wang, and C.~McCarthy.
+\newblock Deep learning --- method overview and review of use for fruit
+  detection and yield estimation.
+\newblock {\em Computers and Electronics in Agriculture}, 162:219--234, 2019.
+
+\bibitem{kuhn1955}
+H.~W. Kuhn.
+\newblock The hungarian method for the assignment problem.
+\newblock {\em Naval Research Logistics Quarterly}, 2(1--2):83--97, 1955.
+
+\bibitem{liu2019}
+X.~Liu, S.~W. Chen, C.~Liu, S.~S. Shivakumar, J.~Das, C.~J. Taylor,
+  J.~Underwood, and V.~Kumar.
+\newblock Monocular camera based fruit counting and mapping with semantic data
+  association.
+\newblock {\em IEEE Robotics and Automation Letters}, 4(3):2296--2303, 2019.
+
+\bibitem{luiten2021}
+J.~Luiten, A.~Osep, P.~Dendorfer, P.~Torr, A.~Geiger, L.~Leal-Taixe, and
+  B.~Leibe.
+\newblock Hota: A higher order metric for evaluating multi-object tracking.
+\newblock {\em International Journal of Computer Vision}, 129(2):548--578,
+  2021.
+
+\bibitem{fastapi}
+S.~Ramirez.
+\newblock Fastapi [computer software].
+\newblock \url{https://fastapi.tiangolo.com}.
+\newblock No date given in the source report.
+
+\bibitem{reddi2017}
+R.~Reddi, G.~Kreibich, N.~Poffenbarger, and R.~Chandra.
+\newblock A loss function for deep metric learning.
+\newblock In {\em Proceedings of the IEEE International Conference on Computer
+  Vision (ICCV)}, pages 4187--4195. IEEE, 2017.
+
+\bibitem{redmon2016}
+J.~Redmon, S.~Divvala, R.~Girshick, and A.~Farhadi.
+\newblock You only look once: Unified, real-time object detection.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}, pages 779--788. IEEE, 2016.
+
+\bibitem{ristani2016}
+E.~Ristani, F.~Solera, R.~Zou, R.~Cucchiara, and C.~Tomasi.
+\newblock Performance measures and a data set for multi-target, multi-camera
+  tracking.
+\newblock In {\em European Conference on Computer Vision Workshops}, pages
+  17--35. Springer, 2016.
+
+\bibitem{vandermaaten2008}
+L.~van~der Maaten and G.~Hinton.
+\newblock Visualizing data using t-sne.
+\newblock {\em Journal of Machine Learning Research}, 9(Nov):2579--2605, 2008.
+
+\bibitem{wojke2017}
+N.~Wojke, A.~Bewley, and D.~Paulus.
+\newblock Simple online and realtime tracking with a deep association metric.
+\newblock In {\em Proceedings of the IEEE International Conference on Image
+  Processing (ICIP)}, pages 3645--3649. IEEE, 2017.
+
+\bibitem{ultralytics2024}
+{YOLO Team} and {Ultralytics}.
+\newblock Ultralytics yolo [computer software].
+\newblock \url{https://github.com/ultralytics/ultralytics}, 2024.
+
+\bibitem{zhang2022}
+Y.~Zhang, P.~Sun, Y.~Jiang, D.~Yu, F.~Weng, Z.~Yuan, P.~Luo, W.~Liu, and
+  X.~Wang.
+\newblock Bytetrack: Multi-object tracking by associating every detection box.
+\newblock In {\em European Conference on Computer Vision (ECCV)}, pages 1--21.
+  Springer, 2022.
+
+\bibitem{zholus2025}
+A.~Zholus, C.~Doersch, Y.~Yang, S.~Koppula, V.~Patraucean, X.~O. He, I.~Rocco,
+  M.~S.~M. Sajjadi, S.~Chandar, and R.~Goroshin.
+\newblock Tapnext: Tracking any point (tap) as next token prediction.
+\newblock {\em arXiv preprint arXiv:2504.05579}, 2025.
+
+\end{thebibliography}

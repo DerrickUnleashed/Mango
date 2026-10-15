@@ -45,7 +45,7 @@ The evaluation is performed with the experiment harness of the system. An experi
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\linewidth]{frames.png}
+\includegraphics[width=0.95\linewidth]{figures/frames.png}
 \caption[Sample orchard frames]{Sample frames from the evaluation videos showing fruit under different illumination and occlusion.}
 \label{fig:frames}
 \end{figure}
@@ -91,7 +91,7 @@ the best epoch; the latency is the median of ten forward passes of the exported 
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.8\linewidth]{detector_mAP.png}
+\includegraphics[width=0.8\linewidth]{figures/detector_mAP.png}
 \caption[Detector validation curves]{Validation \code{mAP\textsubscript{50-95}} per epoch for
 the two longest detector runs.}
 \label{fig:detmap}
@@ -192,7 +192,7 @@ computed over comparable temporal support.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\linewidth]{tracker_comparison.png}
+\includegraphics[width=0.95\linewidth]{figures/tracker_comparison.png}
 \caption[Tracker comparison chart]{IDF1, HOTA and identity switches per video for the two evaluated trackers.}
 \label{fig:bars}
 \end{figure}
@@ -216,7 +216,7 @@ computed over comparable temporal support.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.8\linewidth]{motion_ablation.png}
+\includegraphics[width=0.8\linewidth]{figures/motion_ablation.png}
 \caption[Camera-motion ablation]{Identity continuity with and without measured camera-motion compensation.}
 \label{fig:cam}
 \end{figure}
@@ -230,7 +230,7 @@ before tracking adds a drift term without removing a real error.}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.55\linewidth]{identity_prototypes.png}
+\includegraphics[width=0.55\linewidth]{figures/identity_prototypes.png}
 \caption[Identity embedding projection]{Two-dimensional projection of the identity prototypes of V2.}
 \label{fig:proj}
 \end{figure}
@@ -242,7 +242,7 @@ untunable over its default range, and it is the clearest single piece of future 
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.85\linewidth]{reid_filmstrip.jpg}
+\includegraphics[width=0.85\linewidth]{figures/reid_filmstrip.jpg}
 \caption[Re-identification example]{Identity lost and re-identified after occlusion. Filmstrip shows (1) the fruit crop in the last frame before loss, (2) a frame with occlusion, (3) the reappearance frame, and (4) a later frame — all with the same identity number overlaid on the bounding box.}
 \label{fig:reid}
 \end{figure}
@@ -271,7 +271,7 @@ untunable over its default range, and it is the clearest single piece of future 
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\linewidth]{reid_threshold_sweep.png}
+\includegraphics[width=0.95\linewidth]{figures/reid_threshold_sweep.png}
 \caption[Threshold sweep]{Identities found and accepted re-identifications against the ReID similarity threshold.}
 \label{fig:thr}
 \end{figure}
@@ -286,7 +286,7 @@ count error are plotted in Figure~\ref{fig:confsweep}.}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\linewidth]{confidence_sweep.png}
+\includegraphics[width=0.95\linewidth]{figures/confidence_sweep.png}
 \caption[Detection confidence sweep]{Predicted track count and count error against the detection confidence
 threshold, for both trackers on all three videos.}
 \label{fig:confsweep}
@@ -343,7 +343,7 @@ between twenty and eighty frames, so it is not an artefact of how the ground tru
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\linewidth]{per_frame_timing.png}
+\includegraphics[width=0.95\linewidth]{figures/per_frame_timing.png}
 \caption[Per-frame processing time]{Per-frame detection and tracking time over the three evaluation videos.}
 \label{fig:timing}
 \end{figure}
@@ -354,28 +354,28 @@ between twenty and eighty frames, so it is not an artefact of how the ground tru
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.9\linewidth]{screens/ui_videos.png}
+\includegraphics[width=0.9\linewidth]{figures/ui_videos.png}
 \caption[Video list and upload screen]{Video list and upload screen.}
 \label{fig:ui_videos}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.65\linewidth,keepaspectratio]{screens/ui_tracks.png}
+\includegraphics[width=0.65\linewidth,keepaspectratio]{figures/ui_tracks.png}
 \caption[Track visualisation]{Track overlay on a processed video.}
 \label{fig:ui_tracks}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.9\linewidth]{screens/ui_exp.png}
+\includegraphics[width=0.9\linewidth]{figures/ui_exp.png}
 \caption[Experiment management screen]{Experiment list and metrics view.}
 \label{fig:ui_exp}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.9\linewidth]{screens/ui_set.png}
+\includegraphics[width=0.9\linewidth]{figures/ui_set.png}
 \caption[Settings screen]{Pipeline settings screen.}
 \label{fig:ui_set}
 \end{figure}
