@@ -1,0 +1,100 @@
+# Render Blueprint for the OrchardVision backend.
+#
+# Render's GitHub App must be able to read this (private) repository before a
+# Blueprint will apply: dashboard.render.com -> Settings -> GitHub Apps ->
+# Render -> Configure -> Repository access -> add "Mango" (or All repositories).
+#
+# The frontend is deployed separately on Vercel; this covers the API only.
+#
+# Secrets are declared with `sync: false`, so Render prompts for them rather
+# than storing a value in this file.
+
+services:
+  - type: web
+    name: orchardvision-api
+    runtime: docker
+    # The image is self-contained: docker/Dockerfile resolves the uv workspace
+    # and /bootstrap_weights.py fetches model weights on boot.
+    dockerContext: .
+    dockerfilePath: ./docker/Dockerfile
+    branch: deploy/production
+    # The free plan spins down when idle. That is tolerable here precisely
+    # because the service is stateless: job state lives in Supabase Postgres
+    # and weights are fetched into an ephemeral volume on boot. The cost is a
+    # slow first request after an idle period, not lost data.
+    plan: free
+    region: singapore
+    numInstances: 1
+    autoDeployTrigger: commit
+    healthCheckPath: /api/health
+
+    # docker/Dockerfile sets ENV DATABASE_URL to SQLite and /data for storage.
+    # Both are overridden here: Postgres is external, and /data is ephemeral on
+    # the free plan (no persistent disk).
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+
+      # Supabase Postgres (project lfihhupxdbtcxituwhby, ap-south-1).
+      # Use the pooler host on port 6543 (transaction mode).
+      - key: DATABASE_URL
+        sync: false
+
+      # Required when ENVIRONMENT=production: config.py refuses to boot on a
+      # known placeholder, so a fresh value per environment is correct.
+      - key: SECRET_KEY
+        generateValue: true
+
+      # The frontend origin(s) on Vercel, comma-separated for a pydantic list.
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+      # --- storage (ephemeral on the free plan) ---
+      - key: UPLOAD_DIR
+        value: /data/uploads
+      - key: PROCESSED_DIR
+        value: /data/processed
+      - key: WEIGHTS_DIR
+        value: /data/models
+
+      # --- job queue ---
+      # CELERY_BROKER_URL is deliberately unset: with no broker the API runs
+      # jobs in-process instead of forking a Celery worker, which keeps this a
+      # single free-tier service. Set it plus a Redis to scale out later.
+      - key: CELERY_TASK_ALWAYS_EAGER
+        value: "false"
+
+      # --- processing ---
+      - key: DEFAULT_INFERENCE_MODE
+        value: real
+      - key: AUTO_CREATE_TABLES
+        value: "false"
+
+      # --- weights, fetched on boot by docker/bootstrap_weights.py ---
+      # TAPNext++ is 2.4G and comes from its public Google Cloud Storage
+      # object, so it needs no credential. The two fine-tuned weights are not
+      # public and are served from Supabase Storage instead.
+      - key: BOOTSTRAP_TAPNEXT
+        value: "true"
+      - key: BOOTSTRAP_YOLO
+        value: "true"
+      - key: YOLO_WEIGHTS_URL
+        sync: false
+      - key: BOOTSTRAP_EMBEDDER
+        value: "true"
+      - key: EMBEDDER_URL
+        sync: false
+
+      # Fail fast instead of serving requests with no detector, once a boot
+      # has failed to fetch weights.
+      - key: WEIGHTS_REQUIRED
+        value: "true"
+      - key: RUN_WEIGHTS_BOOTSTRAP
+        value: "true"
+
+      # Migrations are applied by the API on boot. On a single-replica service
+      # that is safe; with more than one replica, gate this to one instance.
+      - key: RUN_MIGRATIONS
+        value: "true"
