@@ -116,3 +116,5 @@ temp/
 runs/
 .opencode/
 TODO.md
+.vercel
+.env.local

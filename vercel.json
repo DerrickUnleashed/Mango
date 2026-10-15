@@ -4,13 +4,6 @@
   "buildCommand": "npm run build:web",
   "outputDirectory": "apps/web/dist",
   "framework": null,
-  "gitignore": [
-    "apps/api",
-    "models",
-    "data",
-    "docs",
-    "scripts"
-  ],
   "rewrites": [
     {
       "source": "/((?!api/).*)",
