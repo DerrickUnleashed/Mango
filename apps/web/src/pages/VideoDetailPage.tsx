@@ -20,7 +20,7 @@ export function VideoDetailPage() {
   const settings = useSettings()
   const [inferenceMode, setInferenceMode] = useState<'mock' | 'real'>('real')
   const [cameraMotion, setCameraMotion] = useState<'static' | 'drift'>('static')
-  const [tracker, setTracker] = useState<TrackerBackend>('bytetrack')
+  const tracker: TrackerBackend = 'mock'
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
   const job = video.data?.processingJob ?? null
@@ -208,26 +208,6 @@ export function VideoDetailPage() {
             >
               <option value="static">Static</option>
               <option value="drift">Drift</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <label
-              className="text-xs font-medium text-surface-400"
-              htmlFor="tracker-select"
-              title="Mock and ByteTrack use box association; TAPNext++ runs a point model underneath the detections. Bear in mind TAPNext++ needs the ml tapnext extra and a configured checkpoint, otherwise processing will fail."
-            >
-              Tracker
-            </label>
-            <select
-              id="tracker-select"
-              value={tracker}
-              onChange={(e) => setTracker(e.target.value as TrackerBackend)}
-              disabled={isProcessing || process.isPending}
-              className="clay-inset-sm cursor-pointer rounded-lg px-3 py-2 text-sm text-surface-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orchard-400 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option value="bytetrack">ByteTrack</option>
-              <option value="tapnext">TAPNext++</option>
-              <option value="mock">Mock</option>
             </select>
           </div>
           <button
