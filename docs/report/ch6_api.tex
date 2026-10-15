@@ -1,0 +1,168 @@
+\chapter{API Design and Implementation}
+
+\section{Introduction}
+
+All functionality of OrchardVision is exposed through a REST API mounted under the \code{/api} prefix. The same API is used by the React client and can be called directly by scripts. This chapter lists the endpoints, explains the request flows, and describes error handling and the shared TypeScript types.
+
+\section{Endpoint Summary}
+
+Table~\ref{tab:api} summarises the endpoints.
+
+{\singlespacing\small
+\begin{longtable}{@{}p{1.5cm}p{6.6cm}p{5.8cm}@{}}
+\caption{REST API endpoints.}\label{tab:api}\\
+\toprule
+\textbf{Method} & \textbf{Path} & \textbf{Description}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Method} & \textbf{Path} & \textbf{Description}\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+GET & \code{/health} & Service health\\
+POST & \code{/videos} & Upload video\\
+GET & \code{/videos} & List videos\\
+GET & \code{/videos/{id}} & Video metadata\\
+GET & \code{/videos/{id}/tracks} & Track trajectories\\
+GET & \code{/videos/{id}/tracks/{track_id}} & A single track\\
+GET & \code{/videos/{id}/frames/{frame_id}} & Extracted frame as JPEG\\
+GET & \code{/videos/{id}/file} & Stream the source video (range requests)\\
+GET & \code{/videos/{id}/identities} & Identity prototypes\\
+GET & \code{/videos/{id}/identities/projection} & 2D coordinates for visualisation (\code{tsne} or \code{pca})\\
+GET & \code{/videos/{id}/identities/{identity_id}} & Specific identity\\
+GET & \code{/videos/{id}/identities/{identity_id}/observations} & Per-frame observations\\
+GET & \code{/videos/{id}/reid-events} & Re-identification events\\
+GET & \code{/videos/{id}/detections} & Persisted detections (optional \code{frame_id} filter)\\
+GET & \code{/videos/{id}/per-frame} & Per-frame timing telemetry\\
+GET & \code{/videos/{id}/motion} & Camera motion estimate\\
+GET & \code{/videos/{id}/analytics} & Aggregated analytics\\
+DELETE & \code{/videos/{id}} & Delete video and all associated data\\
+POST & \code{/videos/{id}/process} & Start processing job\\
+GET & \code{/jobs/{id}} & Job status\\
+GET & \code{/experiments} & List experiments\\
+POST & \code{/experiments} & Create and run experiment (synchronously)\\
+GET & \code{/experiments/{id}} & Experiment detail\\
+GET & \code{/experiments/{id}/export} & Download results (JSON/CSV)\\
+DELETE & \code{/experiments/{id}} & Delete experiment (cannot be \code{RUNNING})\\
+GET & \code{/settings} & Pipeline defaults\\
+PUT & \code{/settings} & Update pipeline defaults\\
+GET & \code{/} & Service banner with documentation URL\\
+\end{longtable}}
+
+\add{The table lists the 28 routes of the API. They are implemented by five routers (\code{health}, \code{videos}, \code{jobs}, \code{experiments} and \code{settings}), which \code{app/main.py} mounts under an \code{/api} prefix, together with a root banner route. In production (\code{ENVIRONMENT=production}) the interactive documentation and the generated OpenAPI schema are switched off, so introspection is available in development only.}
+
+\section{Resource-to-Model Mapping}
+
+Each read endpoint returns data that the pipeline persisted in one of the models of Chapter~4 (Table~\ref{tab:map}).
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{5.9cm}>{\raggedright\arraybackslash}p{3.7cm}>{\raggedright\arraybackslash}p{3.8cm}@{}}
+\toprule
+\textbf{Endpoint} & \textbf{Model} & \textbf{Created in stage}\\
+\midrule
+\code{/videos/{id}} & \code{Video} & Upload\\
+\code{/videos/{id}/tracks} & \code{Track} & Tracking\\
+\code{/videos/{id}/detections} & \code{DetectionRecord} & Detection\\
+\code{/videos/{id}/identities} & \code{IdentityRecord} & Identity consolidation\\
+\code{/videos/{id}/identities/{identity_id}/observations} & \code{IdentityObservation} & Identity consolidation\\
+\code{/videos/{id}/reid-events} & \code{ReidEvent} & Re-identification\\
+\code{/videos/{id}/per-frame} & \code{FrameTimingRecord} & All stages\\
+\code{/videos/{id}/motion} & \code{CameraMotionRecord} & Camera-motion estimation\\
+\code{/videos/{id}/analytics} & Aggregated metrics & Analytics\\
+\code{/jobs/{id}} & \code{ProcessingJob} & Process request\\
+\code{/experiments} & \code{Experiment} & Experiment request\\
+\code{/settings} & \code{AppSettings} & Settings update\\
+\bottomrule
+\end{tabular}
+\caption[Endpoint-to-model mapping]{Mapping between endpoints and the persisted models. \add{The ``stage'' column is inferred from the pipeline description.}}
+\label{tab:map}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{seq.png}
+\caption[Sequence diagram of a processing request]{Sequence of calls for uploading and processing a video.}
+\label{fig:seq}
+\end{figure}
+
+\section{Request Flows}
+
+\subsection{Video Upload}
+
+\code{POST /videos} validates the declared MIME type and the file extension, saves the upload through \code{storage_service.save_upload} under a generated UUID filename, extracts metadata with \code{extract_video_metadata} (resolution, frame rate, frame count, duration and FOURCC codec) and creates the \code{Video} row with status \code{uploaded}. A file that cannot be decoded is deleted and the request is rejected with a validation error. The maximum upload size is 2\,GB by default and can be changed through \code{MAX_UPLOAD_BYTES}.
+
+\subsection{Starting a Processing Job}
+
+\code{POST /videos/{id}/process} validates that no job is active for the video, resolves the effective configuration, creates a \code{ProcessingJob} with status \code{queued} and then dispatches it. If a Celery broker is configured (\code{CELERY_BROKER_URL}) the task is enqueued for the worker; otherwise FastAPI runs it as a background task in the web worker process. Both paths execute the same \code{run\_processing\_sync} entry point. The client polls \code{GET /jobs/{id}} to read the job's \code{status}, \code{stage}, \code{progress} and \code{message}.
+
+\add{Configuration is resolved per request in the following order: a non-empty value in the request body wins, otherwise the value stored in \code{AppSettings} is used, otherwise the environment default from \code{app/core/config.py}. A consequence of this rule is that a request cannot set a setting to exactly zero, because zero is falsy; the stored value is used instead.}
+
+\subsection{Reading Results}
+
+After a video is \code{processed}, its tracks, identities, observations, ReID events, detections, per-frame timing, camera motion and analytics are retrieved with the GET endpoints in Table~\ref{tab:api}. The identity projection endpoint returns two-dimensional coordinates computed by the \code{EmbeddingProjection} service (t-SNE, falling back to a PCA/SVD projection and a ring layout) for plotting in the \code{EmbeddingMap} component. Individual frames are served as JPEG by \code{GET /videos/{id}/frames/{frame\_id}}, optionally downscaled with the \code{width} query parameter, and are used by the identity panel and the frame viewer.
+
+\add{The job response also carries the stage a video passes through. The pipeline reports \code{uploaded}, \code{extracting\_frames}, \code{detecting}, \code{tracking}, \code{embedding}, \code{memory}, \code{reid}, \code{analytics} and finally \code{completed} or \code{failed}; job status is one of \code{queued}, \code{running}, \code{completed}, \code{failed} and \code{cancelled}.}
+
+\subsection{Experiments}
+
+\code{POST /experiments} creates and runs an experiment described by a name, a tracker (\code{mock} or \code{bytetrack}), the \code{orchard} scenario and a number of frames (10 to 1000, default 310). The experiment is executed synchronously inside the request by the evaluation harness, which runs the scenario through the chosen tracker and compares the result with the ground truth of the synthetic scenario. Its results can be read with \code{GET /experiments/{id}} and downloaded as JSON or CSV with \code{GET /experiments/{id}/export}. An experiment that is \code{RUNNING} cannot be deleted.
+
+\add{The metrics reported are IDF1, HOTA, the number of ID switches, track fragmentation, the mean absolute and percentage error of the fruit count and the identity recovery rate. Because the harness evaluates the synthetic \code{orchard} scenario with the mock detector, the experiment path exercises the tracking and evaluation code rather than real fruit detection; the TAPNext tracker is available in the processing pipeline but is not selectable in the experiment request.}
+
+\subsection{Settings}
+
+\code{GET /settings} and \code{PUT /settings} read and update the pipeline defaults stored in the single \code{AppSettings} row.
+
+\section{Error Handling}
+
+All domain errors are returned in a single format:
+
+\begin{lstlisting}[style=plain]
+{"code": "...", "detail": "...", "details": {...}}
+\end{lstlisting}
+
+The API defines a base \code{ApiError} carrying a machine-readable \code{code}, a human-readable \code{message} and an HTTP status, and the subclasses \code{NotFoundError} (404), \code{ConflictError} (409) and \code{ValidationFailError} (422). Global exception handlers registered in \code{apps/api/app/main.py} convert them into the response format above; FastAPI request-validation errors are converted as well. The optional \code{details} object carries additional structured context and is omitted when empty.
+
+\section{Shared TypeScript Types}
+
+Common interfaces are defined in \code{packages/types/src/common.ts} and are used by the frontend and by any other TypeScript client:
+
+\begin{itemize}
+  \item \code{BoundingBox}: \code{{ x: number, y: number, width: number, height: number }};
+  \item \code{VisibilityState}: \code{'visible' | 'partial' | 'occluded' | 'lost' | 'reidentified'};
+  \item \code{JobStatus}: \code{'queued' | 'running' | 'completed' | 'failed' | 'cancelled'};
+  \item \code{InferenceMode}: \code{'mock' | 'real'};
+  \item \code{ProcessingStage}: \code{'uploaded'}, \code{'extracting\_frames'}, \code{'detecting'}, \code{'tracking'}, \code{'embedding'}, \code{'memory'}, \code{'reid'}, \code{'analytics'}, \code{'completed'}, \code{'failed'};
+  \item \code{CameraMotionMode}: \code{'static' | 'slow' | 'fast' | 'handheld'};
+  \item resource types such as \code{Video}, \code{ProcessingJob}, \code{PersistedTrack}, \code{PersistedIdentity}, \code{AnalyticsSummary} and \code{ExperimentMetrics}, and the \code{*ListResponse} wrappers that pair them with a \code{total} count.
+\end{itemize}
+
+\add{The persisted types mirror the JSON of the database models exactly, including snake\_case field names and bounding boxes encoded as the tuple \code{[x, y, w, h]}; the pipeline request types use the same snake\_case convention because they are sent to the FastAPI backend unchanged. The types are consumed by path alias (\code{@orchardvision/types}) rather than as a published package.}
+
+The types can be checked with \code{pnpm exec tsc --noEmit} from \code{packages/types/}.
+
+\section{Frontend Integration}
+
+The components in \code{apps/web/src/} use an API client that calls the FastAPI backend. During development the Vite dev server (\code{npm run dev}) proxies requests under \code{/api/} to the backend, and the backend's CORS configuration allows \code{localhost:5173}. \add{The interface is organised around the main user tasks: uploading and listing videos, starting and monitoring processing, inspecting tracks and identities, viewing the identity projection, managing experiments and editing the pipeline settings.}
+
+\section{Example Interaction}
+
+\add{The following listing shows a typical sequence of calls for processing a video. The identifiers and the request body are illustrative.}
+
+\begin{lstlisting}[style=added,language=bash]
+# 1. upload a video
+curl -F "file=@row_03.mp4" http://localhost:8001/api/videos
+# 2. start processing (tracker and thresholds chosen in the body)
+curl -X POST http://localhost:8001/api/videos/1/process \
+     -H "Content-Type: application/json" \
+     -d '{"tracker": "bytetrack"}'
+# 3. poll the job
+curl http://localhost:8001/api/jobs/1
+# 4. read results
+curl http://localhost:8001/api/videos/1/analytics
+\end{lstlisting}
+
+\add{Video and job identifiers are UUIDs stored as 32-character hex strings, so the \code{1} in the listing above is an abbreviation.}
