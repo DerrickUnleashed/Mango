@@ -12,7 +12,33 @@ COPY ml/pyproject.toml ml/pyproject.toml
 COPY apps/api apps/api
 COPY ml ml
 
-RUN uv sync --project apps/api --no-dev
+# Image size matters here: the API runs on CPU (and on Apple MPS locally), but
+# uv.lock pins the CUDA build of torch, which drags in ~5G of packages that do
+# nothing on a CPU-only host (nvidia/* 3.3G, triton 815M, cuda/*). uv also
+# leaves its ~5.7G download cache in /root. Between them that took the image to
+# 19.3G, which no managed host accepts.
+#
+# UV_TORCH_BACKEND alone cannot fix this: the lockfile wins over the index
+# hint. So swap torch for its CPU build explicitly, then drop the now-orphaned
+# CUDA packages and the cache.
+ENV UV_TORCH_BACKEND=cpu
+
+RUN uv sync --project apps/api --no-dev --no-cache \
+    && uv pip install --python /orchardvision/.venv/bin/python \
+        --index-url https://download.pytorch.org/whl/cpu --reinstall torch \
+    && find /orchardvision/.venv -maxdepth 4 -type d \
+        \( -name nvidia -o -name triton -o -name 'cuda' -o -name 'cuda_*' \) \
+        -exec rm -rf {} + \
+    && uv cache clean --force || true
+
+# `ultralytics` (pulled in by the `ml` package) depends on the GUI build of
+# opencv, which links against X11 (libxcb.so.1 and friends) that a server image
+# has no use for. Both packages ship the same `cv2` module, so whichever wins
+# the import race decides whether the API boots at all. Drop the GUI build and
+# restore headless so the outcome stops depending on install order.
+RUN uv pip uninstall --python /orchardvision/.venv/bin/python opencv-python \
+    && uv pip install --python /orchardvision/.venv/bin/python \
+        --reinstall --no-deps opencv-python-headless
 
 RUN groupadd -r orchard && useradd -r -g orchard -d /orchardvision -s /sbin/nologin orchard \
     && mkdir -p /data/uploads /data/processed \
