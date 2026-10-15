@@ -1,0 +1,29 @@
+\chapter{Conclusion and Future Work}
+
+\section{Conclusion}
+
+OrchardVision delivers a complete system for long-term fruit tracking and counting in mango orchards. A FastAPI backend with a SQLAlchemy~2.0 data layer runs a processing pipeline (frame extraction, detection, tracking, ReID embedding, identity consolidation and analytics), persists every intermediate and final artefact, and exposes them through a documented REST API. A React and TypeScript frontend with shared type definitions provides video management, inspection of tracks and identities, and an experiment harness that evaluates trackers with IDF1, HOTA and ID-switch metrics and exports the results as JSON or CSV.
+
+The main take-away points are:
+
+\begin{itemize}
+  \item identities are first-class, persistent objects (prototype, quality, observation count, confidence), which allows a fruit that disappears and reappears to be recognised rather than counted twice;
+  \item the tracker back-end (mock, ByteTrack, TAPNext), camera-motion mode and thresholds are configurable and can be compared reproducibly through the experiment harness;
+  \item the same code runs on a laptop with SQLite and as a container stack in which a queue worker processes the long-running jobs, so nothing about the pipeline depends on the deployment.
+\end{itemize}
+
+\add{Measured against the objectives of Section~1.5, the pipeline, data model, API, experiment harness and deployment configuration are in place. The accuracy objectives can only be claimed once Chapter~8 has been populated with results from real orchard videos; until then the quality of the counts should be treated as unverified. A realistic limitation is that identity matching rests on appearance embeddings of visually similar fruit, so merged or fragmented identities are expected in dense clusters and after very long gaps.}
+
+\section{Future Work}
+
+\add{The following extensions would increase the value of the system:}
+
+\begin{itemize}
+  \item \add{evaluate on a larger, annotated, multi-season mango dataset and publish the results;}
+  \item \add{fine-tune the ReID network on fruit crops with a metric-learning loss and compare prototype aggregation strategies;}
+  \item \add{replace the monocular heuristics with depth or multi-camera information to resolve fruit that occlude each other;}
+  \item \add{link identities across recording sessions to track individual fruit through the season (the long-term setting);}
+  \item \add{estimate fruit size and maturity for yield-weight prediction;}
+  \item \add{add authentication and role-based access control for multi-user deployments;}
+  \item \add{add live-stream ingestion and incremental processing so that counts update while the video is being recorded.}
+\end{itemize}
