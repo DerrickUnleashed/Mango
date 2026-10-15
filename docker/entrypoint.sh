@@ -17,5 +17,20 @@ if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
     echo "entrypoint: migrations applied"
 fi
 
+# Fetch model weights into WEIGHTS_DIR before the app (or worker) starts, so a
+# request never arrives while the detector or tracker is still loading. Only the
+# API does this: the worker shares the same weights directory and would
+# otherwise race the API for the same download.
+if [ "${RUN_WEIGHTS_BOOTSTRAP:-false}" = "true" ]; then
+    echo "entrypoint: bootstrapping model weights"
+    if ! runuser -u orchard -- python /bootstrap_weights.py; then
+        echo "entrypoint: weight bootstrap reported errors"
+        if [ "${WEIGHTS_REQUIRED:-false}" = "true" ]; then
+            echo "entrypoint: WEIGHTS_REQUIRED=true, refusing to start"
+            exit 1
+        fi
+    fi
+fi
+
 # Drop to orchard user and exec the actual command
 exec runuser -u orchard -- "$@"
