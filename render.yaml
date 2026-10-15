@@ -47,9 +47,10 @@ services:
       - key: SECRET_KEY
         generateValue: true
 
-      # The frontend origin(s) on Vercel, comma-separated for a pydantic list.
+      # JSON array, NOT comma-separated: pydantic-settings parses complex
+      # types as JSON and the service crashes at boot otherwise.
       - key: ALLOWED_ORIGINS
-        sync: false
+        value: '["https://orchardvision.vercel.app"]'
 
       # --- storage (ephemeral on the free plan) ---
       - key: UPLOAD_DIR
