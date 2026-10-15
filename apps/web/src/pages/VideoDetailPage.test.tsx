@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import type { Video } from '@orchardvision/types'
 import { VideoDetailPage } from './VideoDetailPage'
 
@@ -104,15 +104,17 @@ describe('VideoDetailPage', () => {
     ).toBeInTheDocument()
   })
 
-  it('offers the TAPNext++ tracker alongside box trackers', () => {
+  it('sends the mock tracker with no tracker picker', () => {
     mocks.withJob = false
     render(<VideoDetailPage />)
-    const tracker = screen.getByLabelText('Tracker') as HTMLSelectElement
-    expect(tracker.value).toBe('bytetrack')
-    expect(Array.from(tracker.options).map((option) => option.value)).toEqual([
-      'bytetrack',
-      'tapnext',
-      'mock',
-    ])
+    expect(screen.queryByLabelText('Tracker')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Start Processing' }))
+    expect(mocks.mutate).toHaveBeenCalledWith(
+      {
+        videoId: 'vid-1',
+        request: { inferenceMode: 'real', tracker: 'mock', cameraMotion: 'static' },
+      },
+      expect.anything(),
+    )
   })
 })
