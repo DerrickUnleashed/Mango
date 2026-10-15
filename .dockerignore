@@ -44,6 +44,18 @@ models
 *.engine
 *.weights
 
+# Re-include the one detector the API actually loads at runtime. It is 5.9M and
+# already tracked in git, so shipping it in the image is cheaper than fetching
+# it on boot, and it needs no credential or public URL. The blanket rules above
+# still exclude the multi-GB rest of the tree (TAPNext++ 2.4G, yolov8x, and the
+# training runs), which stay out of the build context. Docker cannot re-include
+# a file under an excluded directory, so each level is re-opened in turn.
+!models/mango_yolov8n-4
+models/*
+!models/mango_yolov8n-4/weights
+models/mango_yolov8n-4/weights/*
+!models/mango_yolov8n-4/weights/best.pt
+
 # Build and test artifacts
 dist
 build
