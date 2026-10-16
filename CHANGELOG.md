@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Nothing yet.
 
+## [0.2.0] - 2026-10-17
+
+TAPNext++ tracker release. Adds a point-enhanced fruit tracker to the
+pipeline and closes out the evaluation and ground-truth tooling work.
+
+### Added
+
+- TAPNext++ point-enhanced fruit tracker (`#56`), selectable from the pipeline
+  and reported alongside the existing trackers in the timing tables.
+- TAPNext row in the tracker and timing comparison tables, generated from the
+  downloaded checkpoint.
+- `load_ground_truth()` reads Labelme-format annotations, so externally
+  labelled videos can be evaluated without conversion.
+
+### Fixed
+
+- Docker runtime for the TAPNext++ finder.
+- Docker and Vercel deploy configuration for the web workspace (`#70`).
+- Docker actions bumped off the end-of-life Node 20 runtime.
+- `source-map-js` bumped to 1.2.2 for GHSA-68fv-2mgg-jv7q.
+- Ground-truth, evaluation, and plotting scripts updated for the TAPNext++
+  results and rebuilt annotation sets.
+
 ## [0.1.0] - 2026-09-28
 
 First tagged release. Covers the detection-to-evaluation pipeline, the web
@@ -56,5 +79,6 @@ client, and the repository infrastructure that grew alongside it.
   rather than a hardcoded `npx` version.
 - Two broken paths in `CONTRIBUTING.md` that failed on a clean clone.
 
-[Unreleased]: https://github.com/DerrickUnleashed/Mango/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/DerrickUnleashed/Mango/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/DerrickUnleashed/Mango/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/DerrickUnleashed/Mango/releases/tag/v0.1.0
