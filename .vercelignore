@@ -1,0 +1,72 @@
+# Vercel CLI upload exclusions.
+#
+# The CLI uploads the working directory and does not honour .gitignore, so
+# without this file the 3.7G models/ tree and the local SQLite/volume data
+# get shipped to Vercel. Git-connected builds already skip these via
+# .gitignore; this keeps `vercel deploy` from the CLI equivalent.
+
+# ML weights and checkpoints (~3.7G) — served by the API, never the frontend
+models
+*.pt
+*.pth
+*.onnx
+*.engine
+*.weights
+*.ckpt
+
+# Generated and local-only data
+data
+runs
+tmp
+temp
+uploads
+*.db
+*.db-shm
+*.db-wal
+*.sqlite3
+
+# Backend and ML source — the frontend image needs none of it
+apps/api
+ml
+scripts
+docker
+docs
+
+# Python env / noise
+.venv
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+*.egg-info
+coverage
+htmlcov
+
+# Build / test artifacts
+dist
+build
+**/*.tsbuildinfo
+playwright-report
+test-results
+
+# Vercel / CI / agent config
+.vercel
+.github
+.opencode
+.claude
+
+# Docs and local config
+*.md
+!README.md
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+*~

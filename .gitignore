@@ -116,3 +116,4 @@ temp/
 runs/
 .opencode/
 .vercel
+.env.local
