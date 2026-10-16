@@ -1,6 +1,6 @@
 [project]
 name = "orchardvision-ml"
-version = "0.1.0"
+version = "0.2.0"
 description = "ML pipeline for Visibility-Aware Self-Supervised Identity Learning"
 requires-python = ">=3.12"
 dependencies = [
