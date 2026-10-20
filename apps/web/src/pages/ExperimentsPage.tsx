@@ -398,6 +398,14 @@ function TrendChart({
       .filter((p) => p.tracker === tracker)
       .map((p) => `${x(p.index)},${y(p.value)}`)
       .join(' ')
+
+  const yGridLines = [0, 1, 2, 3, 4].map((i) => {
+    const frac = i / 4
+    const val = min + span * frac
+    const yy = y(val)
+    return { y: yy, val }
+  })
+
   return (
     <div className="clay-inset-sm rounded-lg p-4">
       <h3 className="text-sm font-medium text-surface-300">{metric.label}</h3>
@@ -407,6 +415,13 @@ function TrendChart({
         role="img"
         aria-label={`${metric.label} across runs`}
       >
+        <g stroke="#1e293b" strokeWidth={0.5} strokeDasharray="2,2">
+          {yGridLines.map((g) => (
+            <line key={g.val} x1={PAD} x2={WIDTH - PAD} y1={g.y} y2={g.y} />
+          ))}
+          <line x1={PAD} x2={PAD} y1={PAD} y2={HEIGHT - PAD} />
+          <line x1={PAD} x2={WIDTH - PAD} y1={HEIGHT - PAD} y2={HEIGHT - PAD} />
+        </g>
         <polyline
           points={series('mock')}
           fill="none"
@@ -430,6 +445,13 @@ function TrendChart({
             fill={p.tracker === 'mock' ? '#22d3ee' : '#fbbf24'}
           />
         ))}
+        <g fontSize={9} fill="#64748b" fontFamily="monospace">
+          {yGridLines.map((g) => (
+            <text key={g.val} x={PAD - 2} y={g.y + 3} textAnchor="end">
+              {g.val.toFixed(digits)}
+            </text>
+          ))}
+        </g>
       </svg>
       <p className="mt-2 text-[11px] text-surface-500">
         range {min.toFixed(digits)} – {max.toFixed(digits)} ·{' '}
