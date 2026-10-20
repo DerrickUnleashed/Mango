@@ -1674,7 +1674,7 @@ wheels = [
 
 [[package]]
 name = "orchardvision-api"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "apps/api" }
 dependencies = [
     { name = "alembic" },
@@ -1733,7 +1733,7 @@ dev = [
 
 [[package]]
 name = "orchardvision-ml"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "ml" }
 dependencies = [
     { name = "numpy" },
