@@ -49,12 +49,39 @@ This document captures all metrics tracked in the OrchardVision experiment harne
 
 ## Detection Metrics
 
+### YOLO Training Run Comparison (Validation Metrics at Best Epoch)
+
+| Run | Model | Best Epoch | Precision | Recall | mAP<sub>50</sub> | mAP<sub>50-95</sub> | Weights Size | Inference Latency (ms/frame) |
+|-----|-------|------------|-----------|--------|------------------|---------------------|--------------|------------------------------|
+| mango_yolov8n-4 | YOLOv8n | 49 | 0.946 | 0.975 | 0.985 | **0.827** | **6.2 MB** | **33.6** |
+| mango_yolov8m_exp-2 | YOLOv8m | 10 | 0.928 | 0.949 | 0.979 | 0.808 | 52 MB | 83.5 |
+| mango_yolov8m_exp-3 | YOLOv8m | 73 | 0.958 | 0.971 | 0.987 | 0.789 | 52 MB | 83.5 |
+| mango_yolov8x | YOLOv8x | 40 | 0.958 | 0.961 | 0.985 | 0.788 | 546 MB | 173.1 |
+
+### Key Detection Metrics Summary
+
 | Metric | Metric Value | Inference |
 |--------|-------------|-----------|
 | **Detector mAP<sub>50-95</sub> (YOLOv8n)** | 0.827 (best epoch 49) | Best of 4 runs. Highest mAP, fastest (33.6 ms), smallest weights (6.2 MB). Default for deployment. |
 | **Detector mAP<sub>50-95</sub> (YOLOv8m)** | 0.808 (ep 10), 0.789 (ep 73) | Larger model, slower (83.5 ms), larger weights (52 MB). No accuracy gain over YOLOv8n. |
 | **Detector mAP<sub>50-95</sub> (YOLOv8x)** | 0.788 (ep 40) | Slowest (173 ms), largest (546 MB). Lowest mAP. Not viable for real-time. |
+| **Precision (YOLOv8n)** | 0.946 | High precision = few false positives. Good for tracking (fewer spurious detections to associate). |
+| **Recall (YOLOv8n)** | 0.975 | High recall = misses few fruits. Critical for counting accuracy. |
+| **mAP<sub>50</sub> (YOLOv8n)** | 0.985 | Excellent at IoU=0.5. Detection boxes well-localized for tracking. |
+| **mAP<sub>50-95</sub> (YOLOv8n)** | 0.827 | Strong across all IoU thresholds. Robust localization quality. |
+| **Inference Latency (YOLOv8n)** | 33.6 ms/frame (640px) | Meets real-time requirement (>30 FPS). Headroom for 2× video FPS. |
+| **Inference Latency (YOLOv8m)** | 83.5 ms/frame | ~2.5× slower. Marginal precision gain (0.958 vs 0.946) not worth latency cost. |
+| **Inference Latency (YOLOv8x)** | 173.1 ms/frame | 5× slower. No mAP benefit. Eliminate from consideration. |
 | **Detection Confidence Threshold Sweep** | 0.25–0.75: identity metrics stable; track count collapses | Threshold trades recall for continuity. Identity metrics (IDF1, HOTA) insensitive in this range because tracker discards low-confidence detections internally. |
+
+### Training Configuration Notes
+
+| Aspect | Detail |
+|--------|--------|
+| **Training Data** | YOLOv8n & YOLOv8m (exp-2, exp-3): second, larger annotation set. YOLOv8x: first annotation set. |
+| **Epochs** | YOLOv8n: 50 epochs. YOLOv8m exp-2: 10 epochs. YOLOv8m exp-3: 93 epochs. YOLOv8x: 40 epochs (only final epoch logged). |
+| **Comparison Caveat** | Not a controlled ablation: mixes architecture, dataset, and schedule. Justifies deployment default, not intrinsic architecture accuracy. |
+| **Hardware (Inference)** | Apple M2 Max, 12 performance cores, 30-core GPU, 64 GB unified memory. Separate Windows workstation used for training (specs not logged). |
 
 ---
 
