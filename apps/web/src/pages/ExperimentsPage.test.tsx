@@ -71,8 +71,12 @@ describe('ExperimentsPage', () => {
     mocks.getExperiments.mockResolvedValue({ experiments: [mocks.completed], total: 1 })
     renderPage()
     expect(await screen.findByText('mock run')).toBeInTheDocument()
-    expect(screen.getByText('0.823')).toBeInTheDocument()
-    expect(screen.getByText('12.3')).toBeInTheDocument()
+    expect(
+      screen.getByText('0.823', { selector: 'dd.mt-0\\.5.font-mono.text-sm.text-surface-200' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('12.3', { selector: 'dd.mt-0\\.5.font-mono.text-sm.text-surface-200' }),
+    ).toBeInTheDocument()
   })
 
   it('starts a run with the selected tracker', async () => {
