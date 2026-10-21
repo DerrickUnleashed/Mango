@@ -68,7 +68,7 @@ class Settings(BaseSettings):
     default_tracker_match_threshold: float = 120.0
     default_tracker_buffer_frames: int = 30
     auto_create_tables: bool = True
-    yolo_weights_path: Path = ROOT_DIR / "models" / "mango_yolov8n-4" / "weights" / "best.pt"
+    yolo_weights_path: Path = ROOT_DIR / "models" / "mango_yolov8m_exp-3" / "weights" / "best.pt"
     tapnext_checkpoint_path: Path = ROOT_DIR / "models" / "tapnextpp_ckpt.pt"
 
     # Job queue (leave CELERY_BROKER_URL unset for the in-process background path)
