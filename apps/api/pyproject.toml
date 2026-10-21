@@ -1,6 +1,6 @@
 [project]
 name = "orchardvision-api"
-version = "0.1.0"
+version = "0.2.0"
 description = "FastAPI backend for OrchardVision fruit tracking platform"
 requires-python = ">=3.12"
 dependencies = [
@@ -16,6 +16,7 @@ dependencies = [
     "orchardvision-ml[tapnext]>=0.1.0",
     "alembic>=1.19.2",
     "celery[redis]>=5.6.3",
+    "certifi>=2026.10.19",
 ]
 
 [dependency-groups]

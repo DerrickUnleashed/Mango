@@ -8,7 +8,6 @@ const navItems = [
   { to: '/identities', label: 'Identities', icon: 'user' },
   { to: '/reidentification', label: 'Re-ID', icon: 'refresh' },
   { to: '/evaluation', label: 'Evaluation', icon: 'target' },
-  { to: '/experiments', label: 'Experiments', icon: 'flask' },
   { to: '/settings', label: 'Settings', icon: 'gear' },
 ]
 

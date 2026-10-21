@@ -170,7 +170,9 @@ describe('standalone pages', () => {
 
       expect(screen.getByRole('heading', { name: 'Evaluation' })).toBeInTheDocument()
       expect(await screen.findByText('mock run')).toBeInTheDocument()
-      expect(screen.getByText('0.823')).toBeInTheDocument()
+      expect(
+        screen.getByText('0.823', { selector: 'dd.mt-0\\.5.font-mono.text-sm.text-surface-200' }),
+      ).toBeInTheDocument()
     })
   })
 })

@@ -1,9 +1,10 @@
 [project]
 name = "orchardvision-ml"
-version = "0.1.0"
+version = "0.2.0"
 description = "ML pipeline for Visibility-Aware Self-Supervised Identity Learning"
 requires-python = ">=3.12"
 dependencies = [
+    "certifi>=2026.10.19",
     "numpy>=1.26",
     "opencv-python-headless>=4.10",
     "ultralytics>=8.0.0",

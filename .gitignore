@@ -115,3 +115,5 @@ temp/
 .uv-cache/
 runs/
 .opencode/
+.vercel
+.env.local
