@@ -1,6 +1,6 @@
 % =====================================================================
-% revised_research_paper.tex  --  single self-contained source file
-% Compile:  pdflatex revised_research_paper.tex  (run twice)
+% main.tex  --  single self-contained source file
+% Compile:  pdflatex main.tex  (run twice)
 % Needs:    ./figures/  (all assets referenced below are in that folder)
 % The bibliography is embedded (thebibliography), so no .bib file is needed.
 % Items that the source material does not contain are marked with
@@ -8,32 +8,93 @@
 % =====================================================================
 \documentclass[11pt,a4paper]{article}
 
+% ---- Page geometry: A4, portrait, 1-inch margins, single column ----
+\usepackage[margin=1in]{geometry}
+
+% ---- Times-style typography (pdfLaTeX fallback) ----
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{mathptmx}
-\usepackage[margin=2.5cm]{geometry}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+
+% ---- 1.5 line spacing throughout ----
+\usepackage{setspace}
+\onehalfspacing
+
+% ---- Paragraph formatting: 0.5in first-line indent, zero extra parskip ----
+\setlength{\parindent}{0.5in}
+\setlength{\parskip}{0pt}
+
+% ---- Supporting packages ----
 \usepackage{microtype}
-\usepackage{amsmath,amssymb}
+\usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{xcolor}
-\usepackage[font=small,labelfont=bf]{caption}
 \usepackage{enumitem}
 \usepackage{url}
 \usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
 
-\setlength{\parskip}{3pt}
-\setlist{itemsep=2pt,topsep=3pt}
+% ---- Captions: 11pt, bold label, centred; figure below / table above ----
+\usepackage[font=normalsize,labelfont=bf,justification=centering]{caption}
 \captionsetup[table]{position=top}
 \captionsetup[figure]{position=bottom}
+
+% ---- Section headings: numbered, uppercase, bold, 11pt, left-aligned ----
+\usepackage{titlesec}
+\titleformat{\section}
+  {\normalfont\normalsize\bfseries\uppercase}
+  {\thesection.}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries}
+  {\thesubsection}{1em}{}
+\titlespacing{\section}{0pt}{12pt}{6pt}
+\titlespacing{\subsection}{0pt}{10pt}{4pt}
+
+% ---- Page style: no headers, page number centred at bottom ----
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% ---- List, table and graphic settings ----
+\setlist{itemsep=2pt,topsep=3pt}
 \renewcommand{\arraystretch}{1.08}
 \graphicspath{{figures/}}
 
+% ---- Custom commands preserved from source ----
 \newcommand{\todo}[1]{\textcolor{red}{[#1]}}
 \newcommand{\IDF}{\mathrm{IDF1}}
 \newcommand{\IDSW}{\mathrm{IDSW}}
 \DeclareMathOperator{\cossim}{cos}
+
+% ---- Abstract: left-aligned bold uppercase heading, no first-line indent ----
+\renewenvironment{abstract}{%
+  \noindent\textbf{ABSTRACT}\par\vspace{0.5em}
+  \noindent\ignorespaces
+}{%
+  \par
+}
+
+% ---- Title block: 14pt bold centred title, 11pt centred authors/affiliation ----
+\makeatletter
+\renewcommand{\@maketitle}{%
+  \begin{center}
+    \parbox{\linewidth}{\centering\bfseries\fontsize{14}{17}\selectfont\@title}
+  \end{center}
+  \vspace{1em}
+  \begin{center}
+    \parbox{\linewidth}{\centering\normalsize\@author}
+  \end{center}
+  \vspace{1em}
+}
+\makeatother
+
+% ---- Bibliography heading in uppercase ----
+\renewcommand{\refname}{REFERENCES}
 
 \title{\bfseries Evaluating Detector--Tracker Pipelines for Double-Count Suppression in Mango Orchard Video:\\
 ByteTrack, Camera-Motion Compensation and a Prototype Re-Identification Memory}
@@ -49,7 +110,8 @@ Vellore Institute of Technology, Chennai}
 Counting fruit from orchard video requires deciding, for every detection, whether it belongs to a fruit that has already been counted. Detector-only counting reports the same fruit in every frame in which it is visible, and short-term trackers fragment identities when foliage hides a fruit for many frames. We present OrchardVision, an implemented system for mango tracking in video. It couples a YOLO detector, interchangeable tracker back-ends (a centre-distance baseline, ByteTrack and TAPNext), optional camera-motion compensation (CMC), and an identity memory that keeps a prototype embedding per fruit so that a reappearing track can be linked back to a lost identity. Every intermediate result (detections, tracks, prototypes, re-identification events, per-frame timings, camera-motion estimates) is stored in SQLite and exposed through a REST API and an experiment harness, so that a counting error can be traced to the stage that caused it. We evaluate the tracker back-ends on three short orchard videos against a \emph{provisional} reference that was generated automatically by the same detector and has not been confirmed by a human annotator; the identity metrics therefore measure consistency with that reference, not absolute counting accuracy. With ByteTrack, the predicted track count exceeded the reference on all three videos (absolute errors of 1, 11 and 3 on reference counts of 9, 7 and 14; $+50\%$ when pooled). The centre-distance baseline scored marginally higher than ByteTrack (IDF1 70.9 vs.\ 69.0; HOTA 75.9 vs.\ 73.0) with fewer identity switches (1.0 vs.\ 5.7), a difference that three videos cannot resolve statistically. CMC changed mean IDF1 and HOTA by $+0.3$ and $+0.6$ points while raising mean identity switches from 5.7 to 17.3. The identity memory is implemented but is not part of the evaluated loop, and the TAPNext results and the re-identification threshold sweep are unverified and are not interpreted; cross-session matching is future work.
 \end{abstract}
 
-\noindent\textbf{Keywords:} fruit counting; multi-object tracking; re-identification; camera-motion compensation; precision agriculture; mango orchard.
+\noindent\textbf{KEYWORDS:}\\
+fruit counting; multi-object tracking; re-identification; camera-motion compensation; precision agriculture; mango orchard.
 
 % =====================================================================
 \section{Introduction}\label{sec:intro}
@@ -98,7 +160,7 @@ Table~\ref{tab:novelty} separates what is established, where it falls short for 
 
 \begin{table}[t]
 \caption{Existing techniques, their limitations for orchard fruit, and the treatment in this paper.}\label{tab:novelty}
-\centering\footnotesize
+\centering\normalsize
 \begin{tabular}{p{2.6cm}p{3.8cm}p{4.2cm}p{3.6cm}}
 \toprule
 Established technique & Limitation for orchard video & Treatment in OrchardVision & Novelty status\\
@@ -206,7 +268,7 @@ Table~\ref{tab:videos} lists the three orchard videos. The table was flagged ``t
 
 \begin{table}[t]
 \caption{Evaluation videos. ``GT identities'' are machine-generated (Section~\ref{sec:gt}).}\label{tab:videos}
-\centering\small
+\centering\normalsize
 \begin{tabular}{lllrrrr}
 \toprule
 Video & Source file & Camera label$^{*}$ & Resolution & FPS & Frames & GT identities\\
@@ -234,7 +296,7 @@ The reference is machine-generated and has \emph{not} been confirmed by a human 
 
 \begin{table}[t]
 \caption{Construction of the provisional ground truth: raw association output and identities kept by the minimum-length rule.}\label{tab:gt}
-\centering\small
+\centering\normalsize
 \begin{tabular}{lrrrrr}
 \toprule
 Video & Raw ids & Kept & Dropped & Boxes & Max concurrent\\
@@ -259,7 +321,7 @@ Four detector training runs were logged by Ultralytics (Table~\ref{tab:detector}
 
 \begin{table}[t]
 \caption{Detector training runs. P, R and mAP are validation metrics at the best epoch; ``Best ep.'' is the best epoch within the run's total epochs. Latency is the median of ten forward passes of the exported weights at 640 pixels.}\label{tab:detector}
-\centering\small
+\centering\normalsize
 \begin{tabular}{lrrrrrrr}
 \toprule
 Run & Epochs & Best ep. & P & R & mAP$_{50}$ & mAP$_{50\text{-}95}$ & ms/frame\\
@@ -291,7 +353,7 @@ Table~\ref{tab:trackers} compares the three tracker back-ends against the provis
 
 \begin{table}[t]
 \caption{Tracker comparison, averaged over V1--V3, against the provisional full-rate ground truth. Count error is the source's mean absolute difference between predicted tracks and reference identities; its unit is unresolved (see Appendix~\ref{app:discrepancies}).}\label{tab:trackers}
-\centering\small
+\centering\normalsize
 \begin{tabular}{lrrrr}
 \toprule
 Tracker (role) & IDF1 & HOTA & ID switches & Count error\\
@@ -302,7 +364,7 @@ TAPNext (comparative)$^{\ddagger}$ & 0.88 & 0.89 & 3.2 & 0.55\\
 \bottomrule
 \end{tabular}\\[2pt]
 {\footnotesize $^{\ddagger}$Unverified. The source column headings say ``(\%)'', but the TAPNext IDF1 and HOTA are printed as 0.88 and 0.89 while the other rows use a 0--100 scale. Whether TAPNext is on a 0--1 scale, is a percentage, or is a different quantity is unconfirmed, so the row is neither converted nor compared with the others.}
-\end{table}\\[2pt]
+\end{table}
 
 \begin{figure}[t]
 \centering
@@ -327,7 +389,7 @@ Table~\ref{tab:cmc} and Figure~\ref{fig:cmc} report the aggregate effect of comp
 
 \begin{table}[t]
 \caption{Effect of compensating camera motion, averaged over V1--V3. The shift of each frame is the median displacement of its detection centres; boxes are moved into stabilised coordinates before tracking and back before storage.}\label{tab:cmc}
-\centering\small
+\centering\normalsize
 \begin{tabular}{lrrr}
 \toprule
 Camera-motion mode & IDF1 (\%) & HOTA (\%) & ID switches\\
@@ -352,7 +414,7 @@ Table~\ref{tab:count} compares the ByteTrack track count with the reference iden
 
 \begin{table}[t]
 \caption{Count accuracy for ByteTrack against the provisional ground truth (retained identities, Table~\ref{tab:gt}); Eq.~(\ref{eq:counterr}).}\label{tab:count}
-\centering\small
+\centering\normalsize
 \begin{tabular}{lrrrr}
 \toprule
 Video & GT identities & Predicted tracks & Absolute error & Error (\%)\\
@@ -388,7 +450,7 @@ Table~\ref{tab:runtime} summarises per-frame processing time over V1--V3. The ti
 
 \begin{table}[t]
 \caption{Processing time per frame, averaged over V1--V3, on the machine of Section~\ref{sec:setup}.}\label{tab:runtime}
-\centering\small
+\centering\normalsize
 \begin{tabular}{lrrr}
 \toprule
 Tracker & Mean (ms/frame) & 95th pct (ms) & Throughput (FPS)\\
@@ -435,7 +497,7 @@ Only quantities that follow from numbers printed in the source are analysed. The
 
 \begin{table}[t]
 \caption{Descriptive statistics of ByteTrack over the three videos (sample SD, $n=3$) and 95\% $t$-intervals for the mean ($t_{0.975,2}=4.303$).}\label{tab:desc}
-\centering\small
+\centering\normalsize
 \begin{tabular}{lrrrrr}
 \toprule
 Metric & Mean & SD & Min--max & 95\% interval for mean & Possible range\\
@@ -464,7 +526,7 @@ Table~\ref{tab:ablation} lists every component or configuration that the method 
 
 \begin{table}[t]
 \caption{Ablation configurations: what exists and what must be run. ``Not run'' rows contain no results by design.}\label{tab:ablation}
-\centering\footnotesize
+\centering\normalsize
 \begin{tabular}{p{3.0cm}p{4.0cm}p{3.1cm}p{3.6cm}}
 \toprule
 Component & Configurations to compare & Metrics & Status\\
@@ -498,7 +560,7 @@ Figure~\ref{fig:hyp} states the mechanism that motivates the identity memory and
 
 \begin{table}[t]
 \caption{Hypotheses and their status on this evidence.}\label{tab:hyp}
-\centering\footnotesize
+\centering\normalsize
 \begin{tabular}{p{0.5cm}p{4.8cm}p{2.2cm}p{5.2cm}}
 \toprule
 ID & Hypothesis & Status & Evidence\\
@@ -550,7 +612,7 @@ The source report contains a populated ReID-threshold table whose caption descri
 
 \begin{table}[t]
 \caption{Unresolved; provenance unconfirmed. ReID-threshold values as printed in the source report (averaged over V1--V3). Do not cite as a result.}\label{tab:reid}
-\centering\small
+\centering\normalsize
 \begin{tabular}{rrrr}
 \toprule
 ReID threshold & Identities found & IDF1 & ID switches\\
@@ -574,7 +636,7 @@ ReID threshold & Identities found & IDF1 & ID switches\\
 
 \begin{table}[t]
 \caption{Discrepancies in the source material and their treatment.}\label{tab:disc}
-\centering\footnotesize
+\centering\normalsize
 \begin{tabular}{p{4.2cm}p{5.2cm}p{4.5cm}}
 \toprule
 Item & Observation & Treatment\\
@@ -593,7 +655,8 @@ CMC per-video statement (``9 to 36'' on V1) & Contradicts V1 switch count of 2 i
 \end{table}
 
 % =====================================================================
-\begin{thebibliography}{99}\small
+\clearpage
+\begin{thebibliography}{99}
 \bibitem{aharon2022botsort} N.~Aharon, R.~Orfaig, and B.-Z. Bobrovsky. BoT-SORT: Robust associations multi-pedestrian tracking. \emph{arXiv preprint arXiv:2206.14651}, 2022.
 \bibitem{bargoti2017deep} S.~Bargoti and J.~Underwood. Deep fruit detection in orchards. In \emph{Proc.\ IEEE Int.\ Conf.\ Robotics and Automation (ICRA)}, pages 3626--3633. IEEE, 2017.
 \bibitem{bayer2012sqlalchemy} M.~Bayer. SQLAlchemy. In A.~Brown and G.~Wilson, editors, \emph{The Architecture of Open Source Applications, Volume II}. aosabook.org, 2012.
