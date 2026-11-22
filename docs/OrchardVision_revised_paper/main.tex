@@ -302,7 +302,14 @@ TAPNext (comparative)$^{\ddagger}$ & 0.88 & 0.89 & 3.2 & 0.55\\
 \bottomrule
 \end{tabular}\\[2pt]
 {\footnotesize $^{\ddagger}$Unverified. The source column headings say ``(\%)'', but the TAPNext IDF1 and HOTA are printed as 0.88 and 0.89 while the other rows use a 0--100 scale. Whether TAPNext is on a 0--1 scale, is a percentage, or is a different quantity is unconfirmed, so the row is neither converted nor compared with the others.}
-\end{table}
+\end{table}\\[2pt]
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{tracker_comparison.png}
+\caption{Tracker comparison visualization across three orchard videos. Bars show IDF1, HOTA and identity switches for centre-distance baseline and ByteTrack per video (V1--V3).}
+\label{fig:tracker_comparison}
+\end{figure}
 
 On ByteTrack, the per-video values reproduce the table averages exactly: IDF1 96.97, 22.56 and 87.43; HOTA 96.93, 33.25 and 88.87; and 2, 6 and 9 identity switches on V1, V2 and V3 (means 68.99, 73.02 and 5.67). For the centre-distance baseline only the average and the per-video switch counts (1, 0 and 2) are available in the source.
 
