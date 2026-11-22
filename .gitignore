@@ -117,3 +117,4 @@ runs/
 .opencode/
 .vercel
 .env.local
+commit.sh
