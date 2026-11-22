@@ -132,7 +132,7 @@ def _track_to_identity_map(db: Session, video_id: str) -> dict[int, int]:
         )
         .distinct()
     ).all()
-    return {track_id: identity_id for track_id, identity_id in rows}
+    return {int(track_id): identity_id for track_id, identity_id in rows if track_id is not None}
 
 
 @router.get("/{video_id}/tracks", response_model=MultiTrackResponse)
