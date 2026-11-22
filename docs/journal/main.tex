@@ -1,6 +1,7 @@
+% !TeX program = xelatex
 % =====================================================================
 % main.tex  --  single self-contained source file
-% Compile:  pdflatex main.tex  (run twice)
+% Compile:  xelatex main.tex  (run twice)
 % Needs:    ./figures/  (all assets referenced below are in that folder)
 % The bibliography is embedded (thebibliography), so no .bib file is needed.
 % Items that the source material does not contain are marked with
@@ -11,15 +12,15 @@
 % ---- Page geometry: A4, portrait, 1-inch margins, single column ----
 \usepackage[margin=1in]{geometry}
 
-% ---- Times-style typography (pdfLaTeX fallback) ----
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{newtxtext}
-\usepackage{newtxmath}
+% ---- Actual Times New Roman typography (XeLaTeX + fontspec) ----
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{unicode-math}
+\setmathfont{STIX Two Math}
 
-% ---- 1.5 line spacing throughout ----
+% ---- Single line spacing throughout ----
 \usepackage{setspace}
-\onehalfspacing
+\singlespacing
 
 % ---- Paragraph formatting: 0.5in first-line indent, zero extra parskip ----
 \setlength{\parindent}{0.5in}
@@ -35,6 +36,7 @@
 \usepackage{enumitem}
 \usepackage{url}
 \usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\urlstyle{same}
 
 % ---- Captions: 11pt, bold label, centred; figure below / table above ----
 \usepackage[font=normalsize,labelfont=bf,justification=centering]{caption}
@@ -47,10 +49,10 @@
   {\normalfont\normalsize\bfseries\uppercase}
   {\thesection.}{1em}{}
 \titleformat{\subsection}
-  {\normalfont\normalsize\bfseries}
+  {\normalfont\normalsize\bfseries\uppercase}
   {\thesubsection}{1em}{}
 \titlespacing{\section}{0pt}{12pt}{6pt}
-\titlespacing{\subsection}{0pt}{10pt}{4pt}
+\titlespacing{\subsection}{0pt}{8pt}{2pt}
 
 % ---- Page style: no headers, page number centred at bottom ----
 \usepackage{fancyhdr}
@@ -73,8 +75,8 @@
 
 % ---- Abstract: left-aligned bold uppercase heading, no first-line indent ----
 \renewenvironment{abstract}{%
-  \noindent\textbf{ABSTRACT}\par\vspace{0.5em}
-  \noindent\ignorespaces
+  \noindent\textbf{ABSTRACT}\par
+  \ignorespaces
 }{%
   \par
 }
@@ -85,11 +87,11 @@
   \begin{center}
     \parbox{\linewidth}{\centering\bfseries\fontsize{14}{17}\selectfont\@title}
   \end{center}
-  \vspace{1em}
+  \vspace{0.5em}
   \begin{center}
     \parbox{\linewidth}{\centering\normalsize\@author}
   \end{center}
-  \vspace{1em}
+  \vspace{0.5em}
 }
 \makeatother
 
@@ -188,7 +190,7 @@ Figure~\ref{fig:pipeline} gives the architecture. Stages 1--4 form the loop scor
 \includegraphics[width=\textwidth]{fig01_pipeline.png}
 \caption{OrchardVision processing pipeline. Blue: stages scored by the offline evaluation. Orange (dashed): implemented stages that are not part of the evaluated loop. Parameter values are the defaults of Section~\ref{sec:methods}.}\label{fig:pipeline}
 \end{figure}
-\noindent Figure~\ref{fig:pipeline} makes the evidence boundary of this paper explicit: results in Section~\ref{sec:results} concern only the upper (blue) row. The embedder and identity memory below it affect no reported number. This diagram replaces the earlier version, whose boxes described operator steps (start services, upload, inspect, clean up) rather than data flow.
+Figure~\ref{fig:pipeline} makes the evidence boundary of this paper explicit: results in Section~\ref{sec:results} concern only the upper (blue) row. The embedder and identity memory below it affect no reported number. This diagram replaces the earlier version, whose boxes described operator steps (start services, upload, inspect, clean up) rather than data flow.
 
 Each method below is described in the same order: overview, architecture and implementation, formulation, configuration, results (pointing to Section~\ref{sec:results}) and analysis. Methods are labelled as baseline, comparative or proposed.
 
@@ -286,7 +288,7 @@ V3 & Test3 & static & $768\times432$ & 24 & 337 & 14\\
 \includegraphics[width=.8\textwidth]{fig03_sample_frames.png}
 \caption{Sample frames with detector output: (a) V1, good visibility; (b) V2, heavy leaf occlusion; (c) V3, strong sunlight and shadow.}\label{fig:frames}
 \end{figure}
-\noindent Figure~\ref{fig:frames} shows the three recording conditions. The detections carry confidences of roughly 0.7--0.9 on the displayed frames, with the lowest values on the heavily occluded V2 frame, in line with the use of confidence as an occlusion cue in Eq.~(\ref{eq:conf}).
+Figure~\ref{fig:frames} shows the three recording conditions. The detections carry confidences of roughly 0.7--0.9 on the displayed frames, with the lowest values on the heavily occluded V2 frame, in line with the use of confidence as an occlusion cue in Eq.~(\ref{eq:conf}).
 
 \subsection{Hardware and software}
 Tracking and runtime measurements were taken on one machine: Apple M2 Max (12-core CPU, 30-core GPU), 64~GB unified memory, macOS (Darwin 24, arm64), Python 3.12, PyTorch 2.14, Ultralytics 8.4. The detector training runs of Table~\ref{tab:detector} were executed on a separate Windows workstation whose specification was not logged.
@@ -339,14 +341,14 @@ mango\_yolov8x & 40 & 40 & 0.958 & 0.961 & 0.985 & 0.788 & 173.1\\
 \includegraphics[width=.62\textwidth]{fig04_detector_tradeoff.pdf}
 \caption{Validation mAP$_{50\text{-}95}$ against exported-weight latency for the four runs of Table~\ref{tab:detector}. Runs differ in dataset and schedule, so the plot is descriptive, not a controlled comparison.}\label{fig:detector}
 \end{figure}
-\noindent Figure~\ref{fig:detector} shows that YOLOv8n sits at the favourable corner (highest mAP$_{50\text{-}95}$, lowest latency), whereas latency grows roughly five-fold to YOLOv8x without a higher validation score. Because of the confounds above, this supports the choice of a small detector for a video pipeline, not a statement about model capacity.
+Figure~\ref{fig:detector} shows that YOLOv8n sits at the favourable corner (highest mAP$_{50\text{-}95}$, lowest latency), whereas latency grows roughly five-fold to YOLOv8x without a higher validation score. Because of the confounds above, this supports the choice of a small detector for a video pipeline, not a statement about model capacity.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=.8\textwidth]{fig05_detector_curves.png}
 \caption{Validation mAP$_{50\text{-}95}$ per epoch for the two longest detector runs (original training log plot).}\label{fig:curves}
 \end{figure}
-\noindent Figure~\ref{fig:curves} shows that both runs rise steeply in the first ten or so epochs and then change slowly; the YOLOv8n run (best 0.827) keeps improving slightly until its final epochs, while the YOLOv8m run (best 0.789 at epoch 73) is nearly flat after epoch 30.
+Figure~\ref{fig:curves} shows that both runs rise steeply in the first ten or so epochs and then change slowly; the YOLOv8n run (best 0.827) keeps improving slightly until its final epochs, while the YOLOv8m run (best 0.789 at epoch 73) is nearly flat after epoch 30.
 
 \subsection{M2 and M3 (and M4): tracker comparison}\label{sec:res-trk}
 Table~\ref{tab:trackers} compares the three tracker back-ends against the provisional ground truth, and Figure~\ref{fig:stats} gives the per-video values behind the averages for ByteTrack.
@@ -380,7 +382,7 @@ On ByteTrack, the per-video values reproduce the table averages exactly: IDF1 96
 \includegraphics[width=\textwidth]{fig06_tracker_pervideo_stats.pdf}
 \caption{Per-video tracker scores against the provisional reference. Left and centre: ByteTrack IDF1 and HOTA per video (dots), ByteTrack mean (solid line) and centre-distance mean from Table~\ref{tab:trackers} (dashed line; per-video baseline values are not available). Right: identity switches per video for both trackers, paired by video.}\label{fig:stats}
 \end{figure}
-\noindent Figure~\ref{fig:stats} shows that the averages hide a very uneven distribution. ByteTrack scores above 87 on V1 and V3 but only 22.6 (IDF1) and 33.3 (HOTA) on V2, the shortest and most occluded clip, and its identity switches rise from 2 to 9 across V1--V3. The baseline records fewer switches than ByteTrack on every video (1, 0, 2 against 2, 6, 9). The near-equality of the two averages therefore says little about any single scene; Section~\ref{sec:stats} quantifies how little three videos can say.
+Figure~\ref{fig:stats} shows that the averages hide a very uneven distribution. ByteTrack scores above 87 on V1 and V3 but only 22.6 (IDF1) and 33.3 (HOTA) on V2, the shortest and most occluded clip, and its identity switches rise from 2 to 9 across V1--V3. The baseline records fewer switches than ByteTrack on every video (1, 0, 2 against 2, 6, 9). The near-equality of the two averages therefore says little about any single scene; Section~\ref{sec:stats} quantifies how little three videos can say.
 
 \paragraph{Analysis.} On this reference, the centre-distance baseline scored slightly higher (IDF1 70.9 vs.\ 69.0, HOTA 75.9 vs.\ 73.0) with fewer identity switches (1.0 vs.\ 5.7). The gaps are a few points from three videos, with no variance estimate and with a reference built by the same detector, so we do not conclude that either tracker is better; the data show no benefit of ByteTrack over simple association here. The TAPNext row supports no conclusion.
 
@@ -407,7 +409,7 @@ Difference (on $-$ off) & $+0.3$ & $+0.6$ & $+11.6$\\
 \includegraphics[width=.92\textwidth]{fig07_cmc_ablation.pdf}
 \caption{Camera-motion compensation ablation (aggregate means over V1--V3, from Table~\ref{tab:cmc}). Left: IDF1 and HOTA. Right: mean identity switches (lower is better). Bars start at zero.}\label{fig:cmc}
 \end{figure}
-\noindent Figure~\ref{fig:cmc} shows two nearly equal pairs of association-quality bars next to a threefold increase in mean identity switches. The identity-quality metrics are essentially unchanged and the switch count is higher. We draw no causal conclusion about why: the source's per-video statement on this point is self-contradictory and per-video values are not reported (\todo{per-video CMC on/off values needed}). The source reports a median global shift of 0.3~px on V1 and 4.5~px on V2, yet labels all three videos ``static'', which is a further inconsistency.
+Figure~\ref{fig:cmc} shows two nearly equal pairs of association-quality bars next to a threefold increase in mean identity switches. The identity-quality metrics are essentially unchanged and the switch count is higher. We draw no causal conclusion about why: the source's per-video statement on this point is self-contradictory and per-video values are not reported (\todo{per-video CMC on/off values needed}). The source reports a median global shift of 0.3~px on V1 and 4.5~px on V2, yet labels all three videos ``static'', which is a further inconsistency.
 
 \subsection{M3: counting accuracy}\label{sec:res-count}
 Table~\ref{tab:count} compares the ByteTrack track count with the reference identity count.
@@ -433,7 +435,7 @@ Mean / pooled & 10.0 / 30 & 15.0 / 45 & 5.0 / 15 & 63.2 / 50.0\\
 \includegraphics[width=.65\textwidth]{fig08_counting.pdf}
 \caption{Reference identities and ByteTrack tracks per video; annotations give the signed error and relative error of Table~\ref{tab:count}.}\label{fig:count}
 \end{figure}
-\noindent Figure~\ref{fig:count} shows over-counting on every video, by 1, 11 and 3 tracks, and a pooled excess of 15 tracks on 30 reference identities. V2 is the hard case: ByteTrack produced more than twice as many tracks as there are reference identities. The source reports that the median track lasts 377 frames on V1 but 37 frames on V2, a clip of only 141 frames, and that V2 has a larger global camera shift (median 4.5~px against 0.3~px on V1; 95th percentile 44.7~px). These figures are consistent with fragmented tracks on V2, but our evidence does not separate camera motion from other causes. Two caveats apply to all rows: the reference is machine-generated (Section~\ref{sec:gt}), and the source does not state whether the predicted count applies a minimum-length filter comparable to the one that built the reference. If it does not, part of the excess may reflect the filter rather than tracker fragmentation.
+Figure~\ref{fig:count} shows over-counting on every video, by 1, 11 and 3 tracks, and a pooled excess of 15 tracks on 30 reference identities. V2 is the hard case: ByteTrack produced more than twice as many tracks as there are reference identities. The source reports that the median track lasts 377 frames on V1 but 37 frames on V2, a clip of only 141 frames, and that V2 has a larger global camera shift (median 4.5~px against 0.3~px on V1; 95th percentile 44.7~px). These figures are consistent with fragmented tracks on V2, but our evidence does not separate camera motion from other causes. Two caveats apply to all rows: the reference is machine-generated (Section~\ref{sec:gt}), and the source does not state whether the predicted count applies a minimum-length filter comparable to the one that built the reference. If it does not, part of the excess may reflect the filter rather than tracker fragmentation.
 
 \subsection{M1 and M3: sensitivity to the detection threshold}\label{sec:res-thr}
 The detection-confidence threshold is the one threshold the offline harness can sweep end to end. Each video was re-run with ByteTrack at three thresholds between 0.25 and 0.75 (Figure~\ref{fig:thr}). The source reports that identity metrics are not measurably affected, while the predicted track count falls sharply as low-confidence detections are removed; it attributes the insensitivity of the metrics to ByteTrack's own high-confidence threshold. We report this as an observation from the source and have not independently verified the mechanism. A numeric table of this sweep is not available. \todo{Per-threshold table needed.}
@@ -443,7 +445,7 @@ The detection-confidence threshold is the one threshold the offline harness can 
 \includegraphics[width=\textwidth]{fig09_threshold_sweep.png}
 \caption{Predicted track count (left) and count MAE (right) against the detection-confidence threshold on V1--V3 (original harness output; its legend uses the same colour for several curves).}\label{fig:thr}
 \end{figure}
-\noindent In Figure~\ref{fig:thr} the predicted track counts decrease as the threshold rises, from between about 10 and 25 tracks at 0.25 to between about 3 and 11 at 0.75. The count MAE curves are lowest at the low and middle thresholds and rise sharply between 0.5 and 0.75 for the curves visible there. Because the reference counts are 7--14, a track count near 3 at the highest threshold can only be an under-count, so a high threshold buys fewer duplicates at the price of missed fruit. The legend of the original plot does not distinguish all curves, so we do not attribute individual curves to trackers.
+In Figure~\ref{fig:thr} the predicted track counts decrease as the threshold rises, from between about 10 and 25 tracks at 0.25 to between about 3 and 11 at 0.75. The count MAE curves are lowest at the low and middle thresholds and rise sharply between 0.5 and 0.75 for the curves visible there. Because the reference counts are 7--14, a track count near 3 at the highest threshold can only be an under-count, so a high threshold buys fewer duplicates at the price of missed fruit. The legend of the original plot does not distinguish all curves, so we do not attribute individual curves to trackers.
 
 \subsection{Runtime}\label{sec:res-time}
 Table~\ref{tab:runtime} summarises per-frame processing time over V1--V3. The time covers detection and tracking and excludes frame decoding; embedding extraction and identity matching are not included.
@@ -468,14 +470,14 @@ TAPNext$^{\ddagger}$ & 600.0 & 700.0 & 1.67\\
 \includegraphics[width=.65\textwidth]{fig10_runtime.pdf}
 \caption{Mean per-frame time (bars; horizontal ticks mark the 95th percentile) from Table~\ref{tab:runtime}, log scale. Dashed lines mark the frame-time budgets of the 24 and 29.9~FPS evaluation videos. The TAPNext bar is hatched because the values are unverified.}\label{fig:runtime}
 \end{figure}
-\noindent Figure~\ref{fig:runtime} shows that the centre-distance and ByteTrack back-ends sit below the frame-time budgets of the evaluation videos, at about 39 frames per second on this machine, while the unverified TAPNext figures are more than an order of magnitude above them. The cost of the embedder and identity memory is not measured.
+Figure~\ref{fig:runtime} shows that the centre-distance and ByteTrack back-ends sit below the frame-time budgets of the evaluation videos, at about 39 frames per second on this machine, while the unverified TAPNext figures are more than an order of magnitude above them. The cost of the embedder and identity memory is not measured.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=.85\textwidth]{fig11_frame_time_trace.png}
 \caption{Per-frame detection and tracking time over the three evaluation videos (original harness output).}\label{fig:trace}
 \end{figure}
-\noindent Figure~\ref{fig:trace} shows an isolated start-up spike above 700~ms on the first frame, after which the time per frame is roughly steady near the tabulated mean with occasional short peaks.
+Figure~\ref{fig:trace} shows an isolated start-up spike above 700~ms on the first frame, after which the time per frame is roughly steady near the tabulated mean with occasional short peaks.
 
 \subsection{Discussion}
 We restrict interpretation to results that the provisional ground truth and the tabulated numbers can support.
@@ -556,7 +558,7 @@ Figure~\ref{fig:hyp} states the mechanism that motivates the identity memory and
 \includegraphics[width=\textwidth]{fig02_hypothesis.png}
 \caption{Research hypothesis. Top: baseline mechanism by which occlusion causes fragmentation and over-counting. Middle: hypothesised effect of the identity memory (H1, not evaluated) and the trade-off controlled by $\tau_{\mathrm{reid}}$. Bottom: status of H1--H3 on the provisional reference.}\label{fig:hyp}
 \end{figure}
-\noindent Figure~\ref{fig:hyp} reads from the observed failure (over-counting by fragmentation, Section~\ref{sec:res-count}) to the mechanism proposed against it (re-linking by appearance and motion) and the error it can introduce (false links that merge two fruit). It is a statement of expectation, not of result. Table~\ref{tab:hyp} records how each hypothesis fared.
+Figure~\ref{fig:hyp} reads from the observed failure (over-counting by fragmentation, Section~\ref{sec:res-count}) to the mechanism proposed against it (re-linking by appearance and motion) and the error it can introduce (false links that merge two fruit). It is a statement of expectation, not of result. Table~\ref{tab:hyp} records how each hypothesis fared.
 
 \begin{table}[t]
 \caption{Hypotheses and their status on this evidence.}\label{tab:hyp}
@@ -630,7 +632,7 @@ ReID threshold & Identities found & IDF1 & ID switches\\
 \includegraphics[width=.6\textwidth]{fig12_identity_pca.png}
 \caption{Two-dimensional PCA projection of identity prototypes (unresolved; not interpreted). The plot title reads ``V3 Test3.mp4 (13 identities)'', whereas the earlier caption attributed it to V2.}\label{fig:pca}
 \end{figure}
-\noindent Figure~\ref{fig:pca} is shown only for completeness. We make no claim about how well identity prototypes separate, because that depends on which embedder was used and on whether the plotted run is the one stated. The source's illustrative re-identification example refers to a video labelled V4, which is not in the evaluation set (Table~\ref{tab:videos}), and is omitted.
+Figure~\ref{fig:pca} is shown only for completeness. We make no claim about how well identity prototypes separate, because that depends on which embedder was used and on whether the plotted run is the one stated. The source's illustrative re-identification example refers to a video labelled V4, which is not in the evaluation set (Table~\ref{tab:videos}), and is omitted.
 
 \section{Source Discrepancies and How They Were Handled}\label{app:discrepancies}
 
