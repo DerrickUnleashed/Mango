@@ -42,6 +42,7 @@ packages = ["app"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 # Scoped to this one message rather than ignoring ResourceWarning wholesale,
 # so a real unclosed file or socket would still be reported.
